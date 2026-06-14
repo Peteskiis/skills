@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 """Deterministic publish checker for the news agent's story file.
 
-This is the SINGLE SOURCE OF TRUTH for "is this story publishable". It runs
-two ways, byte-identically:
-  1. seeded into the run's VM and invoked by the agent's `shell` tool loop
-     (`python3 check_story.py --sources N story.md`), and
-  2. re-executed by `submit_story` as the publish gate, piped via stdin
-     (`python3 - --sources N story.md <<'CHECKER_EOF' ... CHECKER_EOF`).
+This is the SINGLE SOURCE OF TRUTH for "is this story publishable". It is baked
+into the workspace VM template at /mnt/skills/news-writing/scripts/ (cloned from
+this repo at template build) and invoked BY PATH two ways, identically:
+  1. the news-vm agent runs it in its draft loop via the `shell` tool
+     (`python3 .../check_story.py --sources N /workspace/story.md`), and
+  2. `submit_story` re-runs it as the publish gate before shipping the file —
+     in that mode this script is the SOLE gate (the in-Rust H1/citation guards
+     are skipped), so test_check_story.py pins these invariants. Run it after
+     any edit: `python3 test_check_story.py`.
 
-Constraints that keep both invocation shapes working (enforced by
-tests/check_story_fixtures.rs):
-  - stdlib only (sys, re, argparse) — the `development` VM template installs
-    python3 but no pip packages.
-  - no `__file__` dependence — must run when the source arrives on stdin.
-  - NO line in this file may equal `CHECKER_EOF` (it terminates the M3
-    heredoc) and NO line may start with `*** ` (it would corrupt the codex
-    `*** Add File` seed envelope).
-
-Exit codes: 0 = publishable; 1 = one or more problems (printed one per line
-to stdout); 2 = usage / file-not-found / not-UTF-8 (reason printed to stderr).
+Constraints:
+  - stdlib only (sys, re, argparse) — the VM template installs python3 but no
+    pip packages.
+  - exit codes ARE the contract: 0 = publishable; 1 = one or more problems
+    (printed one per line to stdout); 2 = usage / file-not-found / not-UTF-8
+    (reason printed to stderr).
 """
 
 import argparse
