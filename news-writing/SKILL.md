@@ -156,7 +156,7 @@ yourself and fix every problem before you publish.
    re-run. Repeat until it exits 0.
 4. The word count excludes `[N]` citation markers — the checker strips them
    before counting, so aim for 300–500 words of prose.
-5. Only publish once the checker exits 0. Then emit the final
-   `/workspace/story.md` contents verbatim as your message and call
-   `submit_story` once — the runtime captures that streamed text as the article
-   body.
+5. Only publish once the checker exits 0. Then call `submit_story` once with the
+   metadata — it reads the article body straight from `/workspace/story.md` and
+   re-runs this same checker as the publish gate, so you never paste the article
+   into chat or pass the body as an argument.
