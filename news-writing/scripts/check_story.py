@@ -7,9 +7,9 @@ this repo at template build) and invoked BY PATH two ways, identically:
   1. the news-vm agent runs it in its draft loop via the `shell` tool
      (`python3 .../check_story.py --sources N /workspace/story.md`), and
   2. `submit_story` re-runs it as the publish gate before shipping the file —
-     in that mode this script is the SOLE gate (the in-Rust H1/citation guards
-     are skipped), so test_check_story.py pins these invariants. Run it after
-     any edit: `python3 test_check_story.py`.
+     the service also carries source/citation-count guards so stale VM checker
+     copies cannot publish under-sourced stories. test_check_story.py pins
+     these invariants. Run it after any edit: `python3 test_check_story.py`.
 
 Constraints:
   - stdlib only (sys, re, argparse) — the VM template installs python3 but no
@@ -53,6 +53,7 @@ AS_AN_AI = re.compile(
 
 WORD_RANGE = (300, 500)
 H2_RANGE = (2, 4)
+MIN_SOURCES = 5
 
 # A "Sources:"/"References:" footer line, optionally bold/heading-wrapped.
 SOURCES_FOOTER = re.compile(
@@ -73,24 +74,26 @@ def strip_citations(text):
     return re.sub(r"\[\d+\](?!\()", " ", text)
 
 
-def parse_citations(text, source_count):
-    """Return the sorted, deduped list of out-of-range citation indices.
+def citation_indices(text):
+    """Return every `[N]` citation index in first-seen order.
 
     Mirrors crates/managed-agents/src/citations.rs::parse exactly: scan for
-    `[`, consume ASCII digits, require `]`; if that `]` is immediately followed
-    by `(` it is a markdown link, not a citation (skip). An index `n` is
-    invalid when `n >= source_count`. The golden-fixture agreement test pins
-    this against the Rust parser in lockstep.
+    `[`, consume ASCII digits, require `]`; if that `]` is immediately
+    followed by `(` it is a markdown link, not a citation (skip). The
+    golden-fixture agreement test pins this against the Rust parser in lockstep.
     """
-    invalid = set()
+    indices = []
     for m in CITATION.finditer(text):
         end = m.end()
         if end < len(text) and text[end] == "(":
             continue  # `[2024](url)` — a markdown link, not a citation.
-        n = int(m.group(1))
-        if n >= source_count:
-            invalid.add(n)
-    return sorted(invalid)
+        indices.append(int(m.group(1)))
+    return indices
+
+
+def parse_citations(text, source_count):
+    """Return the sorted, deduped list of out-of-range citation indices."""
+    return sorted({n for n in citation_indices(text) if n >= source_count})
 
 
 def leading_hashes(line):
@@ -144,27 +147,36 @@ def check(text, source_count):
         problems.append(f"citation(s) out of range (sources: {source_count}, "
                         f"valid 0..{source_count - 1}): {rendered}")
 
-    # 6. No markdown links.
+    # 6. At least MIN_SOURCES submitted sources and distinct cited sources.
+    if source_count < MIN_SOURCES:
+        problems.append(f"{source_count} sources — need at least {MIN_SOURCES}")
+
+    distinct_valid = {n for n in citation_indices(text) if n < source_count}
+    if len(distinct_valid) < MIN_SOURCES:
+        problems.append(f"{len(distinct_valid)} distinct cited source(s) — "
+                        f"need at least {MIN_SOURCES}")
+
+    # 7. No markdown links.
     if "](" in text:
         problems.append("markdown link found (`](`) — the body carries no "
                         "links; source grounding goes through `[N]` markers")
 
-    # 7. No raw URLs.
+    # 8. No raw URLs.
     if URL.search(text):
         problems.append("raw URL found (`http://`/`https://`) — never put URLs "
                         "in the body; cite via `[N]` markers only")
 
-    # 8. No images.
+    # 9. No images.
     if "![" in text:
         problems.append("image markdown found (`![`) — the hero renders from "
                         "the Story row; no images in the body")
 
-    # 9. No Sources/References footer.
+    # 10. No Sources/References footer.
     if any(SOURCES_FOOTER.match(ln) for ln in lines):
         problems.append("a `Sources:`/`References:` footer is forbidden — "
                         "citations are `[N]` markers only")
 
-    # 10. No meta-commentary.
+    # 11. No meta-commentary.
     lowered = text.lower()
     for phrase in META_COMMENTARY:
         if phrase in lowered:

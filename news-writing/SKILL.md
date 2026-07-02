@@ -13,6 +13,7 @@ checker (see "How to verify your draft") before calling `submit_story`.
 
 300–500 words across 2–4 H2 sections (most posts settle at 2 or 3 sections).
 Inline citation markers wherever you cite a number, quote, or specific claim.
+Every story must cite at least 5 distinct source URLs.
 
 Hard requirements:
 - **NO H1 in the body.** The article title lives on the Story row and is
@@ -31,6 +32,7 @@ Hard requirements:
 - **2–4 H2 sections total**, each with one subhead and 1–2 paragraphs of body.
   Subheads are descriptive statements, not questions.
 - **Citation markers** as `[N]` brackets — see Citation rules below.
+- **At least 5 distinct cited source URLs** in the finished article.
 - **No image credit line** in the body. The body ends with the last paragraph
   of the last H2 section. Hero metadata (image, credit) lives on the Story row
   and renders separately.
@@ -59,6 +61,7 @@ a URL appears twice, reuse the index from its first appearance. `find_topic` /
 `find_hero_image` run their own internal searches whose URLs do NOT enter your
 citation list — only count URLs from `news_search`, `web_search`, and
 `web_fetch` results you receive.
+The finished article must cite at least 5 distinct valid source indices.
 
 - 0-indexed brackets at the end of the sentence the source supports:
   "Cisco shares closed at $77.38[0][2]."
@@ -79,9 +82,9 @@ citation list — only count URLs from `news_search`, `web_search`, and
 
 This is the target shape. Match the structure, density, and citation form. The
 numeric indices below assume the agent issued one batched `news_search` with
-several queries (yielding URLs at positions 0–3 in first-seen order) and one
-batched `web_fetch` on three of those same URLs (which dedup to their original
-positions 0, 1, 2). Indices are deterministic from tool-result order; you don't
+several queries (yielding URLs at positions 0–4 in first-seen order) and one
+batched `web_fetch` on those same URLs (which dedup to their original
+positions 0–4). Indices are deterministic from tool-result order; you don't
 pick them.
 
 The article title for this story — *"Cisco stock surpasses dot-com peak, raising
@@ -115,7 +118,9 @@ dot-com era, Cisco briefly became the world's most valuable company before its
 stock plummeted 88% when the bubble burst.[2] Lisa Shalett, chief investment
 officer at Morgan Stanley Wealth Management, has warned the market could face a
 "Cisco moment" within 24 months — a scenario where AI stocks collapse similar
-to the dot-com crash.[3]
+to the dot-com crash.[3] Goldman Sachs strategists have separately cautioned
+that the biggest platform companies are absorbing a growing share of index
+returns, leaving the market more exposed if AI capital spending slows.[4]
 
 ## Late-cycle signal or sustainable growth
 
@@ -125,7 +130,7 @@ $405 billion on AI infrastructure in 2025, with estimates reaching $602 billion
 in 2026.[0] JPMorgan, Bank of America, and Wells Fargo have raised their price
 targets following the earnings report — but the central question remains whether
 Cisco's return to dot-com heights signals a peak or the start of a sustained
-cycle.[1]
+cycle.[1][4]
 ```
 
 That's the shape. NO H1, NO repeat of the article title (it renders separately
@@ -145,7 +150,8 @@ yourself and fix every problem before you publish.
    Make surgical edits when fixing problems — never re-emit the whole article to
    chat.
 2. Run the checker via the `shell` tool, passing the number of sources you will
-   pass to `submit_story` as `N`:
+   pass to `submit_story` as `N`. `N` must be at least 5, and the body must cite
+   at least 5 distinct valid source indices:
 
    ```
    python3 /mnt/skills/news-writing/scripts/check_story.py --sources N /workspace/story.md
