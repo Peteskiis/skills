@@ -80,14 +80,26 @@ ccp analytics [FUNCTION_ID] [--period 24h|7d|30d|90d] \
   [--by url|referrer|browser|os|device|country]
 ```
 
-Product traffic view for a deployed Function — cookieless server-derived
-pageviews (visitors, visits, pageviews, bounce rate, average visit); `--by`
-prints a top-10 breakdown ranked by visitors. Default period is `7d`;
-`FUNCTION_ID` falls back to `.ccp/config.json`. Collection is on by default
-per function (toggle with `PATCH /functions/:id {"analytics_enabled": false}`
-via the API). For per-request debugging use `ccp logs`, not analytics.
+Product traffic view for a deployed Function — cookieless pageviews
+(visitors, visits, pageviews, bounce rate, average visit); `--by` prints a
+top-10 breakdown ranked by visitors. Default period is `7d`; `FUNCTION_ID`
+falls back to `.ccp/config.json`. Collection is on by default per function
+(toggle with `PATCH /functions/:id {"analytics_enabled": false}` via the
+API). For per-request debugging use `ccp logs`, not analytics.
 "Analytics backend is unavailable" means the ClickHouse store is down or not
 configured in this environment — it never blocks serving traffic.
+
+Two collection tiers, selected per deployment by `analytics` in
+`.ccp/config.json`:
+
+- `"server"` (default): pageviews derived from HTML responses at the edge.
+  Zero setup; SPA soft-navigations are not visible.
+- `"client"`: on deploy, ccp injects `<script defer src="/_cluster/a.js">`
+  into the root `index.html` (hand-managed HTML without a `</head>` gets a
+  warning — embed the snippet yourself), and the runtime serves the tracker +
+  `POST /_cluster/send` same-origin. Captures SPA route changes, screen size
+  and page titles; server-derived counting is suppressed for that deployment
+  so nothing double-counts. Switching tiers takes effect on the next deploy.
 
 ### Local dev
 
