@@ -73,6 +73,22 @@ ccp logs [FUNCTION_ID] [-n LIMIT] [--level info,warn,error,debug] \
 `FUNCTION_ID` falls back to `.ccp/config.json`. Output is one plain line per
 entry and pipes cleanly.
 
+### Web analytics
+
+```sh
+ccp analytics [FUNCTION_ID] [--period 24h|7d|30d|90d] \
+  [--by url|referrer|browser|os|device|country]
+```
+
+Product traffic view for a deployed Function — cookieless server-derived
+pageviews (visitors, visits, pageviews, bounce rate, average visit); `--by`
+prints a top-10 breakdown ranked by visitors. Default period is `7d`;
+`FUNCTION_ID` falls back to `.ccp/config.json`. Collection is on by default
+per function (toggle with `PATCH /functions/:id {"analytics_enabled": false}`
+via the API). For per-request debugging use `ccp logs`, not analytics.
+"Analytics backend is unavailable" means the ClickHouse store is down or not
+configured in this environment — it never blocks serving traffic.
+
 ### Local dev
 
 ```sh

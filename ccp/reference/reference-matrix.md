@@ -11,6 +11,7 @@ With `CCP_HEADLESS=1` set:
 | `ccp link` | yes | `--org-id` and `--function-id` |
 | `ccp list` / `ccp ls` | yes | linked project or org resolution |
 | `ccp logs` | yes | linked project or `FUNCTION_ID` |
+| `ccp analytics` | yes | linked project or `FUNCTION_ID` |
 | `ccp remove` | yes, destructive | linked project |
 | `ccp promote` | yes | `DEPLOYMENT_ID` |
 | `ccp undeploy` | yes, destructive | `DEPLOYMENT_ID` |
