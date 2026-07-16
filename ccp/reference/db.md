@@ -25,6 +25,13 @@ ccp db migrate --status
 Never use `ccp db connect` in headless mode. It opens a TUI and errors fast for
 agents; use `ccp db exec` instead.
 
+`ccp db exec` reaches the database over `https://<DB_ID>.<base-domain>`, where the
+base domain is derived from `CCP_API_URL` (`api.example.dev` → `example.dev`), so it
+follows whichever cluster the CLI is pointed at. If `CCP_API_URL` has no `api.`
+prefix, `ccp db exec` fails asking for `CCP_DB_BASE_DOMAIN` rather than guessing —
+set that variable to the cluster's base domain. Prefer `DATABASE_URL` (the bare
+proxy host injected on create) over rebuilding the host yourself in handler code.
+
 ### Backups
 
 ```sh
