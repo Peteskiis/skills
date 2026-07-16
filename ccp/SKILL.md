@@ -87,6 +87,11 @@ creation so in-VM ccp can act as the user. That token is a live access token and
 is not refreshed inside the VM; re-run `ccp auth sync --vm <vm_id>` when it
 expires.
 
+`CCP_API_URL` and `CCP_STORAGE_API_URL` override the platform and storage API
+origins. Set both when targeting a non-production environment; managed staging
+VMs receive the matching pair automatically with their session. Empty values
+keep the binary's defaults, and trailing slashes are ignored.
+
 Useful auth commands:
 
 ```sh
@@ -202,6 +207,10 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
   committing `.ccp/config.json`.
 - `CCP_SESSION_TOKEN` from the environment is used as-is and is not refreshed by
   ccp. A 401 usually means re-sync or re-export the token.
+- Set `CCP_API_URL` and `CCP_STORAGE_API_URL` together when targeting a
+  non-production environment. Mixing a staging token with production defaults
+  (or a staging API with production storage) fails authentication or deploy
+  uploads.
 - `ccp deploy` merges `.env` into serverless env; removing a key from `.env`
   does not delete it server-side.
 - Compute services must bind to `0.0.0.0` or `[::]`, not `127.0.0.1`, if they
