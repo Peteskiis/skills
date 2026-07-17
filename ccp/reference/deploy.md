@@ -11,6 +11,11 @@ cd my-app
 ccp deploy
 ```
 
+`ccp init` also creates a git repository with an initial commit of the
+scaffold, unless the target directory is already inside one; `--no-git` skips
+this. It is best-effort: a missing `git` or an unconfigured commit identity
+prints a notice and never fails the scaffold.
+
 Headless first deploy auto-creates and links a Function when it can resolve an
 org. Org resolution is `--org-id` > project config > `CCP_ORG_ID` > sole-org
 auto-pick > error. The remote IDs land in `.ccp/config.json` (gitignored local
