@@ -218,6 +218,9 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - `ccp compute exec` runs in the compute workload context. For VM-rootfs
   inspection, use the envd-exec API or a dev VM flow.
 - ccp does not commit, push, or open PRs. Agents must handle git delivery.
+- If `ccp dev` crashes instantly on macOS ("Failed to reserve virtual memory
+  for CodeRange"), the binary's code signature is broken, not the machine's
+  memory. Run `ccp doctor` for a diagnosis; reinstall via install.sh to fix.
 - The "new release of ccp" startup notice never appears for agents: it is
   suppressed when stdout/stderr are not TTYs, and under `CCP_HEADLESS`,
   `CCP_SESSION_TOKEN`, or `CI`. `CCP_NO_UPDATE_CHECK=1` is the explicit

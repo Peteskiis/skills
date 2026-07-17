@@ -38,4 +38,5 @@ With `CCP_HEADLESS=1` set:
 | `ccp auth login` | interactive | human approval in browser |
 | `ccp auth print/export-access-token` | yes | logged-in session |
 | `ccp auth logout` | yes | existing session |
+| `ccp doctor` | yes | nothing (offline V8/JIT self-check; exits non-zero when the runtime is broken) |
 | `ccp update` | yes (not in managed VMs) | network; writable install dir (else `sudo ccp update`) |
