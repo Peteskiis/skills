@@ -72,7 +72,8 @@ Use `CCP_AUTH_STORE=file` or `CCP_AUTH_STORE=keyring` to force a store. On Linux
 the keyring is the in-kernel keyutils store — memory-only and wiped on reboot,
 so a login there does not survive a restart; the durable file is therefore the
 default, and `CCP_AUTH_STORE=keyring` is only for an intentionally memory-only
-session. Use `CCP_AUTH_ISSUER` only for advanced testing against another issuer.
+session. The production issuer is `https://accounts.clusterbase.ai`; use
+`CCP_AUTH_ISSUER` only for advanced testing against another issuer.
 
 For automation, do not run `ccp auth login`. A human logs in once, exports a
 token, and passes it into the environment:
