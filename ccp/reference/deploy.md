@@ -41,6 +41,10 @@ ccp deploy [--prod] [--org-id O] [--function-id F] [--public-dir DIR] [PATH]
 added/updated; absent keys are preserved server-side. A failed env write aborts
 the deploy.
 
+Bundling requires `esbuild` on PATH (`brew install esbuild`, or
+`npm install -g esbuild`). Run `ccp doctor` to check it and the other deploy
+toolchains.
+
 ### Client bundle and CSS imports
 
 When `.ccp/config.json` sets `"client"` (e.g. `src/main.tsx`), that entry is

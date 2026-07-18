@@ -21,6 +21,13 @@ ccp compute deploy --name N --binary ./server --port P [--org-id O] [-y]
 autodetect currently builds Go and Rust projects through the binary path.
 Dockerfile and package.json detection bail with a clear unsupported message.
 
+Source-mode builds shell out to a host toolchain: Go projects need `go`; Rust
+projects need `cargo` + the `x86_64-unknown-linux-musl` target (plus, on macOS,
+the `x86_64-linux-musl-gcc` cross-linker from
+`brew install FiloSottile/musl-cross/musl-cross`). Run `ccp doctor` to see which
+of these are installed and how to install any that are missing (`--binary` with
+a pre-built static Linux ELF, or `--image`, skips the local toolchain entirely).
+
 First deploy creates the service and writes `cluster.toml`. Redeploy reads the
 manifest or `--service-id` and PATCH-updates the service. Mode is immutable in
 v1; destroy and recreate to switch image vs binary.

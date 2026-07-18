@@ -38,5 +38,5 @@ With `CCP_HEADLESS=1` set:
 | `ccp auth login` | interactive | human approval in browser |
 | `ccp auth print/export-access-token` | yes | logged-in session |
 | `ccp auth logout` | yes | existing session |
-| `ccp doctor` | yes | nothing (offline V8/JIT self-check; exits non-zero when the runtime is broken) |
+| `ccp doctor` | yes | nothing (offline V8/JIT self-check; then an advisory toolchain-deps report — go/esbuild/cargo+musl for deploys. Exits non-zero only when the runtime is broken, never for a missing dep. `--deps` = report only, no V8; `--yes` = auto-install the safe subset) |
 | `ccp update` | yes (not in managed VMs) | network; writable install dir (else `sudo ccp update`) |
