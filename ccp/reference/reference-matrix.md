@@ -17,8 +17,9 @@ With `CCP_HEADLESS=1` set:
 | `ccp undeploy` | yes, destructive | `DEPLOYMENT_ID` |
 | `ccp store create` | yes | org resolution |
 | `ccp store put/get/ls/rm` | yes | store resolution |
-| `ccp db create` | yes | linked project or `--function-id` |
-| `ccp db ls/info/exec/migrate` | yes | linked project or `--db-id` |
+| `ccp db create` | yes | org resolution; optional linked project or `--function-id` |
+| `ccp db ls` | yes | org resolution |
+| `ccp db info/exec/migrate` | yes | linked project or `--db-id` |
 | `ccp db destroy` | yes, destructive | `DB_ID` |
 | `ccp db connect` | no | use `ccp db exec` |
 | `ccp db backup create/ls` | yes | linked project or `--db-id` |
