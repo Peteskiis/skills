@@ -72,8 +72,12 @@ Use `CCP_AUTH_STORE=file` or `CCP_AUTH_STORE=keyring` to force a store. On Linux
 the keyring is the in-kernel keyutils store — memory-only and wiped on reboot,
 so a login there does not survive a restart; the durable file is therefore the
 default, and `CCP_AUTH_STORE=keyring` is only for an intentionally memory-only
-session. The production issuer is `https://accounts.clusterbase.ai`; use
-`CCP_AUTH_ISSUER` only for advanced testing against another issuer.
+session. The production issuer is `https://accounts.clusterbase.ai`. For a
+non-production `api.<cluster>` origin, ccp derives the matching
+`accounts.<cluster>` issuer; the canonical production API keeps its pinned
+production issuer. Use `CCP_AUTH_ISSUER` only to override that selection for
+advanced testing. Refresh tokens are bound to the issuer that minted them, so
+switching clusters requires a login for the selected cluster.
 
 For automation, do not run `ccp auth login`. A human logs in once, exports a
 token, and passes it into the environment:
@@ -88,10 +92,14 @@ creation so in-VM ccp can act as the user. That token is a live access token and
 is not refreshed inside the VM; re-run `ccp auth sync --vm <vm_id>` when it
 expires.
 
-`CCP_API_URL` and `CCP_STORAGE_API_URL` override the platform and storage API
-origins. Set both when targeting a non-production environment; managed staging
-VMs receive the matching pair automatically with their session. Empty values
-keep the binary's defaults, and trailing slashes are ignored.
+`CCP_API_URL` selects the cluster. For a non-production `api.<cluster>` origin,
+ccp derives the sibling `accounts.<cluster>`, `orgs.<cluster>`, and
+`storage.<cluster>` origins. The canonical production API retains production's
+pinned, nonuniform service origins. `CCP_AUTH_ISSUER`, `CCP_ORGS_API_URL`, and
+`CCP_STORAGE_API_URL` remain available as advanced per-service overrides.
+`SSL_CERT_FILE` supplies a PEM CA bundle to both API and OAuth requests for
+private-CA environments. Empty values keep the binary's defaults, and trailing
+slashes are ignored.
 
 Useful auth commands:
 
@@ -208,10 +216,11 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
   committing `.ccp/config.json`.
 - `CCP_SESSION_TOKEN` from the environment is used as-is and is not refreshed by
   ccp. A 401 usually means re-sync or re-export the token.
-- Set `CCP_API_URL` and `CCP_STORAGE_API_URL` together when targeting a
-  non-production environment. Mixing a staging token with production defaults
-  (or a staging API with production storage) fails authentication or deploy
-  uploads.
+- Set `CCP_API_URL` to the environment's `api.<cluster>` origin when targeting a
+  non-production cluster; ccp derives the matching auth, orgs, and storage
+  origins. If the API hostname does not use the `api.` convention, set the
+  corresponding per-service overrides explicitly. Use `SSL_CERT_FILE` when the
+  cluster is signed by a private CA.
 - `ccp deploy` merges `.env` into serverless env; removing a key from `.env`
   does not delete it server-side.
 - Compute services must bind to `0.0.0.0` or `[::]`, not `127.0.0.1`, if they
