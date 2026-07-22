@@ -51,7 +51,7 @@ Forbidden:
 
 ## Citation rules
 
-You cite sources using `[N]` markers where `N` is the 0-indexed position of the
+You cite sources using `[N]` markers where `N` is the 1-indexed position of the
 source URL in the conversation. Count URLs in the order they first appear in
 your tool results — including every URL inside every per-query section of a
 batched `news_search` / `web_search` (sections are headed
@@ -63,12 +63,12 @@ citation list — only count URLs from `news_search`, `web_search`, and
 `web_fetch` results you receive.
 The finished article must cite at least 5 distinct valid source indices.
 
-- 0-indexed brackets at the end of the sentence the source supports:
-  "Cisco shares closed at $77.38[0][2]."
-- Each index in its own brackets: `[0][1]`, never `[0, 1]`.
+- 1-indexed brackets at the end of the sentence the source supports:
+  "Cisco shares closed at $77.38[1][3]."
+- Each index in its own brackets: `[1][2]`, never `[1, 2]`.
 - Max 2 citations per claim. Never repeat the same index in one group —
-  `[0][3][0]` is forbidden.
-- Never explain citations inline ("[0][3] refer to the Reuters pieces"). The
+  `[1][4][1]` is forbidden.
+- Never explain citations inline ("[1][4] refer to the Reuters pieces"). The
   bracket IS the citation; do not narrate it.
 - Cite only claims sourced from a tool result. Never cite filler or general
   knowledge.
@@ -82,9 +82,9 @@ The finished article must cite at least 5 distinct valid source indices.
 
 This is the target shape. Match the structure, density, and citation form. The
 numeric indices below assume the agent issued one batched `news_search` with
-several queries (yielding URLs at positions 0–4 in first-seen order) and one
+several queries (yielding URLs at positions 1–5 in first-seen order) and one
 batched `web_fetch` on those same URLs (which dedup to their original
-positions 0–4). Indices are deterministic from tool-result order; you don't
+positions 1–5). Indices are deterministic from tool-result order; you don't
 pick them.
 
 The article title for this story — *"Cisco stock surpasses dot-com peak, raising
@@ -95,42 +95,42 @@ published page. The body below does NOT repeat it.
 ## A symbolic milestone, 25 years late
 
 Cisco Systems shares closed at $77.38 on November 13, 2025, surpassing its
-all-time closing high of $77.31 set during the dot-com bubble in March 2000.[0]
+all-time closing high of $77.31 set during the dot-com bubble in March 2000.[1]
 The 4.6% surge followed better-than-expected quarterly earnings driven by
-surging demand for AI networking equipment.[1] The milestone is stoking fears
+surging demand for AI networking equipment.[2] The milestone is stoking fears
 that the current AI boom may be approaching a dangerous inflection point, with
 analysts warning that network equipment investments typically occur in the
-final stages of infrastructure spending cycles.[0]
+final stages of infrastructure spending cycles.[1]
 
 ## Strong earnings on AI infrastructure orders
 
 The networking giant reported first-quarter revenue of $14.9 billion, up 8%
-year-over-year, and non-GAAP earnings per share of $1.00, exceeding guidance.[1]
+year-over-year, and non-GAAP earnings per share of $1.00, exceeding guidance.[2]
 Most notably, AI infrastructure orders from hyperscaler customers totaled $1.3
 billion in the quarter, reflecting what the company called "a significant
-acceleration in growth".[1] Cisco expects $3 billion in AI infrastructure
-revenue from hyperscalers in fiscal 2026, up from $1 billion in fiscal 2025.[1]
+acceleration in growth".[2] Cisco expects $3 billion in AI infrastructure
+revenue from hyperscalers in fiscal 2026, up from $1 billion in fiscal 2025.[2]
 
 ## Echoes of 2000 raise bubble warnings
 
 The symbolic milestone has intensified scrutiny of AI valuations. During the
 dot-com era, Cisco briefly became the world's most valuable company before its
-stock plummeted 88% when the bubble burst.[2] Lisa Shalett, chief investment
+stock plummeted 88% when the bubble burst.[3] Lisa Shalett, chief investment
 officer at Morgan Stanley Wealth Management, has warned the market could face a
 "Cisco moment" within 24 months — a scenario where AI stocks collapse similar
-to the dot-com crash.[3] Goldman Sachs strategists have separately cautioned
+to the dot-com crash.[4] Goldman Sachs strategists have separately cautioned
 that the biggest platform companies are absorbing a growing share of index
-returns, leaving the market more exposed if AI capital spending slows.[4]
+returns, leaving the market more exposed if AI capital spending slows.[5]
 
 ## Late-cycle signal or sustainable growth
 
 Network equipment investments typically occur in the final stages of IT
-infrastructure buildouts.[0] Hyperscalers are projected to spend approximately
+infrastructure buildouts.[1] Hyperscalers are projected to spend approximately
 $405 billion on AI infrastructure in 2025, with estimates reaching $602 billion
-in 2026.[0] JPMorgan, Bank of America, and Wells Fargo have raised their price
+in 2026.[1] JPMorgan, Bank of America, and Wells Fargo have raised their price
 targets following the earnings report — but the central question remains whether
 Cisco's return to dot-com heights signals a peak or the start of a sustained
-cycle.[1][4]
+cycle.[2][5]
 ```
 
 That's the shape. NO H1, NO repeat of the article title (it renders separately

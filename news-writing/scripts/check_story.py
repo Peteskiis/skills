@@ -93,7 +93,7 @@ def citation_indices(text):
 
 def parse_citations(text, source_count):
     """Return the sorted, deduped list of out-of-range citation indices."""
-    return sorted({n for n in citation_indices(text) if n >= source_count})
+    return sorted({n for n in citation_indices(text) if n < 1 or n > source_count})
 
 
 def leading_hashes(line):
@@ -144,14 +144,15 @@ def check(text, source_count):
     invalid = parse_citations(text, source_count)
     if invalid:
         rendered = ", ".join(f"[{n}]" for n in invalid)
+        valid_range = f"1..{source_count}" if source_count else "none"
         problems.append(f"citation(s) out of range (sources: {source_count}, "
-                        f"valid 0..{source_count - 1}): {rendered}")
+                        f"valid {valid_range}): {rendered}")
 
     # 6. At least MIN_SOURCES submitted sources and distinct cited sources.
     if source_count < MIN_SOURCES:
         problems.append(f"{source_count} sources — need at least {MIN_SOURCES}")
 
-    distinct_valid = {n for n in citation_indices(text) if n < source_count}
+    distinct_valid = {n for n in citation_indices(text) if 1 <= n <= source_count}
     if len(distinct_valid) < MIN_SOURCES:
         problems.append(f"{len(distinct_valid)} distinct cited source(s) — "
                         f"need at least {MIN_SOURCES}")
@@ -193,7 +194,7 @@ def main(argv):
     parser = argparse.ArgumentParser(
         description="Check a news story file for publishability.")
     parser.add_argument("--sources", type=int, required=True,
-                        help="number of sources (valid citation indices 0..N-1)")
+                        help="number of sources (valid citation indices 1..N)")
     parser.add_argument("path", help="path to the story markdown file")
     args = parser.parse_args(argv)
 
