@@ -21,18 +21,18 @@ import check_story  # noqa: E402
 
 
 def good_body():
-    """A clean ~330-word, 2-H2-section article citing [0] through [4]."""
+    """A clean ~330-word, 2-H2-section article citing [1] through [5]."""
     claims = [
         "The company reported record quarterly revenue driven by surging demand "
-        "for its networking hardware from large cloud customers.[0] ",
+        "for its networking hardware from large cloud customers.[1] ",
         "Executives said AI infrastructure orders remained a major growth driver "
-        "as cloud buyers expanded capacity.[1] ",
+        "as cloud buyers expanded capacity.[2] ",
         "Analysts raised their price targets after the results, citing a "
-        "multi-year order backlog and steadily improving margins.[2] ",
+        "multi-year order backlog and steadily improving margins.[3] ",
         "The company also pointed to stronger enterprise demand outside the "
-        "largest hyperscale accounts.[3] ",
+        "largest hyperscale accounts.[4] ",
         "Market watchers compared the rally with earlier dot-com milestones, "
-        "while warning that infrastructure cycles can turn quickly.[4] ",
+        "while warning that infrastructure cycles can turn quickly.[5] ",
     ]
     s1 = "".join(claims)
     s2 = "".join(reversed(claims))
@@ -51,21 +51,28 @@ class CheckStoryFixtures(unittest.TestCase):
         self.assertTrue(any("H1" in p for p in problems), problems)
 
     def test_out_of_range_citation_is_rejected(self):
-        # Production incident: [40] against a 4-source array hid the sources block.
-        body = good_body().replace("[1]", "[40]", 1)
+        # Production incident: [41] against a 5-source array hid the sources block.
+        body = good_body().replace("[2]", "[41]", 1)
         problems = check_story.check(body, source_count=5)
         self.assertTrue(
-            any("out of range" in p and "[40]" in p for p in problems), problems
+            any("out of range" in p and "[41]" in p for p in problems), problems
+        )
+
+    def test_zero_citation_is_rejected(self):
+        body = good_body().replace("[1]", "[0]", 1)
+        problems = check_story.check(body, source_count=5)
+        self.assertTrue(
+            any("out of range" in p and "[0]" in p for p in problems), problems
         )
 
     def test_meta_commentary_is_rejected(self):
-        body = good_body() + "\n\nBased on my research, this is the story.[0]"
+        body = good_body() + "\n\nBased on my research, this is the story.[1]"
         problems = check_story.check(body, source_count=5)
         self.assertTrue(any("meta-commentary" in p for p in problems), problems)
 
     def test_word_count_bounds(self):
         # Citation markers are stripped before counting; too-short fails.
-        short = "## Frame\n\nToo short.[0][1][2]\n\n## Second\n\nStill short.[3][4]"
+        short = "## Frame\n\nToo short.[1][2][3]\n\n## Second\n\nStill short.[4][5]"
         problems = check_story.check(short, source_count=5)
         self.assertTrue(any("word count" in p for p in problems), problems)
 
@@ -80,7 +87,7 @@ class CheckStoryFixtures(unittest.TestCase):
         self.assertTrue(any("4 sources" in p and "at least 5" in p for p in problems), problems)
 
     def test_distinct_cited_source_minimum_is_rejected(self):
-        body = good_body().replace("[1]", "[0]").replace("[2]", "[0]").replace("[3]", "[0]").replace("[4]", "[0]")
+        body = good_body().replace("[2]", "[1]").replace("[3]", "[1]").replace("[4]", "[1]").replace("[5]", "[1]")
         problems = check_story.check(body, source_count=5)
         self.assertTrue(any("distinct cited source" in p and "need at least 5" in p for p in problems), problems)
 
