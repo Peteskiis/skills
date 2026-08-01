@@ -51,7 +51,18 @@ When `.ccp/config.json` sets `"client"` (e.g. `src/main.tsx`), that entry is
 bundled for the browser and served at `/{stem}.js` (`main.js`). CSS imported
 from the client (`import "./App.css"` — multiple files, `@import`, and
 `*.module.css` all work) is bundled into a single `/{stem}.css` (`main.css`).
-The server entry (`index.ts`) must not import CSS — that's a deploy error.
+
+The server entry may import CSS too — that is how SSR shares a component with
+the client. Stylesheets reached from the handler are discarded (the client is
+the sole producer of `/{stem}.css`), so **import the same styles from the
+client entry**, which SSR does naturally by sharing the component. Two notes:
+
+- With **no** `"client"` entry there is nothing to serve the stylesheet, so a
+  CSS import from the handler is still a deploy error.
+- `*.module.css` from the handler is a warning, not an error: class names
+  resolve correctly, but esbuild builds the two entries as separate graphs, so
+  the generated names can disagree if two `*.module.css` files share a
+  basename. Prefer plain CSS, or unique basenames, for shared components.
 
 A root `index.html` (Vite convention) is inlined into `__pages` at build time:
 `<script>` tags referencing the client source (`src="/src/main.tsx"`) are

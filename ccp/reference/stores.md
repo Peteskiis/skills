@@ -10,8 +10,9 @@ ccp store ls
 ccp store rm logo.png
 ```
 
-`store_id` can be pinned in `.ccp/config.json`. Without it, ccp resolves the
-store from flags, project config, org state, or a prompt when interactive.
+`store_id` can be pinned in `.ccp/config.json`. For headless or in-VM use,
+`CCP_STORE_ID` is the fallback after project config. Without either, ccp
+resolves the store from org state or a prompt when interactive.
 
 Uploads return content-addressed URLs by default. These URLs are immutable and
 safe for long CDN caching.
@@ -26,4 +27,4 @@ Image transform parameters can be appended to served URLs:
 ```
 
 Common agent rule: when a store command needs a store and headless resolution is
-ambiguous, pass IDs explicitly instead of guessing.
+ambiguous, set `CCP_ORG_ID` and `CCP_STORE_ID` explicitly instead of guessing.
