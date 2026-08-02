@@ -158,6 +158,20 @@ bundled for the browser as `/{stem}.js`, with any CSS it imports bundled to
 `index.html` (Vite convention) is inlined into `__pages` at build time with
 the client script reference rewritten and the CSS link injected.
 
+**`ccp init --template react` server-renders.** Its entry is `index.tsx`
+(not `.ts` — the handler contains JSX and esbuild picks the loader from the
+extension). The entry holds routes and page metadata and hands the tree to
+`renderPage` in `src/render.tsx`, which renders it to HTML and injects it into
+the `__pages["index.html"]` shell; the client entry `hydrateRoot`s that markup
+rather than rendering again. Both entries import the same `src/App.tsx`; if the
+trees diverge, React discards the server output.
+
+Page metadata is the `metadata` object exported from the entry — `title` and
+`description` become the `<title>`, `<meta name="description">` and the `og:`
+and `twitter:` tags. Vary it per route for correct link previews.
+
+The other templates keep a plain `index.ts` handler.
+
 `ccp deploy`, `ccp link`, `ccp db create`, and store commands update this file.
 The whole `.ccp/` dir is **local state and gitignored** (like Vercel's `.vercel/`):
 it holds this `config.json` — whose `database_token` is a secret — plus build
