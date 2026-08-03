@@ -208,9 +208,12 @@ redeploys that service, creating one only when the name is genuinely free.
 Two worktrees of the same repo each get their own `.ccp/`, which is how a
 project runs a staging and a prod compute service without editing a committed
 file — in **different orgs** by default, since service names are unique per
-org. Inside one org, give the second one `--name my-staging`, or both attach to
-the same service. Headless on a multi-org account now needs `--org-id` or
-`CCP_ORG_ID` — the org hint used to come from the committed file.
+org. Inside one org, give the second one `--name my-staging`; that name is used for
+the deploy and is deliberately **not** written back to `cluster.toml`, so the
+shared file keeps describing the project rather than one environment. (`--port`
+IS recorded — the port is part of what to run, not which environment.)
+Headless on a multi-org account now needs `--org-id` or `CCP_ORG_ID` — the org
+hint used to come from the committed file.
 
 ### `.ccp/config.json` - local serverless link
 

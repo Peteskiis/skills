@@ -36,9 +36,20 @@ immutable in v1; destroy and recreate to switch image vs binary.
 A checkout with a `cluster.toml` but no link — a fresh clone, or CI — attaches
 on deploy: ccp looks the name up in the org and redeploys that service, and
 only creates one when the name is free (confirmed interactively, auto-yes with
-`-y`). `--name` overrides the committed name for both. Headless on a multi-org
+`-y`). `--name` overrides the committed name for that deploy and is **not**
+written back, so it stays per-environment; `--port` is recorded, because the
+port is part of what to run rather than which environment this is. Headless on a multi-org
 account this needs `--org-id` or `CCP_ORG_ID`, since the org hint is no longer
 committed.
+
+**A redeploy needs a `cluster.toml` that describes the service.** With a link
+but no committed description — the file deleted, on a branch without it, or
+`--service-id` in a bare directory — `env`, `[binary].args` and `[health]` have
+no source of truth here, and the API applies them as full mirrors (a missing
+key clears the value server-side). So ccp refuses rather than guessing, and
+tells you to pass `--image`/`--binary` (which change only the source) or to run
+`ccp compute restart`. `--env` on its own is refused for the same reason: it is
+one layer of the `.env` < `[env]` < `--env` merge, not a standalone edit.
 
 Bind the app to `0.0.0.0` or `[::]`, not `127.0.0.1`. The public proxy runs
 outside the VM network namespace and cannot reach loopback-only listeners.
