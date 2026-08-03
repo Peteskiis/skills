@@ -187,20 +187,19 @@ Subsequent compute commands read `[managed].service_id` and
 {
   "function_id": "fn_...",
   "organization_id": "org_...",
-  "index": "index.ts",
-  "client": null,
-  "assets": null,
   "store_id": "",
+  "oidc_client_id": "",
   "database_id": "",
   "database_token": ""
 }
 ```
 
-**Shape keys here are NOT authoritative.** `index`, `client`, `assets`,
-`analytics` and `oidc_callback_path` are a derived copy kept during the staged
-migration (so an older ccp still works); `cluster.toml` wins on every read.
-Editing them here does nothing and the next write erases the edit — ccp warns
-when it detects this. Change them in `cluster.toml`.
+**Shape keys do not live here.** `index`, `client`, `assets`, `analytics` and
+`oidc_callback_path` are read from — and written only to — `cluster.toml`. This
+file holds the link and secrets. A pre-split project still carrying them has
+them stripped on the next write, once `cluster.toml` records the shape; until
+then they are read as a migration fallback but never win over the committed
+copy.
 
 `client` (e.g. `"src/main.tsx"`) is bundled for the browser as `/{stem}.js`,
 with any CSS it imports bundled to `/{stem}.css`; `assets` names the verbatim
@@ -256,9 +255,11 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - Always commit `cluster.toml`. `ccp init` writes it, and it carries the
   project's shape under `[serverless]` (entry, client, assets) as well as any
   compute link. A clone without it falls back to guessing the entry point.
-- Shape keys are read from `cluster.toml`, not `.ccp/config.json`. Setting
-  `index`/`client`/`assets`/`analytics` in the gitignored file is ignored and
-  then overwritten; ccp warns when it sees this.
+- Shape keys live ONLY in `cluster.toml`. `.ccp/config.json` holds the link and
+  secrets. Setting `index`/`client`/`assets`/`analytics` in the gitignored file
+  does nothing and is stripped on the next write.
+- A project with no `cluster.toml` has no entry point — ccp fails with that
+  message rather than guessing. Restore the committed file.
 - Do not commit `.env`, `node_modules/`, or `.ccp/` — `.ccp/` is local ccp state
   (gitignored wholesale, like Vercel's `.vercel/`), holding build output and a
   `config.json` whose `database_token` is a secret. Re-establish the serverless
