@@ -28,9 +28,17 @@ the `x86_64-linux-musl-gcc` cross-linker from
 of these are installed and how to install any that are missing (`--binary` with
 a pre-built static Linux ELF, or `--image`, skips the local toolchain entirely).
 
-First deploy creates the service and writes `cluster.toml`. Redeploy reads the
-manifest or `--service-id` and PATCH-updates the service. Mode is immutable in
-v1; destroy and recreate to switch image vs binary.
+First deploy creates the service, writes the description to `cluster.toml`
+(commit it) and this machine's link to `.ccp/compute-link.json` (gitignored).
+Redeploy reads the link or `--service-id` and PATCH-updates the service. Mode is
+immutable in v1; destroy and recreate to switch image vs binary.
+
+A checkout with a `cluster.toml` but no link — a fresh clone, or CI — attaches
+on deploy: ccp looks the name up in the org and redeploys that service, and
+only creates one when the name is free (confirmed interactively, auto-yes with
+`-y`). `--name` overrides the committed name for both. Headless on a multi-org
+account this needs `--org-id` or `CCP_ORG_ID`, since the org hint is no longer
+committed.
 
 Bind the app to `0.0.0.0` or `[::]`, not `127.0.0.1`. The public proxy runs
 outside the VM network namespace and cannot reach loopback-only listeners.
@@ -60,8 +68,11 @@ flags.
 Auto-pause is transparent for deploy, logs, exec, restart, and status paths that
 need the VM awake. `--always-on` only applies at first deploy.
 
-`compute destroy` tears down the service, VM, and route, then removes
-`cluster.toml` on success. It auto-confirms in headless mode.
+`compute destroy` tears down the service, VM, and route, then removes compute's
+keys from `cluster.toml` and deletes `.ccp/compute-link.json` — but only when
+the destroyed service is the one this directory is linked to, so destroying
+some other service from inside a project no longer wipes that project's config.
+It auto-confirms in headless mode.
 
 ### Health probes
 

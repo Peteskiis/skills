@@ -138,9 +138,13 @@ https://assets.cluster.app/serve/cstatic-assets/releases/ccp/install.sh | sh`.
 A project splits its config by *lifecycle*, not by product:
 
 - **`cluster.toml` — committed.** What the source IS: the serverless
-  `[serverless]` shape, plus any compute service. Identical in every clone.
-- **`.ccp/config.json` — gitignored.** What THIS machine is linked to: ids and
-  a live `database_token`.
+  `[serverless]` shape, plus the compute service's description. Identical in
+  every clone.
+- **`.ccp/` — gitignored.** What THIS machine is linked to. `config.json` holds
+  the serverless link and a live `database_token`; `compute-link.json` holds
+  the compute service id, org id and hostname. The dir ignores itself (a
+  `.gitignore` containing `*`), so state written outside `ccp init` is never
+  committable.
 
 Both products share `cluster.toml`, each owning its own sections. A directory
 may contain either product's sections, both, or neither.
@@ -165,11 +169,6 @@ mode = "binary" # or "image"
 [service]
 internal_port = 8080
 always_on = false
-
-[managed]
-service_id = "uuid"
-organization_id = "uuid"
-hostname = "my-api.clusterbase.dev"
 ```
 
 **Commit this file.** It is the only record of the project's shape; a clone
@@ -178,10 +177,42 @@ written last — TOML binds bare keys to the preceding table header, so a
 `[serverless]` table placed above compute's top-level `name`/`mode` would
 swallow them.
 
-Subsequent compute commands read `[managed].service_id` and
-`[managed].organization_id` when no flag is passed.
+**No link data lives here.** The service id, org id and hostname are
+per-machine and per-environment, so they live in the gitignored
+`.ccp/compute-link.json` (#610). A project whose `cluster.toml` still carries a
+`[managed]` table keeps working — reads fall back to it — and the next
+`ccp compute deploy` moves it into `.ccp/` and strips it, saying so. **After
+that migration every machine on the repo needs ccp 0.1.68 or newer**: older
+builds declare `[managed]` as a required field and fail every compute command
+with a "missing field managed" error.
 
-### `.ccp/config.json` - local link
+### `.ccp/compute-link.json` - local compute link
+
+```json
+{
+  "service_id": "uuid",
+  "organization_id": "uuid",
+  "hostname": "my-api.clusterbase.dev"
+}
+```
+
+Written by `ccp compute deploy`; read by every other `ccp compute` command when
+no `--service-id` / `--org-id` is passed. `hostname` is diagnostic — the live
+value always comes from the API.
+
+A checkout with no link but a committed `cluster.toml` (a fresh clone, or CI)
+**attaches** on `ccp compute deploy`: it looks the name up in the org and
+redeploys that service, creating one only when the name is genuinely free.
+`--name` overrides the committed one for both the lookup and the create.
+
+Two worktrees of the same repo each get their own `.ccp/`, which is how a
+project runs a staging and a prod compute service without editing a committed
+file — in **different orgs** by default, since service names are unique per
+org. Inside one org, give the second one `--name my-staging`, or both attach to
+the same service. Headless on a multi-org account now needs `--org-id` or
+`CCP_ORG_ID` — the org hint used to come from the committed file.
+
+### `.ccp/config.json` - local serverless link
 
 ```json
 {
@@ -223,8 +254,10 @@ The other templates keep a plain `index.ts` handler.
 
 `ccp deploy`, `ccp link`, `ccp db create`, and store commands update this file.
 The whole `.ccp/` dir is **local state and gitignored** (like Vercel's `.vercel/`):
-it holds this `config.json` — whose `database_token` is a secret — plus build
-output (`.ccp/index.js`, `.ccp/public/`). Do not commit it; re-establish the link
+it holds this `config.json` — whose `database_token` is a secret — plus
+`compute-link.json` and build output (`.ccp/index.js`, `.ccp/public/`). It also
+carries its own `.gitignore` containing `*`, so it stays out of git even in a
+project that was never `ccp init`'d. Do not commit it; re-establish the link
 on CI / another machine via `CCP_ORG_ID` + `--function-id` — the shape needs no
 re-establishing, because `cluster.toml` is committed. New projects use
 `.ccp/`; a legacy `.cluster/config.json` (pre-migration) is still read as a
@@ -254,12 +287,31 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - Destructive commands auto-confirm with `CCP_HEADLESS=1`; check the target ID.
 - Always commit `cluster.toml`. `ccp init` writes it, and it carries the
   project's shape under `[serverless]` (entry, client, assets) as well as any
-  compute link. A clone without it falls back to guessing the entry point.
+  compute service's description. A clone without it falls back to guessing the
+  entry point.
+- The compute LINK is not in `cluster.toml`. `service_id`, `organization_id`
+  and `hostname` live in the gitignored `.ccp/compute-link.json`; a project
+  still carrying a committed `[managed]` table has it moved there — and
+  stripped — by the next `ccp compute deploy`. **Once that happens, every
+  machine on the repo needs ccp 0.1.68+**: older builds require `[managed]` and
+  fail every compute command with a "missing field managed" error. Unlike the
+  serverless split, this break travels through git, so upgrade teammates, CI
+  and any VM template before committing the stripped file.
+- A fresh clone has no compute link, so `ccp compute deploy` attaches to the
+  service the committed `name` already identifies in the org rather than
+  creating a second one. On a multi-org account headless, that lookup needs
+  `--org-id` or `CCP_ORG_ID` — the org hint no longer comes from the committed
+  file.
 - Shape keys live ONLY in `cluster.toml`. `.ccp/config.json` holds the link and
   secrets. Setting `index`/`client`/`assets`/`analytics` in the gitignored file
   does nothing and is stripped on the next write.
-- A project with no `cluster.toml` has no entry point — ccp fails with that
-  message rather than guessing. Restore the committed file.
+- A LINKED project (one with `.ccp/config.json`) whose `cluster.toml` is missing
+  has no entry point — ccp fails and says so rather than guessing. A directory
+  with neither file still falls back to probing `index.tsx`/`index.ts`.
+- Downgrading ccp below 0.1.66 in a project a newer ccp has written fails with
+  `missing field \`index\``: older builds require that key in
+  `.ccp/config.json`. Re-add it by hand from `cluster.toml`'s `[serverless]`,
+  or upgrade again.
 - Do not commit `.env`, `node_modules/`, or `.ccp/` — `.ccp/` is local ccp state
   (gitignored wholesale, like Vercel's `.vercel/`), holding build output and a
   `config.json` whose `database_token` is a secret. Re-establish the serverless
