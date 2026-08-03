@@ -49,7 +49,8 @@ project-pinned org exists. Resolution is:
 ccp manages Cluster workloads and supporting resources:
 
 - Serverless functions: V8 JavaScript/TypeScript at the edge, driven by
-  `ccp deploy`, linked through `.ccp/config.json`.
+  `ccp deploy`. Shape is committed in `cluster.toml`; the link is local in
+  `.ccp/config.json`.
 - Compute services: long-running services with public HTTPS hostnames, driven by
   `ccp compute deploy`, linked through `cluster.toml`.
 - Supporting resources: stores, managed Postgres databases, custom domains,
@@ -134,10 +135,53 @@ https://assets.cluster.app/serve/cstatic-assets/releases/ccp/install.sh | sh`.
 
 ## Project shape
 
-Serverless and compute config are independent. A directory may contain either,
-both, or neither.
+A project splits its config by *lifecycle*, not by product:
 
-### `.ccp/config.json` - serverless link
+- **`cluster.toml` — committed.** What the source IS: the serverless
+  `[serverless]` shape, plus any compute service. Identical in every clone.
+- **`.ccp/config.json` — gitignored.** What THIS machine is linked to: ids and
+  a live `database_token`.
+
+Both products share `cluster.toml`, each owning its own sections. A directory
+may contain either product's sections, both, or neither.
+
+### `cluster.toml` - committed project config
+
+```toml
+# serverless (written by `ccp init`, read by `ccp deploy`/`build`/`dev`)
+[serverless]
+index = "index.tsx"          # server entry
+client = "src/main.tsx"      # optional browser entry -> /{stem}.js (+ .css)
+assets = "public"            # optional verbatim static dir
+analytics = "server"         # or "client"
+oidc_callback_path = "/auth/callback"
+```
+
+```toml
+# compute (written by `ccp compute deploy`)
+name = "my-api"
+mode = "binary" # or "image"
+
+[service]
+internal_port = 8080
+always_on = false
+
+[managed]
+service_id = "uuid"
+organization_id = "uuid"
+hostname = "my-api.clusterbase.dev"
+```
+
+**Commit this file.** It is the only record of the project's shape; a clone
+without it falls back to guessing the entry point. `[serverless]` is always
+written last — TOML binds bare keys to the preceding table header, so a
+`[serverless]` table placed above compute's top-level `name`/`mode` would
+swallow them.
+
+Subsequent compute commands read `[managed].service_id` and
+`[managed].organization_id` when no flag is passed.
+
+### `.ccp/config.json` - local link
 
 ```json
 {
@@ -152,11 +196,17 @@ both, or neither.
 }
 ```
 
-`index` is the server entry; `client` (when set, e.g. `"src/main.tsx"`) is
-bundled for the browser as `/{stem}.js`, with any CSS it imports bundled to
-`/{stem}.css`; `assets` names the verbatim static-assets dir. A root
-`index.html` (Vite convention) is inlined into `__pages` at build time with
-the client script reference rewritten and the CSS link injected.
+**Shape keys here are NOT authoritative.** `index`, `client`, `assets`,
+`analytics` and `oidc_callback_path` are a derived copy kept during the staged
+migration (so an older ccp still works); `cluster.toml` wins on every read.
+Editing them here does nothing and the next write erases the edit — ccp warns
+when it detects this. Change them in `cluster.toml`.
+
+`client` (e.g. `"src/main.tsx"`) is bundled for the browser as `/{stem}.js`,
+with any CSS it imports bundled to `/{stem}.css`; `assets` names the verbatim
+static-assets dir. A root `index.html` (Vite convention) is inlined into
+`__pages` at build time with the client script reference rewritten and the CSS
+link injected.
 
 **`ccp init --template react` server-renders.** Its entry is `index.tsx`
 (not `.ts` — the handler contains JSX and esbuild picks the loader from the
@@ -176,29 +226,10 @@ The other templates keep a plain `index.ts` handler.
 The whole `.ccp/` dir is **local state and gitignored** (like Vercel's `.vercel/`):
 it holds this `config.json` — whose `database_token` is a secret — plus build
 output (`.ccp/index.js`, `.ccp/public/`). Do not commit it; re-establish the link
-on CI / another machine via `CCP_ORG_ID` + `--function-id`. New projects use
+on CI / another machine via `CCP_ORG_ID` + `--function-id` — the shape needs no
+re-establishing, because `cluster.toml` is committed. New projects use
 `.ccp/`; a legacy `.cluster/config.json` (pre-migration) is still read as a
 fallback, so existing linked projects keep working without changes.
-
-### `cluster.toml` - compute link
-
-```toml
-name = "my-api"
-mode = "binary" # or "image"
-
-[service]
-internal_port = 8080
-always_on = false
-
-[managed]
-service_id = "uuid"
-organization_id = "uuid"
-hostname = "my-api.clusterbase.dev"
-```
-
-`ccp compute deploy` writes this file. Subsequent compute commands read
-`[managed].service_id` and `[managed].organization_id` when no flag is passed.
-Commit it when the compute service is part of the project.
 
 ## Bundled reference files
 
@@ -222,7 +253,12 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - Do not use TUI commands in headless mode. Use `ccp db exec`, not
   `ccp db connect`.
 - Destructive commands auto-confirm with `CCP_HEADLESS=1`; check the target ID.
-- Commit `cluster.toml` when it is a durable compute link for the project.
+- Always commit `cluster.toml`. `ccp init` writes it, and it carries the
+  project's shape under `[serverless]` (entry, client, assets) as well as any
+  compute link. A clone without it falls back to guessing the entry point.
+- Shape keys are read from `cluster.toml`, not `.ccp/config.json`. Setting
+  `index`/`client`/`assets`/`analytics` in the gitignored file is ignored and
+  then overwritten; ccp warns when it sees this.
 - Do not commit `.env`, `node_modules/`, or `.ccp/` — `.ccp/` is local ccp state
   (gitignored wholesale, like Vercel's `.vercel/`), holding build output and a
   `config.json` whose `database_token` is a secret. Re-establish the serverless

@@ -47,7 +47,7 @@ toolchains.
 
 ### Client bundle and CSS imports
 
-When `.ccp/config.json` sets `"client"` (e.g. `src/main.tsx`), that entry is
+When `cluster.toml`'s `[serverless]` sets `client` (e.g. `src/main.tsx`), that entry is
 bundled for the browser and served at `/{stem}.js` (`main.js`). CSS imported
 from the client (`import "./App.css"` — multiple files, `@import`, and
 `*.module.css` all work) is bundled into a single `/{stem}.css` (`main.css`).
@@ -109,8 +109,8 @@ API). For per-request debugging use `ccp logs`, not analytics.
 "Analytics backend is unavailable" means the ClickHouse store is down or not
 configured in this environment — it never blocks serving traffic.
 
-Two collection tiers, selected per deployment by `analytics` in
-`.ccp/config.json`:
+Two collection tiers, selected per deployment by `analytics` under
+`[serverless]` in `cluster.toml`:
 
 - `"server"` (default): pageviews derived from HTML responses at the edge.
   Zero setup; SPA soft-navigations are not visible.
