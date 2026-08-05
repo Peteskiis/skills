@@ -1,18 +1,18 @@
 ## Domains: custom domains
 
-Domains are org-scoped resources that can be linked to serverless Functions or
+Domains are org-scoped resources that can be linked to serverless Apps or
 compute VMs.
 
 ```sh
 ccp domain add example.com [--org-id O]
 ccp domain ls [--org-id O]
-ccp domain link example.com --function-id F
+ccp domain link example.com --app A
 ccp domain link example.com --vm "<vm_id>:<port>"
 ccp domain unlink example.com
 ccp domain remove example.com
 ```
 
-For Functions, prefer `--function-id` when headless. For compute services, read
+For Apps, prefer `--app` when headless. For compute services, read
 the VM ID from `ccp compute status`, then link with the service port:
 
 ```sh
