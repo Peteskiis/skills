@@ -25,6 +25,27 @@ To target the same App from CI or another machine, pass `--app-id` and
 set `CCP_ORG_ID` (dev VMs get `CCP_ORG_ID` + `CCP_SESSION_TOKEN` auto-injected)
 rather than committing `.ccp/config.json`.
 
+### A config written before the App rename
+
+A `.ccp/config.json` that links the project by `function_id` (the pre-rename
+key) is **rejected**, not silently ignored:
+
+```
+.ccp/config.json predates the App rename: it links this project by
+`function_id`, which is no longer read.
+```
+
+Relink explicitly — the id itself did not change, only the key name:
+
+```sh
+ccp deploy --app-id <the id from the error>
+```
+
+That clears the retired key and links the project properly; every later command
+works normally. Do not delete the key by hand and re-run a bare `ccp deploy`:
+an unlinked project auto-creates a **new** App and deploys there, while the
+original keeps serving the production hostname and every custom domain.
+
 ### Deploy
 
 ```sh
