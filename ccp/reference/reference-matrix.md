@@ -7,17 +7,17 @@ With `CCP_HEADLESS=1` set:
 | `ccp init <name>` | yes | positional `<name>` |
 | `ccp dev` | yes | project directory |
 | `ccp build` | yes | project directory |
-| `ccp deploy` | yes | linked config, or org/function resolution |
-| `ccp link` | yes | `--org-id` and `--function-id` |
+| `ccp deploy` | yes | linked config, or org/app resolution |
+| `ccp link` | yes | `--org-id` and `--app-id` |
 | `ccp list` / `ccp ls` | yes | linked project or org resolution |
-| `ccp logs` | yes | linked project or `FUNCTION_ID` |
-| `ccp analytics` | yes | linked project or `FUNCTION_ID` |
+| `ccp logs` | yes | linked project or `APP_ID` |
+| `ccp analytics` | yes | linked project or `APP_ID` |
 | `ccp remove` | yes, destructive | linked project |
 | `ccp promote` | yes | `DEPLOYMENT_ID` |
 | `ccp undeploy` | yes, destructive | `DEPLOYMENT_ID` |
 | `ccp store create` | yes | org resolution |
 | `ccp store put/get/ls/rm` | yes | store resolution; `CCP_STORE_ID` supported |
-| `ccp db create` | yes | org resolution; optional linked project or `--function-id` |
+| `ccp db create` | yes | org resolution; optional linked project or `--app-id` |
 | `ccp db ls` | yes | org resolution |
 | `ccp db info/exec/migrate` | yes | linked project or `--db-id` |
 | `ccp db destroy` | yes, destructive | `DB_ID` |

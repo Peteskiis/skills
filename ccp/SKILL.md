@@ -1,6 +1,6 @@
 ---
 name: ccp
-description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless functions and long-running compute services, provision managed Postgres databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
+description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, provision managed Postgres databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
 ---
 
 # ccp - Agent Runbook
@@ -33,7 +33,7 @@ IDs before running commands such as `ccp remove`, `ccp undeploy`,
 `ccp db destroy`, `ccp db backup delete`, `ccp domain rm`, and
 `ccp compute destroy`.
 
-Identity flags such as `--org-id`, `--function-id`, `--db-id`, `--store-id`,
+Identity flags such as `--org-id`, `--app-id`, `--db-id`, `--store-id`,
 and `--service-id` still matter. Headless mode controls prompting; it does not
 choose resources for you.
 
@@ -48,7 +48,7 @@ project-pinned org exists. Resolution is:
 
 ccp manages Cluster workloads and supporting resources:
 
-- Serverless functions: V8 JavaScript/TypeScript at the edge, driven by
+- Serverless apps: V8 JavaScript/TypeScript at the edge, driven by
   `ccp deploy`. Shape is committed in `cluster.toml`; the link is local in
   `.ccp/config.json`.
 - Compute services: long-running services with public HTTPS hostnames, driven by
@@ -219,7 +219,7 @@ hint used to come from the committed file.
 
 ```json
 {
-  "function_id": "fn_...",
+  "app_id": "app_...",
   "organization_id": "org_...",
   "store_id": "",
   "oidc_client_id": "",
@@ -261,7 +261,7 @@ it holds this `config.json` — whose `database_token` is a secret — plus
 `compute-link.json` and build output (`.ccp/index.js`, `.ccp/public/`). It also
 carries its own `.gitignore` containing `*`, so it stays out of git even in a
 project that was never `ccp init`'d. Do not commit it; re-establish the link
-on CI / another machine via `CCP_ORG_ID` + `--function-id` — the shape needs no
+on CI / another machine via `CCP_ORG_ID` + `--app-id` — the shape needs no
 re-establishing, because `cluster.toml` is committed. New projects use
 `.ccp/`; a legacy `.cluster/config.json` (pre-migration) is still read as a
 fallback, so existing linked projects keep working without changes.
@@ -270,11 +270,11 @@ fallback, so existing linked projects keep working without changes.
 
 Read only the runbook your task needs:
 
-- `reference/deploy.md` - Functions: scaffold, deploy, promote, logs, dev, link, list, delete
+- `reference/deploy.md` - Apps: scaffold, deploy, promote, logs, dev, link, list, delete
 - `reference/stores.md` - Static-file buckets: put/get/ls/rm, content-addressed URLs, image transforms
 - `reference/oidc.md` - Sign in with Cluster: register OAuth2/OIDC clients, redirect URIs, secrets
 - `reference/db.md` - Managed Postgres: create, exec SQL, migrate, backups, client-access
-- `reference/domains.md` - Custom domains: add, link to a function or VM, unlink, remove
+- `reference/domains.md` - Custom domains: add, link to an app or VM, unlink, remove
 - `reference/compute.md` - Long-running services: deploy, status, logs, exec, restart
 - `reference/ci.md` - Ephemeral CI build jobs: .cluster-ci.yaml, exit-code gating, --json/--no-wait
 - `reference/env.md` - Per-VM env on dev VMs: list/get/set/unset, visibility, refresh-system
@@ -318,7 +318,7 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - Do not commit `.env`, `node_modules/`, or `.ccp/` — `.ccp/` is local ccp state
   (gitignored wholesale, like Vercel's `.vercel/`), holding build output and a
   `config.json` whose `database_token` is a secret. Re-establish the serverless
-  link on CI / another machine with `CCP_ORG_ID` + `--function-id`, not by
+  link on CI / another machine with `CCP_ORG_ID` + `--app-id`, not by
   committing `.ccp/config.json`.
 - `CCP_SESSION_TOKEN` from the environment is used as-is and is not refreshed by
   ccp. A 401 usually means re-sync or re-export the token.

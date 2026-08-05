@@ -1,7 +1,7 @@
 ## Databases: managed Postgres
 
 ```sh
-ccp db create [--name mydb] [--function-id F] [--org-id ORG]
+ccp db create [--name mydb] [--app-id A] [--org-id ORG]
 ccp db ls [--org-id ORG]
 ccp db info <DB_ID>
 ccp db destroy <DB_ID>
@@ -9,7 +9,7 @@ ccp db destroy <DB_ID>
 
 `ccp db create` writes `database_id`, `database_token`, and `organization_id` to
 `.ccp/config.json`, injects `DATABASE_URL` and `DATABASE_TOKEN` into the
-linked Function when possible, and mirrors them into local `.env`.
+linked App when possible, and mirrors them into local `.env`.
 
 Databases are organization-owned. Create and list resolve the organization in
 this order: `--org-id`, `.ccp/config.json`, `CCP_ORG_ID`, sole organization, or

@@ -1,6 +1,6 @@
-## Functions: scaffold, deploy, logs, and local dev
+## Apps: scaffold, deploy, logs, and local dev
 
-Use this topic for serverless functions. Compute services use
+Use this topic for serverless apps. Compute services use
 `ccp skills compute`.
 
 ### Scaffold and first deploy
@@ -16,24 +16,24 @@ scaffold, unless the target directory is already inside one; `--no-git` skips
 this. It is best-effort: a missing `git` or an unconfigured commit identity
 prints a notice and never fails the scaffold.
 
-Headless first deploy auto-creates and links a Function when it can resolve an
+Headless first deploy auto-creates and links an App when it can resolve an
 org. Org resolution is `--org-id` > project config > `CCP_ORG_ID` > sole-org
 auto-pick > error. The remote IDs land in `.ccp/config.json` (gitignored local
 state — not committed).
 
-To target the same Function from CI or another machine, pass `--function-id` and
+To target the same App from CI or another machine, pass `--app-id` and
 set `CCP_ORG_ID` (dev VMs get `CCP_ORG_ID` + `CCP_SESSION_TOKEN` auto-injected)
 rather than committing `.ccp/config.json`.
 
 ### Deploy
 
 ```sh
-ccp deploy [--prod] [--org-id O] [--function-id F] [--public-dir DIR] [PATH]
+ccp deploy [--prod] [--org-id O] [--app-id A] [--public-dir DIR] [PATH]
 ```
 
-- Linked config or explicit `--org-id` plus `--function-id` deploys to that
-  Function without prompting.
-- Unlinked headless deploy creates and links a Function named after the project.
+- Linked config or explicit `--org-id` plus `--app-id` deploys to that
+  App without prompting.
+- Unlinked headless deploy creates and links an App named after the project.
 - Preview deploy is the default; `--prod` promotes the new deployment to prod.
 - The deployment URL is printed on stdout.
 
@@ -86,25 +86,25 @@ Missing assets return a 404 `Response`; traversal or absolute paths reject.
 ### Logs
 
 ```sh
-ccp logs [FUNCTION_ID] [-n LIMIT] [--level info,warn,error,debug] \
+ccp logs [APP_ID] [-n LIMIT] [--level info,warn,error,debug] \
   [--deployment DEPLOYMENT_ID] [-f]
 ```
 
-`FUNCTION_ID` falls back to `.ccp/config.json`. Output is one plain line per
+`APP_ID` falls back to `.ccp/config.json`. Output is one plain line per
 entry and pipes cleanly.
 
 ### Web analytics
 
 ```sh
-ccp analytics [FUNCTION_ID] [--period 24h|7d|30d|90d] \
+ccp analytics [APP_ID] [--period 24h|7d|30d|90d] \
   [--by url|referrer|browser|os|device|country]
 ```
 
-Product traffic view for a deployed Function — cookieless pageviews
+Product traffic view for a deployed App — cookieless pageviews
 (visitors, visits, pageviews, bounce rate, average visit); `--by` prints a
-top-10 breakdown ranked by visitors. Default period is `7d`; `FUNCTION_ID`
-falls back to `.ccp/config.json`. Collection is on by default per function
-(toggle with `PATCH /functions/:id {"analytics_enabled": false}` via the
+top-10 breakdown ranked by visitors. Default period is `7d`; `APP_ID`
+falls back to `.ccp/config.json`. Collection is on by default per app
+(toggle with `PATCH /apps/:id {"analytics_enabled": false}` via the
 API). For per-request debugging use `ccp logs`, not analytics.
 "Analytics backend is unavailable" means the ClickHouse store is down or not
 configured in this environment — it never blocks serving traffic.
@@ -134,7 +134,7 @@ dev scripts when the goal is to run the Cluster local runtime.
 ### Link, list, promote, delete
 
 ```sh
-ccp link --org-id O --function-id F
+ccp link --org-id O --app-id A
 ccp list                 # alias: ccp ls
 ccp promote DEPLOYMENT_ID
 ccp undeploy DEPLOYMENT_ID

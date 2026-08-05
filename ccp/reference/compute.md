@@ -1,7 +1,7 @@
 ## Compute services
 
 Compute services are long-running workloads reached at
-`<name>.clusterbase.dev`. They are separate from serverless Functions and use
+`<name>.clusterbase.dev`. They are separate from serverless Apps and use
 `cluster.toml`.
 
 ### Deploy
