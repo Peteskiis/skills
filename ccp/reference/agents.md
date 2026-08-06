@@ -20,8 +20,10 @@ error message: it names valid values.
 
 ## Headless use
 
-Pass `--org-id` (or set `CCP_ORG_ID`) to skip the interactive organization
-picker. `list`, `get`, and `create` are all non-interactive with it.
+`list` and `create` accept `--org-id` (or `CCP_ORG_ID`) to skip the
+interactive organization picker. `get` needs no org context — it addresses
+the agent by ID directly; an unknown or inaccessible (cross-org) ID returns
+the server's 404.
 
 ## Endpoint
 
