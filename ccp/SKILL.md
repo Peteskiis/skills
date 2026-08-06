@@ -278,6 +278,7 @@ Read only the runbook your task needs:
 - `reference/compute.md` - Long-running services: deploy, status, logs, exec, restart
 - `reference/ci.md` - Ephemeral CI build jobs: .cluster-ci.yaml, exit-code gating, --json/--no-wait
 - `reference/env.md` - Per-VM env on dev VMs: list/get/set/unset, visibility, refresh-system
+- `reference/agents.md` - AI agents: list, inspect, create; org scoping and endpoint override
 - `reference/reference-matrix.md` - per-command headless-safety and required-argument matrix
 
 These files match the ccp version they were exported from. `ccp skills <topic>` prints the same runbook straight from the installed binary and is always current.

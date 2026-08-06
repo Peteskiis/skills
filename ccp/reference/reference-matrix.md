@@ -35,6 +35,9 @@ With `CCP_HEADLESS=1` set:
 | `ccp ci` | yes | git repo with origin and `.cluster-ci.yaml` |
 | `ccp env list/get/set/unset` | yes | `--vm <vm_id>` |
 | `ccp env refresh-system` | yes | `--vm <vm_id>` |
+| `ccp agents list` / `ccp agents ls` | yes | `--org-id` (or `CCP_ORG_ID`) for org resolution |
+| `ccp agents get` | yes | `--org-id` (or `CCP_ORG_ID`); `AGENT_ID` |
+| `ccp agents create` | yes | `--org-id` (or `CCP_ORG_ID`); `--name` and `--model` |
 | `ccp skills [topic\|all]` | yes | nothing; `--export DIR` writes the agent-skill bundle (maintainer tool) |
 | `ccp auth login` | interactive | human approval in browser |
 | `ccp auth print/export-access-token` | yes | logged-in session |
