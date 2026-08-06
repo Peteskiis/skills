@@ -18,6 +18,11 @@ error message: it names valid values.
   `--metadata key=value`. MCP server declarations cannot be set from the
   CLI yet.
 
+Archived agents still appear in `list` and `get`, flagged with an
+`archived` marker (and timestamp in `get`) — check for it before using an
+agent from a listing. API errors include the server's `request_id`; quote
+it when reporting a failure.
+
 ## Headless use
 
 `list` and `create` accept `--org-id` (or `CCP_ORG_ID`) to skip the
