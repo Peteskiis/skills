@@ -35,6 +35,7 @@ With `CCP_HEADLESS=1` set:
 | `ccp ci` | yes | git repo with origin and `.cluster-ci.yaml` |
 | `ccp env list/get/set/unset` | yes | `--vm <vm_id>` |
 | `ccp env refresh-system` | yes | `--vm <vm_id>` |
+| `ccp apply` | yes | `-f <manifest>`; `--org-id` (or `CCP_ORG_ID`); optional `--dry-run` |
 | `ccp agents list` / `ccp agents ls` | yes | `--org-id` (or `CCP_ORG_ID`) for org resolution |
 | `ccp agents get` | yes | `AGENT_ID` (no org context needed — cross-org access 404s) |
 | `ccp agents create` | yes | `--org-id` (or `CCP_ORG_ID`); `--name` and `--model` |

@@ -6,6 +6,10 @@ error message: it names valid values.
 
 ## Commands
 
+- `ccp apply -f <manifest.yaml> [--org-id <org>] [--dry-run]` — reconcile one
+  declarative resource. The first version accepts exactly one `Agent` document;
+  the server reports `created`, `updated`, or `unchanged`. `--dry-run` performs
+  the same validation and diff without persisting anything.
 - `ccp agents list [--org-id <org>]` (alias `ls`) — list the organization's
   agents: id, name, model, version, definition source, updated time.
 - `ccp agents get <agent_id>` — full definition: model, reasoning effort,
@@ -18,6 +22,31 @@ error message: it names valid values.
   `--metadata key=value`. MCP server declarations cannot be set from the
   CLI yet.
 
+## Agent manifest
+
+```yaml
+apiVersion: agents.clusterbase.ai/v1
+kind: Agent
+metadata:
+  name: release-notes
+spec:
+  name: Release Notes
+  model: claude-sonnet-5
+  system: |
+    Write concise release notes.
+  tools:
+    - web_search
+  mcp_servers: []
+  reasoning_effort: low
+  metadata:
+    team: platform
+```
+
+`metadata.name` is the stable organization-scoped identity; changing
+`spec.name` only changes the display name. Applied agents remain runnable but
+must be edited by reapplying their manifest, not through imperative patch or
+archive calls. Unknown fields and additional YAML documents are rejected.
+
 Archived agents still appear in `list` and `get`, flagged with an
 `archived` marker (and timestamp in `get`) — check for it before using an
 agent from a listing. API errors include the server's `request_id`; quote
@@ -25,7 +54,7 @@ it when reporting a failure.
 
 ## Headless use
 
-`list` and `create` accept `--org-id` (or `CCP_ORG_ID`) to skip the
+`apply`, `list`, and `create` accept `--org-id` (or `CCP_ORG_ID`) to skip the
 interactive organization picker. `get` needs no org context — it addresses
 the agent by ID directly; an unknown or inaccessible (cross-org) ID returns
 the server's 404.
