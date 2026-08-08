@@ -7,9 +7,9 @@ error message: it names valid values.
 ## Commands
 
 - `ccp apply -f <manifest.yaml> [--org-id <org>] [--dry-run]` — reconcile one
-  declarative resource. The first version accepts exactly one `Agent` document;
-  the server reports `created`, `updated`, or `unchanged`. `--dry-run` performs
-  the same validation and diff without persisting anything.
+  `Agent` document and its optional schedules. The server reports each resource
+  as `created`, `updated`, `unchanged`, or `deleted`. `--dry-run` performs the
+  same validation and diff without persisting anything.
 - `ccp agents list [--org-id <org>]` (alias `ls`) — list the organization's
   agents: id, name, model, version, definition source, updated time.
 - `ccp agents get <agent_id>` — full definition: model, reasoning effort,
@@ -40,12 +40,23 @@ spec:
   reasoning_effort: low
   metadata:
     team: platform
+  schedules:
+    - name: weekday-summary
+      cron: "0 9 * * 1-5"
+      timezone: America/Los_Angeles
+      kickoff: Write the weekday release summary.
+      enabled: true
 ```
 
 `metadata.name` is the stable organization-scoped identity; changing
 `spec.name` only changes the display name. Applied agents remain runnable but
 must be edited by reapplying their manifest, not through imperative patch or
-archive calls. Unknown fields and additional YAML documents are rejected.
+archive calls. Schedule names are stable within the Agent. Omitting
+`spec.schedules` leaves existing applied schedules untouched; a present list is
+authoritative, and `schedules: []` explicitly removes all schedules managed by
+that Agent manifest. Imperative and boot-managed schedules are never pruned.
+Schedules run without deployment environments or vault credentials in this
+slice. Unknown fields and additional YAML documents are rejected.
 
 Archived agents still appear in `list` and `get`, flagged with an
 `archived` marker (and timestamp in `get`) — check for it before using an
