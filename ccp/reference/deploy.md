@@ -16,14 +16,16 @@ scaffold, unless the target directory is already inside one; `--no-git` skips
 this. It is best-effort: a missing `git` or an unconfigured commit identity
 prints a notice and never fails the scaffold.
 
-Headless first deploy auto-creates and links an App when it can resolve an
-org. Org resolution is `--org-id` > project config > `CCP_ORG_ID` > sole-org
-auto-pick > error. The remote IDs land in `.ccp/config.json` (gitignored local
+Headless deploy resolves the project name in the selected org first: it links
+an exact existing App, or creates one only when that name is free. Org
+resolution is `--org-id` > project config > `CCP_ORG_ID` > sole-org auto-pick
+> error. The resolved remote IDs land in `.ccp/config.json` (gitignored local
 state — not committed).
 
-To target the same App from CI or another machine, pass `--app-id` and
-set `CCP_ORG_ID` (dev VMs get `CCP_ORG_ID` + `CCP_SESSION_TOKEN` auto-injected)
-rather than committing `.ccp/config.json`.
+On CI or another machine, select the org with `--org-id` or `CCP_ORG_ID` (dev
+VMs receive `CCP_ORG_ID` + `CCP_SESSION_TOKEN` automatically); deploy then
+re-establishes the App link by name. Pass `--app-id` only to override that
+identity explicitly. Never commit `.ccp/config.json`.
 
 ### A config written before the App rename
 
@@ -42,9 +44,9 @@ ccp deploy --app-id <the id from the error>
 ```
 
 That clears the retired key and links the project properly; every later command
-works normally. Do not delete the key by hand and re-run a bare `ccp deploy`:
-an unlinked project auto-creates a **new** App and deploys there, while the
-original keeps serving the production hostname and every custom domain.
+works normally. Do not delete the key by hand and rely on name discovery: if
+the project's derived name has drifted, an unlinked deploy creates a new App
+while the original keeps serving the production hostname and custom domains.
 
 ### Deploy
 
@@ -54,7 +56,8 @@ ccp deploy [--prod] [--org-id O] [--app-id A] [--public-dir DIR] [PATH]
 
 - Linked config or explicit `--org-id` plus `--app-id` deploys to that
   App without prompting.
-- Unlinked headless deploy creates and links an App named after the project.
+- Unlinked deploy attaches to an exact same-name App in the selected org, or
+  creates and links one when the name is free.
 - Preview deploy is the default; `--prod` promotes the new deployment to prod.
 - The deployment URL is printed on stdout.
 

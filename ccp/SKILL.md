@@ -260,9 +260,10 @@ The whole `.ccp/` dir is **local state and gitignored** (like Vercel's `.vercel/
 it holds this `config.json` — whose `database_token` is a secret — plus
 `compute-link.json` and build output (`.ccp/index.js`, `.ccp/public/`). It also
 carries its own `.gitignore` containing `*`, so it stays out of git even in a
-project that was never `ccp init`'d. Do not commit it; re-establish the link
-on CI / another machine via `CCP_ORG_ID` + `--app-id` — the shape needs no
-re-establishing, because `cluster.toml` is committed. New projects use
+project that was never `ccp init`'d. Do not commit it; on CI / another machine,
+select the org with `CCP_ORG_ID` and `ccp deploy` re-establishes the App link by
+exact project name. Use `--app-id` only as an explicit override — the shape
+needs no re-establishing, because `cluster.toml` is committed. New projects use
 `.ccp/`; a legacy `.cluster/config.json` (pre-migration) is still read as a
 fallback, so existing linked projects keep working without changes.
 
@@ -323,9 +324,9 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
   or upgrade again.
 - Do not commit `.env`, `node_modules/`, or `.ccp/` — `.ccp/` is local ccp state
   (gitignored wholesale, like Vercel's `.vercel/`), holding build output and a
-  `config.json` whose `database_token` is a secret. Re-establish the serverless
-  link on CI / another machine with `CCP_ORG_ID` + `--app-id`, not by
-  committing `.ccp/config.json`.
+  `config.json` whose `database_token` is a secret. On CI / another machine,
+  select the org with `CCP_ORG_ID`; `ccp deploy` re-establishes the serverless
+  link by exact project name. Use `--app-id` only as an explicit override.
 - `CCP_SESSION_TOKEN` from the environment is used as-is and is not refreshed by
   ccp. A 401 usually means re-sync or re-export the token.
 - Set `CCP_API_URL` to the environment's `api.<cluster>` origin when targeting a
