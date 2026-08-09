@@ -36,9 +36,11 @@ With `CCP_HEADLESS=1` set:
 | `ccp env list/get/set/unset` | yes | `--vm <vm_id>` |
 | `ccp env refresh-system` | yes | `--vm <vm_id>` |
 | `ccp apply` | yes | `-f <manifest>`; `--org-id` (or `CCP_ORG_ID`); optional `--dry-run` |
-| `ccp agents list` / `ccp agents ls` | yes | `--org-id` (or `CCP_ORG_ID`) for org resolution |
-| `ccp agents get` | yes | `AGENT_ID` (no org context needed — cross-org access 404s) |
-| `ccp agents create` | yes | `--org-id` (or `CCP_ORG_ID`); `--name` and `--model` |
+| `ccp delete` | yes, destructive | `-f <manifest>`; `--org-id` (or `CCP_ORG_ID`); optional `--dry-run` |
+| `ccp agent list` / `ccp agent ls` | yes | `--org-id` (or `CCP_ORG_ID`) for org resolution |
+| `ccp agent get` | yes | `AGENT_ID` (no org context needed — cross-org access 404s) |
+| `ccp agent create` | yes | `--org-id` (or `CCP_ORG_ID`); `--name` and `--model` |
+| `ccp agent delete` | yes, destructive | `AGENT_ID`; optional `--yes` |
 | `ccp skills [topic\|all]` | yes | nothing; `--export DIR` writes the agent-skill bundle (maintainer tool) |
 | `ccp auth login` | interactive | human approval in browser |
 | `ccp auth print/export-access-token` | yes | logged-in session |

@@ -10,17 +10,23 @@ error message: it names valid values.
   `Agent` document and its optional schedules. The server reports each resource
   as `created`, `updated`, `unchanged`, or `deleted`. `--dry-run` performs the
   same validation and diff without persisting anything.
-- `ccp agents list [--org-id <org>]` (alias `ls`) — list the organization's
+- `ccp delete -f <manifest.yaml> [--org-id <org>] [--dry-run]` — permanently
+  delete an applied Agent, all versions, and dependent runtime history. A later
+  apply creates a new Agent id at version 1.
+- `ccp agent list [--org-id <org>]` (alias `ls`) — list the organization's
   agents: id, name, model, version, definition source, updated time.
-- `ccp agents get <agent_id>` — full definition: model, reasoning effort,
+- `ccp agent get <agent_id>` — full definition: model, reasoning effort,
   tools, MCP declarations, metadata, version, source, timestamps, system
   prompt. Unknown or inaccessible IDs return the server's 404.
-- `ccp agents create --name <name> --model <model> [options]` — create an
+- `ccp agent create --name <name> --model <model> [options]` — create an
   agent and print its id. Options: `--org-id`, `--system <text>` or
   `--system-file <path>` (mutually exclusive; file must be UTF-8),
   repeatable `--tool <name>`, `--reasoning-effort <level>`, repeatable
   `--metadata key=value`. MCP server declarations cannot be set from the
   CLI yet.
+- `ccp agent delete <agent_id> [--yes]` — permanently delete an imperative
+  Agent, all versions, and dependent runtime history. Applied Agents must use
+  `ccp delete -f` so the manifest key remains the deletion authority.
 
 ## Agent manifest
 
@@ -65,7 +71,7 @@ it when reporting a failure.
 
 ## Headless use
 
-`apply`, `list`, and `create` accept `--org-id` (or `CCP_ORG_ID`) to skip the
+`apply`, manifest `delete`, `list`, and `create` accept `--org-id` (or `CCP_ORG_ID`) to skip the
 interactive organization picker. `get` needs no org context — it addresses
 the agent by ID directly; an unknown or inaccessible (cross-org) ID returns
 the server's 404.
