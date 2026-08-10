@@ -16,16 +16,26 @@ scaffold, unless the target directory is already inside one; `--no-git` skips
 this. It is best-effort: a missing `git` or an unconfigured commit identity
 prints a notice and never fails the scaffold.
 
-Headless deploy resolves the project name in the selected org first: it links
-an exact existing App, or creates one only when that name is free. Org
-resolution is `--org-id` > project config > `CCP_ORG_ID` > sole-org auto-pick
-> error. The resolved remote IDs land in `.ccp/config.json` (gitignored local
-state — not committed).
+Headless first deploy resolves an org, then attaches an exact same-named App
+when one already exists there. Otherwise it reuses or creates a same-named
+Project and creates the App inside it. Org resolution is `--org-id` > project
+config > `CCP_ORG_ID` > sole-org auto-pick > error. The Project, App, and org
+IDs land in `.ccp/config.json` (gitignored local state — not committed).
 
-On CI or another machine, select the org with `--org-id` or `CCP_ORG_ID` (dev
-VMs receive `CCP_ORG_ID` + `CCP_SESSION_TOKEN` automatically); deploy then
-re-establishes the App link by name. Pass `--app-id` only to override that
-identity explicitly. Never commit `.ccp/config.json`.
+Manage empty Projects directly when needed:
+
+```sh
+ccp project ls [--org-id O]
+ccp project create my-project [--org-id O]
+ccp project rm my-project --yes [--org-id O]
+```
+
+Project names are normalized to lowercase kebab-case. Removing a Project also
+deletes its Apps and Deployments.
+
+To target the same App from CI or another machine, pass `--app-id` and
+set `CCP_ORG_ID` (dev VMs get `CCP_ORG_ID` + `CCP_SESSION_TOKEN` auto-injected)
+rather than committing `.ccp/config.json`.
 
 ### A config written before the App rename
 
@@ -44,9 +54,8 @@ ccp deploy --app-id <the id from the error>
 ```
 
 That clears the retired key and links the project properly; every later command
-works normally. Do not delete the key by hand and rely on name discovery: if
-the project's derived name has drifted, an unlinked deploy creates a new App
-while the original keeps serving the production hostname and custom domains.
+works normally. Do not delete the key by hand: an exact same-name App can be
+reattached, but a renamed directory cannot identify the original App safely.
 
 ### Deploy
 
@@ -56,8 +65,8 @@ ccp deploy [--prod] [--org-id O] [--app-id A] [--public-dir DIR] [PATH]
 
 - Linked config or explicit `--org-id` plus `--app-id` deploys to that
   App without prompting.
-- Unlinked deploy attaches to an exact same-name App in the selected org, or
-  creates and links one when the name is free.
+- Unlinked headless deploy attaches an exact same-org name before creating;
+  otherwise it creates a same-named Project and App.
 - Preview deploy is the default; `--prod` promotes the new deployment to prod.
 - The deployment URL is printed on stdout.
 

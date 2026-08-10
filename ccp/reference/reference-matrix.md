@@ -13,6 +13,9 @@ With `CCP_HEADLESS=1` set:
 | `ccp logs` | yes | linked project or `APP_ID` |
 | `ccp analytics` | yes | linked project or `APP_ID` |
 | `ccp remove` | yes, destructive | linked project |
+| `ccp project ls` | yes | org resolution |
+| `ccp project create <name>` | yes | org resolution |
+| `ccp project rm <name> --yes` | yes, destructive | org resolution + exact Project name |
 | `ccp promote` | yes | `DEPLOYMENT_ID` |
 | `ccp undeploy` | yes, destructive | `DEPLOYMENT_ID` |
 | `ccp store create` | yes | org resolution |
