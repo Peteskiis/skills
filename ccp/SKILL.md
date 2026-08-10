@@ -28,8 +28,8 @@ export CCP_HEADLESS=1
 ccp also detects non-TTY stdin/stderr and behaves headlessly, but the env var is
 the explicit and preferred signal for agents.
 
-Destructive commands run without confirmation in headless mode. Verify target
-IDs before running commands such as `ccp remove`, `ccp undeploy`,
+Destructive commands require their explicit confirmation flag in headless mode.
+Verify targets before running commands such as `ccp project rm <name> --yes`, `ccp remove`, `ccp undeploy`,
 `ccp db destroy`, `ccp db backup delete`, `ccp domain rm`, and
 `ccp compute destroy`.
 
@@ -51,6 +51,8 @@ ccp manages Cluster workloads and supporting resources:
 - Serverless apps: V8 JavaScript/TypeScript at the edge, driven by
   `ccp deploy`. Shape is committed in `cluster.toml`; the link is local in
   `.ccp/config.json`.
+- Projects: organization-scoped containers for Apps and attached resources,
+  managed with `ccp project ls|create|rm`.
 - Compute services: long-running services with public HTTPS hostnames, driven by
   `ccp compute deploy`, linked through `cluster.toml`.
 - Supporting resources: stores, managed Postgres databases, custom domains,
@@ -220,6 +222,7 @@ hint used to come from the committed file.
 ```json
 {
   "app_id": "app_...",
+  "project_id": "project_...",
   "organization_id": "org_...",
   "store_id": "",
   "oidc_client_id": "",
@@ -260,10 +263,10 @@ The whole `.ccp/` dir is **local state and gitignored** (like Vercel's `.vercel/
 it holds this `config.json` — whose `database_token` is a secret — plus
 `compute-link.json` and build output (`.ccp/index.js`, `.ccp/public/`). It also
 carries its own `.gitignore` containing `*`, so it stays out of git even in a
-project that was never `ccp init`'d. Do not commit it; on CI / another machine,
-select the org with `CCP_ORG_ID` and `ccp deploy` re-establishes the App link by
-exact project name. Use `--app-id` only as an explicit override — the shape
-needs no re-establishing, because `cluster.toml` is committed. New projects use
+project that was never `ccp init`'d. Do not commit it; select the org with
+`CCP_ORG_ID` and `ccp deploy` re-establishes the App and Project link by exact
+project name. Use `--app-id` only as an explicit override — the shape needs no
+re-establishing, because `cluster.toml` is committed. New projects use
 `.ccp/`; a legacy `.cluster/config.json` (pre-migration) is still read as a
 fallback, so existing linked projects keep working without changes.
 
@@ -289,12 +292,13 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - Do not run `ccp auth login` in CI or an agent VM; set `CCP_SESSION_TOKEN`.
 - A `.ccp/config.json` carrying the pre-rename `function_id` is rejected with
   an error naming the id. Relink with `ccp deploy --app-id <id>` — the id is
-  unchanged. Never "fix" it by deleting the key: the project then reads as
-  unlinked, and a bare `ccp deploy` creates a SECOND App and deploys there
+  unchanged. Never "fix" it by deleting the key: a same-name App can be
+  reattached, but a renamed checkout cannot safely identify the original App
   while the original keeps the production hostname and domains.
 - Do not use TUI commands in headless mode. Use `ccp db exec`, not
   `ccp db connect`.
-- Destructive commands auto-confirm with `CCP_HEADLESS=1`; check the target ID.
+- Destructive commands may require `--yes` with `CCP_HEADLESS=1`; check the
+  target first.
 - Always commit `cluster.toml`. `ccp init` writes it, and it carries the
   project's shape under `[serverless]` (entry, client, assets) as well as any
   compute service's description. A clone without it falls back to guessing the
@@ -325,8 +329,9 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - Do not commit `.env`, `node_modules/`, or `.ccp/` — `.ccp/` is local ccp state
   (gitignored wholesale, like Vercel's `.vercel/`), holding build output and a
   `config.json` whose `database_token` is a secret. On CI / another machine,
-  select the org with `CCP_ORG_ID`; `ccp deploy` re-establishes the serverless
-  link by exact project name. Use `--app-id` only as an explicit override.
+  select the org with `CCP_ORG_ID`; `ccp deploy` re-establishes the App and
+  Project link by exact project name. Use `--app-id` only as an explicit
+  override.
 - `CCP_SESSION_TOKEN` from the environment is used as-is and is not refreshed by
   ccp. A 401 usually means re-sync or re-export the token.
 - Set `CCP_API_URL` to the environment's `api.<cluster>` origin when targeting a
