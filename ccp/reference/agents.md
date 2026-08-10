@@ -15,9 +15,12 @@ error message: it names valid values.
   apply creates a new Agent id at version 1.
 - `ccp agent list [--org-id <org>]` (alias `ls`) — list the organization's
   agents: id, name, model, version, definition source, updated time.
-- `ccp agent get <agent_id>` — full definition: model, reasoning effort,
-  tools, MCP declarations, metadata, version, source, timestamps, system
-  prompt. Unknown or inaccessible IDs return the server's 404.
+- `ccp agent get <agent_id> [--version <number>]` — full definition: model,
+  reasoning effort, tools, MCP declarations, metadata, version, source,
+  timestamps, system prompt. Omit `--version` for the current definition.
+  Unknown or inaccessible IDs return the server's 404.
+- `ccp agent versions <agent_id>` — list every persisted definition snapshot,
+  oldest first, with the latest marked `current`.
 - `ccp agent create --name <name> --model <model> [options]` — create an
   agent and print its id. Options: `--org-id`, `--system <text>` or
   `--system-file <path>` (mutually exclusive; file must be UTF-8),
@@ -74,9 +77,9 @@ it when reporting a failure.
 ## Headless use
 
 `apply`, manifest `delete`, `list`, and `create` accept `--org-id` (or `CCP_ORG_ID`) to skip the
-interactive organization picker. `get` needs no org context — it addresses
-the agent by ID directly; an unknown or inaccessible (cross-org) ID returns
-the server's 404.
+interactive organization picker. `get` and `versions` need no org context —
+they address the agent by ID directly; an unknown or inaccessible (cross-org)
+ID returns the server's 404.
 
 ## Endpoint
 
