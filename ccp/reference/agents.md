@@ -24,9 +24,11 @@ error message: it names valid values.
   repeatable `--tool <name>`, `--reasoning-effort <level>`, repeatable
   `--metadata key=value`. MCP server declarations cannot be set from the
   CLI yet.
-- `ccp agent delete <agent_id> [--yes]` — permanently delete an imperative
-  Agent, all versions, and dependent runtime history. Applied Agents must use
-  `ccp delete -f` so the manifest key remains the deletion authority.
+- `ccp agent delete <agent_id> [--yes]` — permanently delete any customer-owned
+  Agent, all versions, and dependent runtime history. For an applied Agent this
+  also removes its manifest binding; reapplying the file creates a new Agent id.
+- `ccp delete -f <manifest.yaml>` is the equivalent declarative addressing form
+  when the manifest is available.
 
 ## Agent manifest
 
