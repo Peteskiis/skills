@@ -58,7 +58,7 @@ spec:
         type: ephemeral
         template_id: workspace
         repos:
-          - url: Peteskiis/agents
+          - url: octocat/Hello-World
   schedules:
     - name: weekday-summary
       cron: "0 9 * * 1-5"
