@@ -7,7 +7,7 @@ error message: it names valid values.
 ## Commands
 
 - `ccp apply -f <manifest.yaml> [--org-id <org>] [--dry-run]` — reconcile one
-  `Agent` document and its optional schedules. The server reports each resource
+  `Agent` document and its optional Deployments and schedules. The server reports each resource
   as `created`, `updated`, `unchanged`, or `deleted`. `--dry-run` performs the
   same validation and diff without persisting anything.
 - `ccp delete -f <manifest.yaml> [--org-id <org>] [--dry-run]` — permanently
@@ -51,23 +51,38 @@ spec:
   reasoning_effort: low
   metadata:
     team: platform
+  deployments:
+    - name: weekday-build
+      kickoff: Build and test the repository.
+      environment:
+        type: ephemeral
+        template_id: workspace
+        repos:
+          - url: octocat/Hello-World
   schedules:
     - name: weekday-summary
       cron: "0 9 * * 1-5"
       timezone: America/Los_Angeles
-      kickoff: Write the weekday release summary.
+      deployment: weekday-build
       enabled: true
 ```
 
 `metadata.name` is the stable organization-scoped identity; changing
 `spec.name` only changes the display name. Applied agents remain runnable but
 must be edited by reapplying their manifest, not through imperative patch or
-archive calls. Schedule names are stable within the Agent. Omitting
+archive calls. Deployment and schedule names are stable within the Agent. Omitting
+`spec.deployments` leaves existing applied Deployments untouched; a present list
+is authoritative, and `deployments: []` removes them only when no preserved
+schedule still references one. A Deployment supplies its kickoff and either an
+HTTP-only execution lane (no `environment`) or a fresh ephemeral VM with an
+optional validated template and repository list. Saved environment IDs, vaults,
+secret environment variables, and private scheduled-repository credentials are
+not accepted in this slice. Omitting
 `spec.schedules` leaves existing applied schedules untouched; a present list is
 authoritative, and `schedules: []` explicitly removes all schedules managed by
-that Agent manifest. Imperative and boot-managed schedules are never pruned.
-Schedules run without deployment environments or vault credentials in this
-slice. Unknown fields and additional YAML documents are rejected.
+that Agent manifest. A schedule sets exactly one of `kickoff` (HTTP-only) or a
+manifest-local `deployment` name. Imperative and boot-managed resources are
+never pruned. Unknown fields and additional YAML documents are rejected.
 
 Archived agents still appear in `list` and `get`, flagged with an
 `archived` marker (and timestamp in `get`) — check for it before using an
