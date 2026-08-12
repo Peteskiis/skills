@@ -15,6 +15,9 @@ ccp compute deploy --name N --image I --port P [--org-id O] [-y]
 
 # Native binary; auto selects Alpine for musl/static and Debian for glibc
 ccp compute deploy --name N --binary ./server --runtime auto --port P [--org-id O] [-y]
+
+# Optional published VM shape (flags must be paired)
+ccp compute deploy --name N --port P --vcpu 2 --memory-mb 1024
 ```
 
 `--image` and `--binary` are mutually exclusive. With no mode flag, source
@@ -46,6 +49,12 @@ Alpine and glibc ELFs to Debian; explicit incompatible combinations fail before
 upload. The successful deploy writes the concrete runtime to
 `[binary].runtime`. Runtime is immutable for an existing service, so changing
 between Alpine and Debian also requires destroy/recreate.
+
+Compute resources may be omitted to use the runtime default, or selected with
+paired `--vcpu` and `--memory-mb` flags / a `[resources]` manifest block. The
+published shapes are `1/256`, `1/512`, `2/1024`, `4/2048`, and `4/4096`
+(vCPU/MiB). Resources are immutable after creation; destroy and recreate to
+change shape. `compute list` and `compute status` show the persisted shape.
 
 A checkout with a `cluster.toml` but no link — a fresh clone, or CI — attaches
 on deploy: ccp looks the name up in the org and redeploys that service, and
