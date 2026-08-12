@@ -13,8 +13,8 @@ ccp compute deploy --name N --port P [--org-id O] [-y]
 # Container image
 ccp compute deploy --name N --image I --port P [--org-id O] [-y]
 
-# Native binary
-ccp compute deploy --name N --binary ./server --port P [--org-id O] [-y]
+# Native binary; auto selects Alpine for musl/static and Debian for glibc
+ccp compute deploy --name N --binary ./server --runtime auto --port P [--org-id O] [-y]
 ```
 
 `--image` and `--binary` are mutually exclusive. With no mode flag, source
@@ -39,6 +39,13 @@ First deploy creates the service, writes the description to `cluster.toml`
 (commit it) and this machine's link to `.ccp/compute-link.json` (gitignored).
 Redeploy reads the link or `--service-id` and PATCH-updates the service. Mode is
 immutable in v1; destroy and recreate to switch image vs binary.
+
+Binary runtimes are `auto`, `alpine`, and `debian`. Resolution precedence is
+`--runtime` → `[binary].runtime` → `auto`. `auto` routes static/musl ELFs to
+Alpine and glibc ELFs to Debian; explicit incompatible combinations fail before
+upload. The successful deploy writes the concrete runtime to
+`[binary].runtime`. Runtime is immutable for an existing service, so changing
+between Alpine and Debian also requires destroy/recreate.
 
 A checkout with a `cluster.toml` but no link — a fresh clone, or CI — attaches
 on deploy: ccp looks the name up in the org and redeploys that service, and
