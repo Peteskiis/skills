@@ -102,11 +102,11 @@ flags.
 Auto-pause is transparent for deploy, logs, exec, restart, and status paths that
 need the VM awake. `--always-on` only applies at first deploy.
 
-`compute destroy` tears down the service, VM, and route, then removes compute's
-keys from `cluster.toml` and deletes `.ccp/compute-link.json` — but only when
-the destroyed service is the one this directory is linked to, so destroying
-some other service from inside a project no longer wipes that project's config.
-It auto-confirms in headless mode.
+`compute destroy` tears down the service, VM, and route, then deletes only the
+local `.ccp/compute-link.json` deployment identity. It preserves `cluster.toml`
+unchanged so `ccp compute deploy --yes` can recreate the service from the same
+committed description. Local cleanup runs only when the destroyed service is
+the one this directory is linked to. It auto-confirms in headless mode.
 
 ### Health probes
 
