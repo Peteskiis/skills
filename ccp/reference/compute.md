@@ -28,6 +28,13 @@ the `x86_64-linux-musl-gcc` cross-linker from
 of these are installed and how to install any that are missing (`--binary` with
 a pre-built static Linux ELF, or `--image`, skips the local toolchain entirely).
 
+Native binaries must be non-empty and no larger than 256 MiB. ccp records the
+size and SHA-256 during upload; each deploy or restart gives the VM a fresh
+short-lived download capability, and the guest installs the file only after
+both values match. A failed download or verification leaves the prior
+executable in place and returns a typed `binary_download_*`/`invalid_binary`
+error rather than starting partial bytes.
+
 First deploy creates the service, writes the description to `cluster.toml`
 (commit it) and this machine's link to `.ccp/compute-link.json` (gitignored).
 Redeploy reads the link or `--service-id` and PATCH-updates the service. Mode is
