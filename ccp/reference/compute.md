@@ -43,6 +43,12 @@ First deploy creates the service, writes the description to `cluster.toml`
 Redeploy reads the link or `--service-id` and PATCH-updates the service. Mode is
 immutable in v1; destroy and recreate to switch image vs binary.
 
+Binary paths are resolved against the project directory for reading and
+uploading, but remain portable in `cluster.toml`: relative spellings such as
+`./server` are preserved, an absolute path inside the project is recorded as
+`./…`, and an absolute path outside the project remains absolute to make its
+machine-local nature explicit. Redeploy does not rewrite `[binary].path`.
+
 Binary runtimes are `auto`, `alpine`, and `debian`. Resolution precedence is
 `--runtime` → `[binary].runtime` → `auto`. `auto` routes static/musl ELFs to
 Alpine and glibc ELFs to Debian; explicit incompatible combinations fail before
