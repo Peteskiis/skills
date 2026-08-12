@@ -171,6 +171,10 @@ mode = "binary" # or "image"
 [service]
 internal_port = 8080
 always_on = false
+
+[resources]
+vcpu = 2
+memory_mb = 1024
 ```
 
 **Commit this file.** It is the only record of the project's shape; a clone
