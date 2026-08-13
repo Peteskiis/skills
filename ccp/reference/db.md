@@ -14,7 +14,8 @@ linked App when possible, and mirrors them into local `.env`.
 When the current directory's `cluster.toml` contains `[network]`, create also
 attaches the database to that network. It is reachable by other members as
 `<database-name>.<network>.internal`; its public database proxy remains
-available unchanged.
+available unchanged. Database names are normalized to lowercase and must be a
+valid DNS label of at most 63 characters.
 
 Databases are organization-owned. Create and list resolve the organization in
 this order: `--org-id`, `.ccp/config.json`, `CCP_ORG_ID`, sole organization, or
