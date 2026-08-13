@@ -128,6 +128,12 @@ traffic cannot trigger the public proxy wake path. Removing `[network]` from a
 described redeploy detaches the service; an undescribed source-only deploy
 preserves its current membership.
 
+`always_on` is fixed when the VM is created. To attach an existing pausable
+service, destroy it and deploy it again with both `always_on = true` and the
+`[network]` block. During the same-node phase, all active members of a named
+network must be scheduled on one vm-agent node; a cross-node attachment is
+rejected until encrypted node-to-node transport is available.
+
 `compute destroy` tears down the service, VM, and route, then deletes only the
 local `.ccp/compute-link.json` deployment identity. It preserves `cluster.toml`
 unchanged so `ccp compute deploy --yes` can recreate the service from the same
