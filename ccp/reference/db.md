@@ -11,6 +11,11 @@ ccp db destroy <DB_ID>
 `.ccp/config.json`, injects `DATABASE_URL` and `DATABASE_TOKEN` into the
 linked App when possible, and mirrors them into local `.env`.
 
+When the current directory's `cluster.toml` contains `[network]`, create also
+attaches the database to that network. It is reachable by other members as
+`<database-name>.<network>.internal`; its public database proxy remains
+available unchanged.
+
 Databases are organization-owned. Create and list resolve the organization in
 this order: `--org-id`, `.ccp/config.json`, `CCP_ORG_ID`, sole organization, or
 the interactive picker. In headless multi-organization environments, pass

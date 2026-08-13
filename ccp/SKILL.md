@@ -175,6 +175,10 @@ always_on = false
 [resources]
 vcpu = 2
 memory_mb = 1024
+
+# Optional private service network; requires always_on = true.
+[network]
+name = "backend"
 ```
 
 **Commit this file.** It is the only record of the project's shape; a clone

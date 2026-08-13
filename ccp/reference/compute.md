@@ -108,6 +108,26 @@ flags.
 Auto-pause is transparent for deploy, logs, exec, restart, and status paths that
 need the VM awake. `--always-on` only applies at first deploy.
 
+### Private networks
+
+Add an organization-scoped private network to `cluster.toml`:
+
+```toml
+[service]
+internal_port = 8080
+always_on = true
+
+[network]
+name = "backend"
+```
+
+The network is created automatically. Members resolve each other as
+`<service>.backend.internal`; compute and managed Postgres names share that
+namespace. Network-attached compute must remain always-on because private L3
+traffic cannot trigger the public proxy wake path. Removing `[network]` from a
+described redeploy detaches the service; an undescribed source-only deploy
+preserves its current membership.
+
 `compute destroy` tears down the service, VM, and route, then deletes only the
 local `.ccp/compute-link.json` deployment identity. It preserves `cluster.toml`
 unchanged so `ccp compute deploy --yes` can recreate the service from the same

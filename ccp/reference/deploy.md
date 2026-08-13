@@ -3,6 +3,10 @@
 Use this topic for serverless apps. Compute services use
 `ccp skills compute`.
 
+Serverless Apps do not support `[network]` yet. `ccp deploy` rejects a manifest
+containing that section with `network_not_supported` instead of silently
+ignoring it.
+
 ### Scaffold and first deploy
 
 ```sh
