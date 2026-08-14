@@ -46,7 +46,7 @@ With `CCP_HEADLESS=1` set:
 | `ccp agent create` | yes | `--org-id` (or `CCP_ORG_ID`); `--name` and `--model` |
 | `ccp agent delete` | yes, destructive | `AGENT_ID`; optional `--yes` |
 | `ccp skills [topic\|all]` | yes | nothing; `--export DIR` writes the agent-skill bundle (maintainer tool) |
-| `ccp auth login` | interactive | human approval in browser |
+| `ccp auth login [--browser\|--device]` | interactive | browser PKCE locally; device approval on SSH/headless hosts |
 | `ccp auth print/export-access-token` | yes | logged-in session |
 | `ccp auth logout` | yes | existing session |
 | `ccp doctor` | yes | nothing (offline V8/JIT self-check; then an advisory toolchain-deps report — go/esbuild/cargo+musl for deploys. Exits non-zero only when the runtime is broken, never for a missing dep. `--deps` = report only, no V8; `--yes` = auto-install the safe subset) |
