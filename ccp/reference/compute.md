@@ -107,6 +107,8 @@ flags.
 
 Auto-pause is transparent for deploy, logs, exec, restart, and status paths that
 need the VM awake. `--always-on` only applies at first deploy.
+Workload operations return `service_not_running` while initial deployment is
+still pending; wait for deployment to finish before retrying.
 
 `compute destroy` tears down the service, VM, and route, then deletes only the
 local `.ccp/compute-link.json` deployment identity. It preserves `cluster.toml`
