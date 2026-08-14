@@ -108,12 +108,19 @@ Useful auth commands:
 
 ```sh
 ccp auth login
+ccp auth login --browser
+ccp auth login --device
 ccp auth logout
 ccp auth print-access-token
 ccp auth export-access-token
 ccp auth sync --vm <vm_id>
 ccp auth desync --vm <vm_id>
 ```
+
+`ccp auth login` opens the local browser by default. It automatically uses a
+device code in SSH, Mosh, and headless Unix sessions, where the approval can be
+completed in any browser. Use `--browser` or `--device` only to override that
+detection.
 
 ## Keeping ccp current
 
@@ -294,6 +301,8 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 ## Common pitfalls
 
 - Do not run `ccp auth login` in CI or an agent VM; set `CCP_SESSION_TOKEN`.
+  For an interactive remote shell, the command automatically uses device login;
+  `--device` forces that mode and `--browser` forces a same-machine callback.
 - A `.ccp/config.json` carrying the pre-rename `function_id` is rejected with
   an error naming the id. Relink with `ccp deploy --app-id <id>` — the id is
   unchanged. Never "fix" it by deleting the key: a same-name App can be
