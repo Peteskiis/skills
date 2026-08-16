@@ -69,7 +69,7 @@ ccp resolves a session token in this order:
 2. Persisted session store:
    - macOS and Linux: `~/.ccp/session.json` (a 0600 file) by default. A pre-existing
      `~/.cluster/ccp-session.json` is migrated forward automatically on first use.
-   - Windows: OS keyring (Credential Manager), falling back to the same file.
+   - Windows: OS keyring (Credential Manager).
 
 Use `CCP_AUTH_STORE=file` or `CCP_AUTH_STORE=keyring` to force a store. On Linux
 the keyring is the in-kernel keyutils store — memory-only and wiped on reboot,
@@ -110,6 +110,7 @@ Useful auth commands:
 ccp auth login
 ccp auth login --browser
 ccp auth login --device
+ccp auth login --replace-session
 ccp auth logout
 ccp auth print-access-token
 ccp auth export-access-token
@@ -120,7 +121,9 @@ ccp auth desync --vm <vm_id>
 `ccp auth login` opens the local browser by default. It automatically uses a
 device code in SSH, Mosh, and headless Unix sessions, where the approval can be
 completed in any browser. Use `--browser` or `--device` only to override that
-detection.
+detection. Plain login refuses to overwrite an existing saved session. Only the
+account owner should use `--replace-session`, which requires an interactive
+terminal and an exact confirmation.
 
 ## Keeping ccp current
 
@@ -303,6 +306,8 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - Do not run `ccp auth login` in CI or an agent VM; set `CCP_SESSION_TOKEN`.
   For an interactive remote shell, the command automatically uses device login;
   `--device` forces that mode and `--browser` forces a same-machine callback.
+  Plain login refuses to overwrite a saved session; only the account owner may
+  use the interactive `--replace-session` recovery path.
 - A `.ccp/config.json` carrying the pre-rename `function_id` is rejected with
   an error naming the id. Relink with `ccp deploy --app-id <id>` — the id is
   unchanged. Never "fix" it by deleting the key: a same-name App can be
