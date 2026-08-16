@@ -107,6 +107,9 @@ flags.
 
 Auto-pause is transparent for deploy, logs, exec, restart, and status paths that
 need the VM awake. `--always-on` only applies at first deploy.
+A VM previously paused by Billing performs a fresh admission check on the next
+wake attempt. If the account is now eligible, the operation resumes normally;
+otherwise it remains paused and returns `payment_required` (HTTP 402).
 Workload operations return `service_not_running` while initial deployment is
 still pending; wait for deployment to finish before retrying.
 
