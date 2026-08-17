@@ -62,6 +62,25 @@ published shapes are `1/256`, `1/512`, `2/1024`, `4/2048`, and `4/4096`
 (vCPU/MiB). Resources are immutable after creation; destroy and recreate to
 change shape. `compute list` and `compute status` show the persisted shape.
 
+An always-on service may join an organization-scoped private network by adding
+the following block to `cluster.toml`:
+
+```toml
+[service]
+internal_port = 8080
+always_on = true
+
+[network]
+name = "backend"
+```
+
+The network is created automatically on first deploy. Members on the same VM
+node can reach one another at `<service>.backend.internal`; services outside
+the network cannot resolve or connect to that private address. Network and
+service names must be lowercase DNS labels. Private networking currently
+requires `always_on = true`, is immutable for an existing service, and does not
+change its public `<name>.clusterbase.dev` route.
+
 A checkout with a `cluster.toml` but no link — a fresh clone, or CI — attaches
 on deploy: ccp looks the name up in the org and redeploys that service, and
 only creates one when the name is free (confirmed interactively, auto-yes with
@@ -107,6 +126,11 @@ flags.
 
 Auto-pause is transparent for deploy, logs, exec, restart, and status paths that
 need the VM awake. `--always-on` only applies at first deploy.
+A VM previously paused by Billing performs a fresh admission check on the next
+wake attempt. If the account is now eligible, the operation resumes normally;
+otherwise it remains paused and returns `payment_required` (HTTP 402).
+Workload operations return `service_not_running` while initial deployment is
+still pending; wait for deployment to finish before retrying.
 
 `compute destroy` tears down the service, VM, and route, then deletes only the
 local `.ccp/compute-link.json` deployment identity. It preserves `cluster.toml`
