@@ -74,12 +74,12 @@ always_on = true
 name = "backend"
 ```
 
-The network is created automatically on first deploy. Members on the same VM
-node can reach one another at `<service>.backend.internal`; services outside
-the network cannot resolve or connect to that private address. Network and
-service names must be lowercase DNS labels. Private networking currently
-requires `always_on = true`, is immutable for an existing service, and does not
-change its public `<name>.clusterbase.dev` route.
+The network is created automatically on first deploy. Members can reach one
+another across VM nodes at `<service>.backend.internal`; services outside the
+network cannot resolve or connect to that private address. Network and service
+names must be lowercase DNS labels. Private networking currently requires
+`always_on = true`, is immutable for an existing service, and does not change
+its public `<name>.clusterbase.dev` route.
 
 A checkout with a `cluster.toml` but no link — a fresh clone, or CI — attaches
 on deploy: ccp looks the name up in the org and redeploys that service, and
