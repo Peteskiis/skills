@@ -1,6 +1,6 @@
 ---
 name: ccp
-description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, validate ephemeral Sandbox manifests, provision managed Postgres databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
+description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, apply reusable Sandbox templates, provision managed Postgres databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
 ---
 
 # ccp - Agent Runbook
@@ -55,8 +55,8 @@ ccp manages Cluster workloads and supporting resources:
   managed with `ccp project ls|create|rm`.
 - Compute services: long-running services with public HTTPS hostnames, driven by
   `ccp compute deploy`, linked through `cluster.toml`.
-- Sandboxes: versioned, commit-safe ephemeral workspace declarations, validated
-  with `ccp sandbox run -f <manifest> --dry-run` in the current slice.
+- Sandbox templates: versioned, commit-safe reusable workspace definitions,
+  reconciled with `ccp apply -f <manifest>`.
 - Supporting resources: stores, managed Postgres databases, custom domains,
   OIDC clients, per-VM env vars, and ephemeral CI builds.
 
@@ -296,7 +296,7 @@ Read only the runbook your task needs:
 - `reference/db.md` - Managed Postgres: create, exec SQL, migrate, backups, client-access
 - `reference/domains.md` - Custom domains: add, link to an app or VM, unlink, remove
 - `reference/compute.md` - Long-running services: deploy, status, logs, exec, restart
-- `reference/sandbox.md` - Ephemeral Sandboxes: versioned manifests and server-side dry runs
+- `reference/sandbox.md` - Sandbox templates: declarative apply, immutable builds, ephemeral lifecycle
 - `reference/ci.md` - Ephemeral CI build jobs: .cluster-ci.yaml, exit-code gating, --json/--no-wait
 - `reference/env.md` - Per-VM env on dev VMs: list/get/set/unset, visibility, refresh-system
 - `reference/agents.md` - AI agents: list, inspect, create; org scoping and endpoint override

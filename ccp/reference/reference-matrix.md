@@ -35,11 +35,10 @@ With `CCP_HEADLESS=1` set:
 | `ccp compute deploy` | yes | source/image/binary, name, port, org resolution |
 | `ccp compute list/status/logs/exec/restart` | yes | linked project or service ID |
 | `ccp compute destroy` | yes, destructive | linked project or service ID/name |
-| `ccp sandbox run` | yes | `-f <manifest>`; `--dry-run`; `--org-id` (or `CCP_ORG_ID`) |
 | `ccp ci` | yes | git repo with origin and `.cluster-ci.yaml` |
 | `ccp env list/get/set/unset` | yes | `--vm <vm_id>` |
 | `ccp env refresh-system` | yes | `--vm <vm_id>` |
-| `ccp apply` | yes | `-f <manifest>`; `--org-id` (or `CCP_ORG_ID`); optional `--dry-run` |
+| `ccp apply` | yes | Agent or SandboxTemplate `-f <manifest>`; `--org-id` (or `CCP_ORG_ID`); optional `--dry-run` |
 | `ccp delete` | yes, destructive | `-f <manifest>`; `--org-id` (or `CCP_ORG_ID`); optional `--dry-run` |
 | `ccp agent list` / `ccp agent ls` | yes | `--org-id` (or `CCP_ORG_ID`) for org resolution |
 | `ccp agent get` | yes | `AGENT_ID`; optional `--version` (no org context needed — cross-org access 404s) |
