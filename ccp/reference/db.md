@@ -13,8 +13,8 @@ linked App when possible, and mirrors them into local `.env`.
 
 `--network` joins the database to the named organization-scoped private network.
 The database name becomes `<name>.<network>.internal`, so both names must be
-lowercase DNS labels. Networked databases and compute members are placed on the
-same node until cross-node transport ships.
+lowercase DNS labels. Networked databases and compute members can connect
+across VM nodes.
 
 Databases are organization-owned. Create and list resolve the organization in
 this order: `--org-id`, `.ccp/config.json`, `CCP_ORG_ID`, sole organization, or
