@@ -20,6 +20,9 @@ metadata:
   name: python-tools
 spec:
   base: development
+  resources:
+    vcpu: 2
+    memory_mb: 1024
   packages:
     apt: [jq]
     pip: [cowsay==6.1]
@@ -27,11 +30,16 @@ spec:
     - run: touch /workspace/ready
 ```
 
-`metadata.name` is the stable organization-scoped template identity. The
-manifest accepts the same typed `apt`, `pip`, `npm`, `cargo`, `gem`, and `go`
-package specifications as Sandbox template builds, followed by exactly one
-`run` step. Changing the recipe admits a new immutable build; existing builds
-are never mutated.
+`metadata.name` is the stable organization-scoped template identity. Resources
+are required as one supported `vcpu` and `memory_mb` pair. The manifest accepts
+the same typed `apt`, `pip`, `npm`, `cargo`, `gem`, and `go` package
+specifications as Sandbox template builds, followed by exactly one `run` step.
+Changing resources, packages, or the run step admits a new immutable build;
+existing builds are never mutated.
+
+Supported resource pairs are `1/256`, `1/512`, `2/1024`, `4/2048`, and
+`4/4096`, expressed as vCPU/MiB. Build execution, publication, scheduling, and
+every Sandbox launch use the exact pair snapshotted by that build.
 
 Keep manifests commit-safe. Unknown fields are rejected, including plaintext
 `secrets` or `env` blocks and mutable `templateId`, `templateBuildId`, `vmId`,
