@@ -38,5 +38,16 @@ Keep manifests commit-safe. Unknown fields are rejected, including plaintext
 or `sandboxId` fields. Build and runtime identities are server-derived.
 
 Ephemeral creation is a separate lifecycle operation. The next Sandbox slice
-adds `ccp sandbox create --template <name>`; applying desired template state
-does not launch a Sandbox.
+launches the applied template's current exact ready build:
+
+```sh
+ccp sandbox create --template python-tools --ttl 15m --org-id "$CCP_ORG_ID"
+```
+
+`--ttl` defaults to `15m` and accepts whole-second human durations from `1m`
+through `24h`. Every invocation creates a distinct Sandbox while reusing the
+same immutable build. Applying desired template state never launches a Sandbox.
+
+Creation fails with `template_not_found` when the active organization-scoped
+name does not exist and `template_not_ready` while its current recipe has no
+ready build. Wait for the applied build to publish, then retry the create.

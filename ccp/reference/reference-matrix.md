@@ -35,6 +35,7 @@ With `CCP_HEADLESS=1` set:
 | `ccp compute deploy` | yes | source/image/binary, name, port, org resolution |
 | `ccp compute list/status/logs/exec/restart` | yes | linked project or service ID |
 | `ccp compute destroy` | yes, destructive | linked project or service ID/name |
+| `ccp sandbox create` | yes | `--template NAME`; optional `--ttl` and `--org-id` |
 | `ccp ci` | yes | git repo with origin and `.cluster-ci.yaml` |
 | `ccp env list/get/set/unset` | yes | `--vm <vm_id>` |
 | `ccp env refresh-system` | yes | `--vm <vm_id>` |

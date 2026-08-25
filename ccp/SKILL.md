@@ -1,6 +1,6 @@
 ---
 name: ccp
-description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, apply reusable Sandbox templates, provision managed Postgres databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
+description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, apply reusable Sandbox templates, create ephemeral Sandboxes, provision managed Postgres databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
 ---
 
 # ccp - Agent Runbook
@@ -55,8 +55,9 @@ ccp manages Cluster workloads and supporting resources:
   managed with `ccp project ls|create|rm`.
 - Compute services: long-running services with public HTTPS hostnames, driven by
   `ccp compute deploy`, linked through `cluster.toml`.
-- Sandbox templates: versioned, commit-safe reusable workspace definitions,
-  reconciled with `ccp apply -f <manifest>`.
+- Sandboxes: apply versioned reusable workspace definitions with
+  `ccp apply -f <manifest>`, then create ephemeral instances with
+  `ccp sandbox create --template <name>`.
 - Supporting resources: stores, managed Postgres databases, custom domains,
   OIDC clients, per-VM env vars, and ephemeral CI builds.
 
