@@ -26,6 +26,10 @@ spec:
   packages:
     apt: [jq]
     pip: [cowsay==6.1]
+  ports:
+    - name: cdp
+      port: 9222
+      protocol: websocket
   steps:
     - run: touch /workspace/ready
 ```
@@ -34,8 +38,13 @@ spec:
 are required as one supported `vcpu` and `memory_mb` pair. The manifest accepts
 the same typed `apt`, `pip`, `npm`, `cargo`, `gem`, and `go` package
 specifications as Sandbox template builds, followed by exactly one `run` step.
-Changing resources, packages, or the run step admits a new immutable build;
-existing builds are never mutated.
+Changing resources, packages, ports, or the run step admits a new immutable
+build; existing builds are never mutated.
+
+Named ports are private immutable metadata. A declaration has a unique DNS-label
+name, a unique guest port, and a protocol of `http` or `websocket`; at most eight
+may be declared. The template's boot setup must start the service and bind it to
+the guest interface. Declaring a port does not publish a route in this slice.
 
 Supported resource pairs are `1/256`, `1/512`, `2/1024`, `4/2048`, and
 `4/4096`, expressed as vCPU/MiB. Build execution, publication, scheduling, and
