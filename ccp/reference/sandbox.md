@@ -44,7 +44,11 @@ build; existing builds are never mutated.
 Named ports are private immutable metadata. A declaration has a unique DNS-label
 name, a unique guest port, and a protocol of `http` or `websocket`; at most eight
 may be declared. The template's boot setup must start the service and bind it to
-the guest interface. Declaring a port does not publish a route in this slice.
+the guest interface. A running Sandbox publishes declared `http` ports behind
+an authenticated HTTPS route. The API can mint an opaque token scoped to one
+Sandbox and port for at most one hour and never beyond the Sandbox TTL. Raw VM
+addresses and arbitrary undeclared ports remain private. WebSocket access and
+the `ccp sandbox connect` convenience command are a later slice.
 
 Supported resource pairs are `1/256`, `1/512`, `2/1024`, `4/2048`, and
 `4/4096`, expressed as vCPU/MiB. Build execution, publication, scheduling, and
