@@ -44,11 +44,23 @@ build; existing builds are never mutated.
 Named ports are private immutable metadata. A declaration has a unique DNS-label
 name, a unique guest port, and a protocol of `http` or `websocket`; at most eight
 may be declared. The template's boot setup must start the service and bind it to
-the guest interface. A running Sandbox publishes declared `http` ports behind
-an authenticated HTTPS route. The API can mint an opaque token scoped to one
-Sandbox and port for at most one hour and never beyond the Sandbox TTL. Raw VM
-addresses and arbitrary undeclared ports remain private. WebSocket access and
-the `ccp sandbox connect` convenience command are a later slice.
+the guest interface. A running Sandbox publishes declared ports behind
+authenticated HTTPS or WSS routes. Raw VM addresses and arbitrary undeclared
+ports remain private.
+
+Create short-lived access to one declared service:
+
+```sh
+ccp sandbox connect sbx_... cdp --ttl 5m
+ccp sandbox connect sbx_... cdp --ttl 5m --json
+```
+
+The response keeps the endpoint and opaque bearer token separate. HTTPS and
+WebSocket clients attach `Authorization: Bearer <token>` to the request or
+Upgrade; the token is scoped to that Sandbox and service for at most one hour
+and never beyond the Sandbox TTL. `--json` is the stable automation contract
+with `endpoint`, `token`, and `expires_at` fields; the token is never embedded
+in the URL.
 
 Supported resource pairs are `1/256`, `1/512`, `2/1024`, `4/2048`, and
 `4/4096`, expressed as vCPU/MiB. Build execution, publication, scheduling, and
