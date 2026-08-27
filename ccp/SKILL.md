@@ -66,10 +66,11 @@ secrets.
 
 ## Authentication
 
-ccp resolves a session token in this order:
+ccp resolves an API credential in this order:
 
-1. `CCP_SESSION_TOKEN` env var.
-2. Persisted session store:
+1. `CCP_API_KEY` env var for organization automation.
+2. `CCP_SESSION_TOKEN` env var for a headless human or VM session.
+3. Persisted OAuth session store:
    - macOS and Linux: `~/.ccp/session.json` (a 0600 file) by default. A pre-existing
      `~/.cluster/ccp-session.json` is migrated forward automatically on first use.
    - Windows: OS keyring (Credential Manager).
@@ -85,8 +86,9 @@ production issuer. Use `CCP_AUTH_ISSUER` only to override that selection for
 advanced testing. Refresh tokens are bound to the issuer that minted them, so
 switching clusters requires a login for the selected cluster.
 
-For automation, do not run `ccp auth login`. A human logs in once, exports a
-token, and passes it into the environment:
+Organization automation should set `CCP_API_KEY` and `CCP_ORG_ID`; ccp keeps
+the key in memory and never persists or refreshes it. Human automation may
+instead export a short-lived session token:
 
 ```sh
 TOKEN=$(ccp auth print-access-token)
@@ -354,8 +356,8 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
   select the org with `CCP_ORG_ID`; `ccp deploy` re-establishes the App and
   Project link by exact project name. Use `--app-id` only as an explicit
   override.
-- `CCP_SESSION_TOKEN` from the environment is used as-is and is not refreshed by
-  ccp. A 401 usually means re-sync or re-export the token.
+- `CCP_API_KEY` and `CCP_SESSION_TOKEN` are used as-is and are not refreshed by
+  ccp. A 401 means remint/revoke-check the API key or re-sync the session token.
 - Set `CCP_API_URL` to the environment's `api.<cluster>` origin when targeting a
   non-production cluster; ccp derives the matching auth, orgs, and storage
   origins. If the API hostname does not use the `api.` convention, set the
