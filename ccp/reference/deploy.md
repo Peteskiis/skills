@@ -3,6 +3,19 @@
 Use this topic for serverless apps. Compute services use
 `ccp skills compute`.
 
+### Project source versus App deployment
+
+An Infra Project owns its canonical GitHub repository, configured branch, and
+repository-relative source root. New Cluster Apps workspaces resolve and clone
+that Project source by `project_id`; an App ID never selects source.
+
+`ccp deploy` remains the serverless deployment operation. It creates or
+resolves the optional App runtime attached to the Project and uploads the
+current local workspace, but it does not bind, replace, or override the
+Project's canonical repository. Project source binding and deterministic
+new-workspace cloning are control-plane operations and do not yet have a public
+`ccp` command.
+
 ### Scaffold and first deploy
 
 ```sh
