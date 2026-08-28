@@ -19,7 +19,7 @@ kind: SandboxTemplate
 metadata:
   name: python-tools
 spec:
-  base: development
+  base: ubuntu
   resources:
     vcpu: 2
     memory_mb: 1024
@@ -35,11 +35,13 @@ spec:
 ```
 
 `metadata.name` is the stable organization-scoped template identity. Resources
-are required as one supported `vcpu` and `memory_mb` pair. The manifest accepts
-the same typed `apt`, `pip`, `npm`, `cargo`, `gem`, and `go` package
-specifications as Sandbox template builds, followed by exactly one `run` step.
-Changing resources, packages, ports, or the run step admits a new immutable
-build; existing builds are never mutated.
+are required as one supported `vcpu` and `memory_mb` pair. `base` is exactly one
+of `ubuntu`, `debian`, or `alpine`; Infra resolves it to a committed immutable
+system build. Ubuntu supports `apt`, `pip`, `npm`, `cargo`, `gem`, and `go`
+package lists, Debian supports `apt`, and Alpine supports `apk`. Incompatible
+package managers are rejected before build admission. Changing the base,
+resources, packages, ports, or run step admits a new immutable build; existing
+builds are never mutated.
 
 Named ports are private immutable metadata. A declaration has a unique DNS-label
 name, a unique guest port, and a protocol of `http` or `websocket`; at most eight
