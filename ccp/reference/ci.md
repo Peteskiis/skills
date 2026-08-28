@@ -14,15 +14,19 @@ Defaults:
 - git ref: current branch
 
 The directory must be a git repo with an `origin` remote. The CLI sends the spec
-as normalized JSON; the server clones the repo and runs the job remotely.
+as normalized JSON together with the current full commit SHA. The server clones
+the repository through its configured credential helper and checks out that
+exact commit; the branch is display metadata only. If local `HEAD` differs from
+the remote branch, the CLI warns before submission.
 
 Minimal spec shape:
 
 ```yaml
+version: 1
+timeout_sec: 600
+
 steps:
-  - name: test
-    run: cargo test -p ccp
-    timeout_sec: 600
+  - run: cargo test -p ccp
 ```
 
 `--json` prints one machine-readable result line and suppresses streamed logs.
