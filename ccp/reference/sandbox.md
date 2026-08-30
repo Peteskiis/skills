@@ -88,6 +88,13 @@ expiry. Raw VNC is not published; it remains loopback-only inside the guest.
 Use `ccp sandbox connect` for non-browser automation that can set an
 `Authorization` header itself.
 
+The separate `desktop-control` transport cannot be opened with `ccp sandbox
+connect` or `ccp sandbox desktop`. Its guest services are stopped by default,
+and Infra publishes them only for one current, expiring, fenced control lease
+created through the Managed Agents product path. Release, expiry, or Sandbox
+deletion stops those services and closes existing control WebSockets. CCP's
+desktop command remains view-only throughout.
+
 Supported resource pairs are `1/256`, `1/512`, `2/1024`, `4/2048`, and
 `4/4096`, expressed as vCPU/MiB. Build execution, publication, scheduling, and
 every Sandbox launch use the exact pair snapshotted by that build.
