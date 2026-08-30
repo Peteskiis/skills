@@ -64,6 +64,30 @@ and never beyond the Sandbox TTL. `--json` is the stable automation contract
 with `endpoint`, `token`, and `expires_at` fields; the token is never embedded
 in the URL.
 
+The repo includes a graphical Ubuntu template at
+`templates/sandbox/desktop.yaml`. Apply it, wait for its immutable build to
+become ready, and create a Sandbox as usual:
+
+```sh
+ccp apply -f templates/sandbox/desktop.yaml --org-id "$CCP_ORG_ID"
+ccp sandbox create --template desktop --ttl 1h --org-id "$CCP_ORG_ID"
+```
+
+Open its read-only noVNC desktop without copying a bearer into a browser URL:
+
+```sh
+ccp sandbox desktop sbx_... --ttl 20m
+```
+
+The command opens a token-free `127.0.0.1` URL and remains in the foreground.
+The guest VNC server enforces view-only access; browser settings cannot enable
+pointer, keyboard, or clipboard input on this transport.
+It injects the scoped `desktop` service bearer into upstream HTTPS and WSS
+requests, rejects cross-origin browser access, and closes on Ctrl-C or access
+expiry. Raw VNC is not published; it remains loopback-only inside the guest.
+Use `ccp sandbox connect` for non-browser automation that can set an
+`Authorization` header itself.
+
 Supported resource pairs are `1/256`, `1/512`, `2/1024`, `4/2048`, and
 `4/4096`, expressed as vCPU/MiB. Build execution, publication, scheduling, and
 every Sandbox launch use the exact pair snapshotted by that build.
