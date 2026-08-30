@@ -73,13 +73,15 @@ ccp apply -f templates/sandbox/desktop.yaml --org-id "$CCP_ORG_ID"
 ccp sandbox create --template desktop --ttl 1h --org-id "$CCP_ORG_ID"
 ```
 
-Open its noVNC desktop without copying a bearer into a browser URL:
+Open its read-only noVNC desktop without copying a bearer into a browser URL:
 
 ```sh
 ccp sandbox desktop sbx_... --ttl 20m
 ```
 
 The command opens a token-free `127.0.0.1` URL and remains in the foreground.
+The guest VNC server enforces view-only access; browser settings cannot enable
+pointer, keyboard, or clipboard input on this transport.
 It injects the scoped `desktop` service bearer into upstream HTTPS and WSS
 requests, rejects cross-origin browser access, and closes on Ctrl-C or access
 expiry. Raw VNC is not published; it remains loopback-only inside the guest.
