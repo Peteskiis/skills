@@ -28,7 +28,7 @@ With `CCP_HEADLESS=1` set:
 | `ccp db backup create/ls` | yes | linked project or `--db-id` |
 | `ccp db backup restore/delete` | yes, destructive | `BACKUP_ID` |
 | `ccp domain ls` | yes | org resolution |
-| `ccp domain add/link/unlink` | yes | command-specific flags |
+| `ccp domain add/verify/link/unlink` | yes | org resolution + command-specific values |
 | `ccp domain remove` | yes, destructive | `DOMAIN` |
 | `ccp oidc create` | yes | `--name` and at least one `--redirect-uri` |
 | `ccp oidc ls/info/update/rotate-secret/destroy` | yes | org or client resolution |

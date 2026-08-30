@@ -5,11 +5,13 @@ compute VMs.
 
 ```sh
 ccp domain add example.com [--org-id O]
+# Add the printed TXT and A records, then complete the claim:
+ccp domain verify CLAIM_ID [--org-id O]
 ccp domain ls [--org-id O]
-ccp domain link example.com --app A
-ccp domain link example.com --vm "<vm_id>:<port>"
-ccp domain unlink example.com
-ccp domain remove example.com
+ccp domain link example.com --app A [--org-id O]
+ccp domain link example.com --vm "<vm_id>:<port>" [--org-id O]
+ccp domain unlink example.com [--org-id O]
+ccp domain remove example.com [--org-id O]
 ```
 
 For Apps, prefer `--app` when headless. For compute services, read
@@ -19,8 +21,11 @@ the VM ID from `ccp compute status`, then link with the service port:
 ccp domain link example.com --vm "<vm_id>:8080"
 ```
 
-`unlink` detaches a domain from its current target but keeps the domain record.
-`remove` deletes the domain record and auto-confirms in headless mode.
+`add` starts an expiring ownership claim; the domain does not enter inventory
+until `verify` can resolve its TXT proof. `unlink` submits a withdrawal but
+keeps the owned domain. Wait for routing to disappear before `remove`, which
+retires the ownership record and auto-confirms in headless mode.
 
-DNS and certificate readiness are asynchronous. A successful link means Cluster
-accepted the desired target; external reachability can lag.
+Binding, withdrawal, and certificate readiness are asynchronous. A successful
+link or unlink means Domains durably accepted the next desired revision;
+external reachability can lag.
