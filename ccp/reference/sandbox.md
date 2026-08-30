@@ -73,18 +73,40 @@ ccp apply -f templates/sandbox/desktop.yaml --org-id "$CCP_ORG_ID"
 ccp sandbox create --template desktop --ttl 1h --org-id "$CCP_ORG_ID"
 ```
 
-Open its noVNC desktop without copying a bearer into a browser URL:
+Open its read-only noVNC desktop without copying a bearer into a browser URL:
 
 ```sh
 ccp sandbox desktop sbx_... --ttl 20m
 ```
 
 The command opens a token-free `127.0.0.1` URL and remains in the foreground.
+The guest VNC server enforces view-only access; browser settings cannot enable
+pointer, keyboard, or clipboard input on this transport.
 It injects the scoped `desktop` service bearer into upstream HTTPS and WSS
 requests, rejects cross-origin browser access, and closes on Ctrl-C or access
 expiry. Raw VNC is not published; it remains loopback-only inside the guest.
 Use `ccp sandbox connect` for non-browser automation that can set an
 `Authorization` header itself.
+
+The separate `desktop-control` transport cannot be opened with `ccp sandbox
+connect` or `ccp sandbox desktop`. Its guest services are stopped by default.
+An organization member or an authenticated trusted service may acquire the
+current lease with `POST /api/v1/sandboxes/{sandbox_id}/desktop-control`.
+The request supplies a fresh `sbxcl_<uuid>` lease ID, a fresh 256-bit
+`sbxt_<base64url>` bearer, and `ttl_seconds` from 10 through 900. A successful
+response returns that lease ID, its monotonically increasing `fence`, the WSS
+`endpoint`, the bearer, and `expires_at` with `Cache-Control: no-store`.
+Infra persists only the bearer digest; callers must retain the returned
+capability while they hold control.
+
+Renewal uses `PATCH` on the same path with `lease_id`, `fence`, and a new
+`ttl_seconds`; release uses `DELETE` with `lease_id` and `fence`. A stale lease
+or fence cannot renew or release its replacement. While the lease is active,
+AgentGateway and envd both reject model `ComputerAct` input. Release, expiry,
+or Sandbox deletion revokes authorization, closes existing control WebSockets,
+stops the guest control services, and invalidates the model's current frame, so
+automation must obtain a fresh observation before acting again. CCP's desktop
+command remains view-only throughout.
 
 Supported resource pairs are `1/256`, `1/512`, `2/1024`, `4/2048`, and
 `4/4096`, expressed as vCPU/MiB. Build execution, publication, scheduling, and
