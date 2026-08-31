@@ -64,16 +64,12 @@ and never beyond the Sandbox TTL. `--json` is the stable automation contract
 with `endpoint`, `token`, and `expires_at` fields; the token is never embedded
 in the URL.
 
-The repo includes a graphical Ubuntu template at
-`templates/sandbox/desktop.yaml`. Apply it, wait for its immutable build to
-become ready, and create a Sandbox as usual:
+The graphical Ubuntu desktop is a native system template. Managed products
+create it with the stable `desktop` system identity; it does not require an
+organization-owned manifest or custom build.
 
-```sh
-ccp apply -f templates/sandbox/desktop.yaml --org-id "$CCP_ORG_ID"
-ccp sandbox create --template desktop --ttl 1h --org-id "$CCP_ORG_ID"
-```
-
-Open its read-only noVNC desktop without copying a bearer into a browser URL:
+Once a desktop Sandbox exists, open its read-only noVNC view without copying a
+bearer into a browser URL:
 
 ```sh
 ccp sandbox desktop sbx_... --ttl 20m
