@@ -84,6 +84,20 @@ expiry. Raw VNC is not published; it remains loopback-only inside the guest.
 Use `ccp sandbox connect` for non-browser automation that can set an
 `Authorization` header itself.
 
+First-party browser and native desktop clients may connect directly without a
+local CCP tunnel by passing these WebSocket subprotocols in this exact order:
+
+```text
+binary, bearer.sbxt_<base64url>
+```
+
+The server selects only `binary`; it never echoes the bearer protocol. Browser
+clients must run from an HTTPS Origin allowed by the target environment. Native
+clients may omit Origin. Keep the bearer in memory, never put it in a URL or
+persistent browser storage, and obtain a new capability after expiry. Clients
+that can set request headers may continue to use `Authorization: Bearer
+<token>`; if both forms are present, Authorization is authoritative.
+
 The separate `desktop-control` transport cannot be opened with `ccp sandbox
 connect` or `ccp sandbox desktop`. Its guest services are stopped by default.
 An organization member or an authenticated trusted service may acquire the
