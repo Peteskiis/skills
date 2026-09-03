@@ -95,10 +95,13 @@ TOKEN=$(ccp auth print-access-token)
 export CCP_SESSION_TOKEN="$TOKEN"
 ```
 
-Development VMs normally receive `CCP_SESSION_TOKEN` and `CCP_ORG_ID` at
-creation so in-VM ccp can act as the user. That token is a live access token and
-is not refreshed inside the VM; re-run `ccp auth sync --vm <vm_id>` when it
-expires.
+Development VMs receive `CCP_ORG_ID` through the runtime environment and a
+renewed, short-lived `CCP_SESSION_TOKEN` through the VM's private credential
+document. The in-VM ccp wrapper loads and expiry-checks that document for each
+operation, so a newly applied token is used without restarting the VM or shell.
+Infra-api renews the VM-scoped identity while the VM is active or resumable, so
+start and resume can apply current material without waiting on the credential provider.
+The client secret never enters the guest.
 
 `CCP_API_URL` selects the cluster. For a non-production `api.<cluster>` origin,
 ccp derives the sibling `accounts.<cluster>`, `orgs.<cluster>`, and
@@ -119,8 +122,6 @@ ccp auth login --replace-session
 ccp auth logout
 ccp auth print-access-token
 ccp auth export-access-token
-ccp auth sync --vm <vm_id>
-ccp auth desync --vm <vm_id>
 ```
 
 `ccp auth login` opens the local browser by default. It automatically uses a
@@ -356,8 +357,12 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
   select the org with `CCP_ORG_ID`; `ccp deploy` re-establishes the App and
   Project link by exact project name. Use `--app-id` only as an explicit
   override.
-- `CCP_API_KEY` and `CCP_SESSION_TOKEN` are used as-is and are not refreshed by
-  ccp. A 401 means remint/revoke-check the API key or re-sync the session token.
+- `CCP_API_KEY` and externally supplied `CCP_SESSION_TOKEN` values are used as-is
+  and are not refreshed by ccp. In development VMs, the ccp wrapper instead
+  reloads the private runtime credential document for every operation and
+  rejects an expired token. A 401 means remint/revoke-check an external API key;
+  for a VM credential, verify that the VM is active and runtime reconciliation
+  is healthy.
 - Set `CCP_API_URL` to the environment's `api.<cluster>` origin when targeting a
   non-production cluster; ccp derives the matching auth, orgs, and storage
   origins. If the API hostname does not use the `api.` convention, set the

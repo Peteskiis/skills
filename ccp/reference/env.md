@@ -19,9 +19,13 @@ Visibility:
 Reserved prefixes are blocked for user env: `GH_`, `GIT_`, `CCP_`, `CLUSTA_`.
 System/session sources own those names.
 
-`refresh-system` re-applies system credentials such as GitHub credentials to the
-VM. It does not refresh the user's `CCP_SESSION_TOKEN`; use
-`ccp auth sync --vm <vm_id>` for that.
+`refresh-system` publishes a new runtime-environment generation containing
+system credentials such as GitHub credentials. The active VM reconciler applies
+it in the background; credential-dependent operations fail with
+`runtime_environment_unavailable` until that exact generation is active. CCP
+credentials are VM-scoped and renewed automatically while active or resumable,
+so start and resume apply current material without waiting on the credential
+provider.
 
 Important distinction: compute deployment env (`ccp compute deploy --env` and
 `cluster.toml [env]`) is workload env. `ccp env` is VM-level env for dev VMs.
