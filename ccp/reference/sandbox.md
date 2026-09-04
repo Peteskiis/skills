@@ -140,3 +140,20 @@ same immutable build. Applying desired template state never launches a Sandbox.
 Creation fails with `template_not_found` when the active organization-scoped
 name does not exist and `template_not_ready` while its current recipe has no
 ready build. Wait for the applied build to publish, then retry the create.
+
+## Read-only workspace files over HTTP
+
+User clients can browse a running Sandbox with the normal Infra bearer token:
+
+- `GET /api/v1/sandboxes/{sandbox_id}/files` lists the guest workspace root
+  (`/home/user` for managed Build). Pass `?path=` to expand any directory.
+- `GET /api/v1/sandboxes/{sandbox_id}/files/content?path=...` reads text. URL-encode
+  paths, including spaces. The response contains `path`, `content`, `size`, and
+  `truncated`; the preview is limited to 1 MiB. Binary files return 415 and files
+  above the guest input limit return 413.
+
+Directory responses contain `path`, `entries` (`name`, `path`, `kind`, `size`),
+and `truncated`. Hidden and ignored files are included, directories sort first,
+and paths or symlinks outside the workspace are rejected. Lost organization
+access returns 403, missing paths return 404, and a non-running Sandbox returns
+409. These routes do not write, rename, or delete files.
