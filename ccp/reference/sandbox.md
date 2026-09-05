@@ -160,7 +160,7 @@ access returns 403, missing paths return 404, and a non-running Sandbox returns
 
 ## CCP identity in managed Build workspaces
 
-Build enrolls its user-owned Sandbox through
+Build enrolls its user-owned development-template Sandbox through
 `POST /api/v1/sandboxes/{sandbox_id}/credentials/ccp` using the session user's
 bearer. The operation returns `202 {"ready":false}` while the existing credential
 producer and runtime reconciler deliver the credential, and `200 {"ready":true}`
