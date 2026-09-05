@@ -146,7 +146,8 @@ ready build. Wait for the applied build to publish, then retry the create.
 User clients can browse a running Sandbox with the normal Infra bearer token:
 
 - `GET /api/v1/sandboxes/{sandbox_id}/files` lists the guest workspace root
-  (`/home/user` for managed Build). Pass `?path=` to expand any directory.
+  (the mounted project folder for managed Build, otherwise the guest default).
+  Pass `?path=` to expand any directory.
 - `GET /api/v1/sandboxes/{sandbox_id}/files/content?path=...` reads text. URL-encode
   paths, including spaces. The response contains `path`, `content`, `size`, and
   `truncated`; the preview is limited to 1 MiB. Binary files return 415 and files
@@ -160,13 +161,16 @@ access returns 403, missing paths return 404, and a non-running Sandbox returns
 
 ## CCP identity in managed Build workspaces
 
-Build enrolls its user-owned development-template Sandbox through
-`POST /api/v1/sandboxes/{sandbox_id}/credentials/ccp` using the session user's
-bearer. The operation returns `202 {"ready":false}` while the existing credential
-producer and runtime reconciler deliver the credential, and `200 {"ready":true}`
-only after the current unexpired credential snapshot is acknowledged. Repeating
-the operation also repairs an existing session that was never enrolled and resumes
-a paused Sandbox before waiting for credential delivery.
+Build requests `ccp_credentials: true` in its user-authorized development-template
+Sandbox create request. Enrollment is durable before VM work, and production
+starts alongside workspace setup. Credential publication immediately signals
+guest delivery; periodic workers are for renewal and recovery.
+
+`POST /api/v1/sandboxes/{sandbox_id}/credentials/ccp` verifies acknowledged readiness
+and can enroll an existing user-owned Sandbox. It returns `202 {"ready":false}`
+while required delivery is pending and `200 {"ready":true}` after the exact
+unexpired snapshot is acknowledged. Ready Sandboxes do not schedule renewal.
+The operation resumes a paused Sandbox before checking delivery.
 
 An arbitrary Sandbox is not enrolled by template name. The original creator must
 still have organization membership; service billing attribution alone does not
