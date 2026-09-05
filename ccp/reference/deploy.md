@@ -3,13 +3,26 @@
 Use this topic for serverless apps. Compute services use
 `ccp skills compute`.
 
-### Scaffold and first deploy
+### Scaffold, preview, and first deploy
 
 ```sh
 ccp init my-app --template react   # blank | api | static | react
 cd my-app
-ccp deploy
+ccp dev                           # 0.0.0.0:8000, also reachable via localhost
+# In another shell, after validation:
+ccp build
+ccp deploy                        # hosted preview; --prod publishes production
 ```
+
+Read this runbook before scaffolding or deploying. Inspect existing projects
+first and preserve their established structure and tooling. Prefer
+`ccp init <name> --template react` for suitable new React apps and
+`ccp init <name> --template static` for simple HTML sites.
+
+In Build, start `ccp dev` in the background, verify
+`http://127.0.0.1:8000` from the workspace, then call `show_preview` with no
+arguments. The Sandbox preview routes port 8000; it is separate from a hosted
+CCP deployment. Run `ccp build` and relevant project checks before deployment.
 
 `ccp init` also creates a git repository with an initial commit of the
 scaffold, unless the target directory is already inside one; `--no-git` skips
@@ -69,6 +82,18 @@ ccp deploy [--prod] [--org-id O] [--app-id A] [--public-dir DIR] [PATH]
   otherwise it creates a same-named Project and App.
 - Preview deploy is the default; `--prod` promotes the new deployment to prod.
 - The deployment URL is printed on stdout.
+
+Before deploying, resolve the intended project, App, and organization from
+existing linkage and explicit user intent. Inspect with `ccp list` and link
+explicitly with `ccp link --org-id O --app-id A` when needed. An exact same-name
+match in an unlinked directory does not establish that it is the intended App;
+resolve ambiguity before deploying. Never delete linkage to bypass an error or
+silently deploy to a replacement App.
+
+After deploying, request the returned URL and verify the app before reporting
+success. If the command times out or its result is uncertain, inspect
+`ccp list` for the attempted deployment before retrying. Do not create a second
+deployment merely because the first response was lost.
 
 `ccp deploy` merges local `.env` into remote env. Keys present locally are
 added/updated; absent keys are preserved server-side. A failed env write aborts
@@ -157,9 +182,16 @@ Two collection tiers, selected per deployment by `analytics` under
 ### Local dev
 
 ```sh
-ccp dev [--port 1234] [--hostname 0.0.0.0]
+ccp dev                           # defaults to 0.0.0.0:8000
+ccp dev --port 3000 --hostname 127.0.0.1  # explicit overrides
 ccp build [PATH]
 ```
+
+The default bind is identical in terminals and headless execution.
+`0.0.0.0` listens on all IPv4 interfaces, including localhost; it needs no
+second localhost listener. `--port` and `--hostname` override independently.
+Use `--hostname 127.0.0.1` for localhost-only access. Build's development
+preview requires `0.0.0.0:8000`, regardless of overrides used elsewhere.
 
 Use `ccp dev` directly for Cluster projects. Do not substitute package-manager
 dev scripts when the goal is to run the Cluster local runtime.
