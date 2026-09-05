@@ -157,3 +157,20 @@ and `truncated`. Hidden and ignored files are included, directories sort first,
 and paths or symlinks outside the workspace are rejected. Lost organization
 access returns 403, missing paths return 404, and a non-running Sandbox returns
 409. These routes do not write, rename, or delete files.
+
+## CCP identity in managed Build workspaces
+
+Build enrolls its user-owned Sandbox through
+`POST /api/v1/sandboxes/{sandbox_id}/credentials/ccp` using the session user's
+bearer. The operation returns `202 {"ready":false}` while the existing credential
+producer and runtime reconciler deliver the credential, and `200 {"ready":true}`
+only after the current unexpired credential snapshot is acknowledged. Repeating
+the operation also repairs an existing session that was never enrolled and resumes
+a paused Sandbox before waiting for credential delivery.
+
+An arbitrary Sandbox is not enrolled by template name. The original creator must
+still have organization membership; service billing attribution alone does not
+permit enrollment. Do not bypass `clusta-credential-exec` or copy a developer token
+when `ccp` reports `runtime_environment_unavailable`. Version/help commands do not
+exercise credential readiness. Sandbox expiry/deletion withdraws credential
+authority, and paused Sandboxes retain renewal for resume.
