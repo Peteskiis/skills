@@ -146,8 +146,8 @@ ready build. Wait for the applied build to publish, then retry the create.
 User clients can browse a running Sandbox with the normal Infra bearer token:
 
 - `GET /api/v1/sandboxes/{sandbox_id}/files` lists the guest workspace root
-  (the guest default). Pass `?path=` to open the mounted workspace path supplied
-  by the session or to expand any directory.
+  (normally `/home/user`). Pass `?path=` to open a cloned repository path or
+  expand a project directory. Synced uploads are separate under `/mnt/workspace`.
 - `GET /api/v1/sandboxes/{sandbox_id}/files/content?path=...` reads text. URL-encode
   paths, including spaces. The response contains `path`, `content`, `size`, and
   `truncated`; the preview is limited to 1 MiB. Binary files return 415 and files
