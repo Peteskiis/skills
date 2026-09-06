@@ -178,3 +178,36 @@ permit enrollment. Do not bypass `clusta-credential-exec` or copy a developer to
 when `ccp` reports `runtime_environment_unavailable`. Version/help commands do not
 exercise credential readiness. Sandbox expiry/deletion withdraws credential
 authority, and paused Sandboxes retain renewal for resume.
+
+## Forge in development guests
+
+Forge-enabled development images provide `forge` alongside `git` and `gh`.
+Before guest use, the original creator must have a Forge actor and explicitly
+request enrollment with ordinary user authentication:
+
+- `POST /api/v1/sandboxes/{sandbox_id}/credentials/forge` for a Sandbox.
+- `POST /api/v1/vms/{vm_id}/credentials/forge` for a direct VM.
+
+Repeat the same request while it returns `202 {"ready":false}`; proceed after
+`200 {"ready":true}` confirms acknowledged credential delivery. The caller must
+still belong to the runtime's organization. A service identity or guest CCP
+token cannot authorize enrollment. Runtime creation does not enroll Forge.
+
+Inside a checkout with a GitHub origin, publish a separate Forge remote:
+
+```sh
+forge repo create my-project --remote forge
+git push forge HEAD
+git fetch forge
+forge branch list
+```
+
+The GitHub origin and existing branch upstream remain unchanged. The managed
+launcher loads the current renewable credential for each operation, including
+Git helper calls. If it reports `runtime_environment_unavailable`, have the
+creator check enrollment and delivery; never bypass the launcher or copy a
+personal token into the VM. Version/help output does not prove readiness.
+
+This workflow does not bind a Project to a Forge source, resolve its branch to
+a commit, or automatically clone that source into a fresh VM. Those operations
+require a separate Project source contract.
