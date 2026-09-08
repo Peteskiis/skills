@@ -206,5 +206,9 @@ ccp undeploy DEPLOYMENT_ID
 ccp remove               # alias: ccp rm
 ```
 
+`promote` and `remove` read linked App identity without requiring build files or
+initializing a project. Promotion still reads a custom OIDC callback from
+`cluster.toml` for redirect registration. An unlinked directory fails with a `ccp link` instruction.
+
 `promote`, `undeploy`, and `remove` auto-confirm in headless mode when
 destructive.
