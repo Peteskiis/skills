@@ -2,8 +2,8 @@
 
 ```sh
 ccp db create [--name mydb] [--app-id A] [--org-id ORG] [--network backend]
-ccp db ls [--org-id ORG]
-ccp db info <DB_ID>
+ccp db ls [--org-id ORG] [--json]
+ccp db info [DB_ID]
 ccp db destroy <DB_ID>
 ```
 
@@ -18,6 +18,11 @@ native URL.
 The database name becomes `<name>.<network>.internal`, so both names must be
 lowercase DNS labels. Networked databases and compute members can connect
 across VM nodes.
+
+`ccp db ls` shows the whole organization, sorts the project-linked database first,
+and marks it `linked`. `--json` preserves all rows and exact fields.
+`ccp db info` defaults to the same config or `.env` database identity used by SQL
+commands; outside a linked project, pass an explicit ID.
 
 Databases are organization-owned. Create and list resolve the organization in
 this order: `--org-id`, the App project organization, the compute link organization,
