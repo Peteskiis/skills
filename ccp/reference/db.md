@@ -30,7 +30,11 @@ local `.env` when the current project is linked to that DB.
 
 Local database hints use the guarded project-state reader. Malformed or retired
 App identity fails before a database request; empty local database IDs and tokens are
-missing credentials. Explicit database IDs (and paired SQL credentials) bypass
+missing credentials. Missing fields resolve individually from `.env`
+`DATABASE_HTTP_URL` and `DATABASE_HTTP_TOKEN`; a host must be a single database
+label under the selected context or `CCP_DB_BASE_DOMAIN`. A foreign host fails
+before any request. Native `DATABASE_URL` is not an HTTP credential source.
+Explicit database IDs (and paired SQL credentials) bypass
 local state. App identity lookup needs no build entry point. Invalid project
 state also prevents database deletion from clearing local environment values.
 
