@@ -20,12 +20,19 @@ lowercase DNS labels. Networked databases and compute members can connect
 across VM nodes.
 
 Databases are organization-owned. Create and list resolve the organization in
-this order: `--org-id`, `.ccp/config.json`, `CCP_ORG_ID`, sole organization, or
-the interactive picker. In headless multi-organization environments, pass
+this order: `--org-id`, the App project organization, the compute link organization,
+the named context, `CCP_ORG_ID`, sole organization, or the interactive picker.
+In headless multi-organization environments, pass
 `--org-id` or set `CCP_ORG_ID`.
 
 `ccp db destroy` auto-confirms in headless mode and removes matching DB env from
 local `.env` when the current project is linked to that DB.
+
+Local database hints use the guarded project-state reader. Malformed or retired
+App identity fails before a database request; empty local database IDs and tokens are
+missing credentials. Explicit database IDs (and paired SQL credentials) bypass
+local state. App identity lookup needs no build entry point. Invalid project
+state also prevents database deletion from clearing local environment values.
 
 ### SQL and migrations
 
