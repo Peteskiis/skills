@@ -150,3 +150,10 @@ Use the VM ID from `ccp compute status`:
 ```sh
 ccp domain link example.com --vm "<vm_id>:<port>"
 ```
+
+
+Service lookup accepts an explicit UUID without reading project state. Names
+resolve within the selected organization; otherwise the local compute link is
+used before an interactive picker. A malformed compute link fails loudly,
+including on `ccp compute ls`; fix the link or supply the organization explicitly
+instead of relying on an ambient organization to hide invalid state.
