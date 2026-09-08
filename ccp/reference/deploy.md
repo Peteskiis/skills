@@ -206,6 +206,12 @@ ccp undeploy DEPLOYMENT_ID
 ccp remove               # alias: ccp rm
 ```
 
+`link` validates organization access before selecting the App and records its
+server-owned Project identity. Organization precedence is `--org-id`, local
+project organization, named context, then `CCP_ORG_ID`. Headless linking requires
+`--app-id`; without an organization hint, a sole organization is selected
+automatically. Linking still prepares local App files.
+
 `promote` and `remove` read linked App identity without requiring build files or
 initializing a project. Promotion still reads a custom OIDC callback from
 `cluster.toml` for redirect registration. An unlinked directory fails with a `ccp link` instruction.
