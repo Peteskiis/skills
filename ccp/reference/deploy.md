@@ -231,3 +231,25 @@ initializing a project. Promotion still reads a custom OIDC callback from
 
 `promote`, `undeploy`, and `remove` auto-confirm in headless mode when
 destructive.
+
+### Moving a Project between organizations
+
+Use the Portal's Project transfer action. The actor must own both organizations.
+The Project moves with its Apps, deployments, Stores, databases and Compute;
+resource IDs, addresses, data and credentials are preserved. Future usage is
+billed to the destination and past usage remains with the source organization.
+A linked GitHub or Forge repository stays linked when its identity is accessible.
+A Project without a repository can transfer, but needs a source before editing.
+
+Review the preview's blockers before confirming. Busy resources, conflicting
+names or Store quota, cross-Project database bindings, installed organization
+credentials, and modern organization-owned domains require resolution first.
+The transfer does not revoke existing database or application credentials.
+
+For API clients, POST `/api/v1/serverless/projects/{project_id}/transfer/preview`
+with `source_organization_id` and `destination_organization_id`, then POST
+`/transfer` with the same fields plus a fresh UUID `id`. On a lost response or
+`transfer_publication_pending`, retry the exact body and ID. Success returns the
+original ownership receipt; there is no status polling or replacement-credential
+endpoint. After transfer, update the local CCP organization selection to the
+destination while retaining the existing Project and App IDs.
