@@ -24,7 +24,8 @@ IDs and data. Compute and databases are interrupted while credentials rotate,
 source usage settles, and organization ownership changes atomically. Historical
 usage stays with its original payer; future VM admission uses the saved
 organization billing account of the destination. Canonical organization runtime
-billing must be active before transferring compute or databases.
+billing must admit paid work before transferring compute or databases: the
+destination needs an active paid plan and sufficient credits.
 
 Source members lose access. Managed database credentials and backing-VM SSH keys
 are revoked. Linked Apps receive replacement database credentials automatically.
