@@ -33,7 +33,6 @@ A failed rebuild keeps the last working page and displays a failure notice: fix
 the reported compiler error and wait for the next successful revision. Refreshing
 the iframe cannot fix a failed build, and preview refresh does not deploy the App.
 
-
 `ccp init` also creates a git repository with an initial commit of the
 scaffold, unless the target directory is already inside one; `--no-git` skips
 this. It is best-effort: a missing `git` or an unconfigured commit identity
