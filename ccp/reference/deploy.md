@@ -24,6 +24,16 @@ In Build, start `ccp dev` in the background, verify
 arguments. The Sandbox preview routes port 8000; it is separate from a hosted
 CCP deployment. Run `ccp build` and relevant project checks before deployment.
 
+The development preview updates automatically after a successful rebuild; do not
+repeat `show_preview` just to reload the same URL. After editing, wait for the
+watcher's new `[dev] ready` and verify `curl -fsS http://127.0.0.1:8000/_cluster/dev/status`
+reports `status: ready` with a newer revision before saying the preview is ready.
+The status endpoint contains only build state and revision, not source or logs.
+A failed rebuild keeps the last working page and displays a failure notice: fix
+the reported compiler error and wait for the next successful revision. Refreshing
+the iframe cannot fix a failed build, and preview refresh does not deploy the App.
+
+
 `ccp init` also creates a git repository with an initial commit of the
 scaffold, unless the target directory is already inside one; `--no-git` skips
 this. It is best-effort: a missing `git` or an unconfigured commit identity
