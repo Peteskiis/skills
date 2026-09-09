@@ -196,6 +196,19 @@ preview requires `0.0.0.0:8000`, regardless of overrides used elsewhere.
 Use `ccp dev` directly for Cluster projects. Do not substitute package-manager
 dev scripts when the goal is to run the Cluster local runtime.
 
+### Editing an existing team App in Build
+
+A GitHub-backed Project supplies repository-scoped GitHub App credentials for
+checkout, branch pushes, and pull requests. Team members do not need personal
+GitHub access to that repository. Use the session branch with ordinary `git`
+and `gh`; credentials renew through the workspace runtime. GitHub branch
+protection and review rules still apply.
+
+If delivery authorization fails, preserve local edits and commits. Do not
+replace the Project source, rewrite remotes with credentials, or switch to a
+personal token. Resuming work in the session rechecks Project access and restores
+credentials without recloning its source.
+
 ### Link, list, promote, delete
 
 ```sh
