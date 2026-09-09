@@ -3,6 +3,16 @@
 Use this topic for serverless apps. Compute services use
 `ccp skills compute`.
 
+### Project transfer preview
+
+Infra accepts `POST /api/v1/serverless/projects/{project_id}/transfer/preview`
+with `{"destination_organization_id":"..."}` and a human access token whose
+membership snapshot makes the actor an owner in both organizations. The response
+lists attached resources and name or database-binding conflicts. This endpoint
+is read-only: it does not change organization ownership, billing, or credentials.
+The transfer execution endpoint is not implemented. Do not report a successful
+move from a successful preview, or rewrite local organization hints after it.
+
 ### Scaffold, preview, and first deploy
 
 ```sh
