@@ -60,7 +60,7 @@ ccp sandbox connect sbx_... cdp --ttl 5m --json
 The response keeps the endpoint and opaque bearer token separate. HTTPS and
 WebSocket clients attach `Authorization: Bearer <token>` to the request or
 Upgrade; the token is scoped to that Sandbox and service for at most one hour
-and never beyond the Sandbox TTL. `--json` is the stable automation contract
+and never beyond a bounded Sandbox TTL. `--json` is the stable automation contract
 with `endpoint`, `token`, and `expires_at` fields; the token is never embedded
 in the URL.
 
@@ -211,3 +211,19 @@ personal token into the VM. Version/help output does not prove readiness.
 This workflow does not bind a Project to a Forge source, resolve its branch to
 a commit, or automatically clone that source into a fresh VM. Those operations
 require a separate Project source contract.
+
+## Persistent Computers
+
+Saved Computer environments first provision with a bounded deadline, save their
+binding durably, then call `POST /api/v1/sandboxes/{id}/retain`.
+`expires_at: null` means the Sandbox has no age-based expiry; direct system-template
+API callers can also request this explicitly with `ttl_seconds: 0`.
+They retain the desktop's 15-minute idle pause and resume the same memory and
+disk on the next authorized operation. Temporary CLI template runs remain bounded.
+Screen tokens and human-control leases remain short-lived and must be renewed.
+
+After resume, credential-dependent operations return retryable
+`runtime_environment_unavailable` until the exact desired environment generation
+is acknowledged. Ordinary environment changes affect new processes; credential
+wrappers resolve fresh documents for each operation. Do not cache credentials
+from a prior shell or disable the generation fence to work around refresh delays.
