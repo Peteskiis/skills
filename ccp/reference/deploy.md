@@ -3,15 +3,35 @@
 Use this topic for serverless apps. Compute services use
 `ccp skills compute`.
 
-### Project transfer preview
+### Transfer an entire Project
 
-Infra accepts `POST /api/v1/serverless/projects/{project_id}/transfer/preview`
-with `{"destination_organization_id":"..."}` and a human access token whose
-membership snapshot makes the actor an owner in both organizations. The response
-lists attached resources and name or database-binding conflicts. This endpoint
-is read-only: it does not change organization ownership, billing, or credentials.
-The transfer execution endpoint is not implemented. Do not report a successful
-move from a successful preview, or rewrite local organization hints after it.
+The actor must own both organizations. First call
+`POST /api/v1/serverless/projects/{project_id}/transfer/preview` with
+`{"destination_organization_id":"..."}`. Review every resource and resolve the
+returned blockers. Disconnect repository source integrations and custom domain
+bindings before transferring; reconnect them in the destination afterward.
+
+Submit `POST /api/v1/serverless/projects/{project_id}/transfer` with
+`operation_id` (a new UUID), `source_organization_id`, and
+`destination_organization_id`. Keep the same operation ID and body when retrying
+an uncertain response. HTTP 202 records durable intent; it does not mean the
+transfer has finished. Poll `GET` on the same path until `status` is `completed`.
+The API resumes pending work after a restart and reports `retrying` when a step
+needs another attempt. Do not submit a second transfer to recover the first.
+
+Apps, deployments, Stores, compute, databases and their backing VMs retain their
+IDs and data. Compute and databases are interrupted while credentials rotate,
+source usage settles, and organization ownership changes atomically. Historical
+usage stays with its original payer; future VM admission uses the saved
+organization billing account of the destination. Canonical organization runtime
+billing must be active before transferring compute or databases.
+
+Source members lose access. Managed database credentials and backing-VM SSH keys
+are revoked. Linked Apps receive replacement database credentials automatically.
+After completion, a destination owner can retrieve replacements for other clients
+with `GET /api/v1/serverless/projects/{project_id}/transfer/{transfer_id}/credentials`.
+Treat that response as secrets; do not paste it into logs or conversation history.
+Refresh local organization hints only after completion.
 
 ### Scaffold, preview, and first deploy
 
