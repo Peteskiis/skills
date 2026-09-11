@@ -19,27 +19,31 @@ kind: SandboxTemplate
 metadata:
   name: python-tools
 spec:
-  base: development
+  base: debian
   resources:
     vcpu: 2
     memory_mb: 1024
   packages:
-    apt: [jq]
-    pip: [cowsay==6.1]
+    apt: [jq, python3, python3-venv]
   ports:
     - name: cdp
       port: 9222
       protocol: websocket
   steps:
-    - run: touch /workspace/ready
+    - run: |
+        python3 -m venv /opt/python
+        /opt/python/bin/pip install cowsay==6.1
+        mkdir -p /workspace
+        touch /workspace/ready
 ```
 
 `metadata.name` is the stable organization-scoped template identity. Resources
 are required as one supported `vcpu` and `memory_mb` pair. `base` is exactly one
-of `development`, `debian`, or `alpine`; Infra resolves it to a committed immutable
-system build. `development` is the full Debian 13 toolchain image and supports `apt`, `pip`, `npm`, `cargo`, `gem`, and `go`
-package lists. `debian` is the minimal binary image and supports `apt`;
-`alpine` supports `apk`. The retired `ubuntu` base is rejected. Incompatible
+of `debian` or `alpine`; Infra resolves it to a committed immutable minimal
+system build. Debian supports `apt`; Alpine supports `apk`. Language runtimes
+are not preinstalled: add needed runtimes through OS packages and install
+language dependencies in the run step. The retired `ubuntu` base and the full
+`development` image are not accepted as manifest bases. Incompatible
 package managers are rejected before build admission. Changing the base,
 resources, packages, ports, or run step admits a new immutable build; existing
 builds are never mutated.
