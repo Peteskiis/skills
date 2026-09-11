@@ -19,7 +19,7 @@ kind: SandboxTemplate
 metadata:
   name: python-tools
 spec:
-  base: ubuntu
+  base: development
   resources:
     vcpu: 2
     memory_mb: 1024
@@ -36,9 +36,10 @@ spec:
 
 `metadata.name` is the stable organization-scoped template identity. Resources
 are required as one supported `vcpu` and `memory_mb` pair. `base` is exactly one
-of `ubuntu`, `debian`, or `alpine`; Infra resolves it to a committed immutable
-system build. Ubuntu supports `apt`, `pip`, `npm`, `cargo`, `gem`, and `go`
-package lists, Debian supports `apt`, and Alpine supports `apk`. Incompatible
+of `development`, `debian`, or `alpine`; Infra resolves it to a committed immutable
+system build. `development` is the full Debian 13 toolchain image and supports `apt`, `pip`, `npm`, `cargo`, `gem`, and `go`
+package lists. `debian` is the minimal binary image and supports `apt`;
+`alpine` supports `apk`. The retired `ubuntu` base is rejected. Incompatible
 package managers are rejected before build admission. Changing the base,
 resources, packages, ports, or run step admits a new immutable build; existing
 builds are never mutated.
