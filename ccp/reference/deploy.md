@@ -262,3 +262,23 @@ with `source_organization_id` and `destination_organization_id`, then POST
 original ownership receipt; there is no status polling or replacement-credential
 endpoint. After transfer, update the local CCP organization selection to the
 destination while retaining the existing Project and App IDs.
+
+## Automatic association in Build Apps
+
+Apps workspaces provide `CCP_REQUIRE_DEPLOY_SOURCE=1`. Before creating an App,
+`ccp deploy` requires one Git `origin`, no separate push URL, and a normalized
+repository-relative source root. GitHub HTTPS/SSH and the managed
+`CCP_FORGE_ORIGIN` are supported. Push the repository's durable source first.
+Ordinary CLI deployments can still deploy projects without a supported remote.
+
+CCP sends only the provider, canonical repository name, and source root. Infra
+records that candidate with the authenticated organization and Sandbox when the
+deployment is created, then marks its upload/activation intent atomically.
+The metadata does not attest that the uploaded bundle matches a Git commit.
+
+Agents validates and associates the App automatically after the turn. Refreshing
+an idle conversation retries incomplete association with your current login.
+Pending or blocked association is separate from deployment and hosted URL health.
+Retain `.ccp/config.json` and the existing deployment when retrying; do not create
+another App or redeploy just to recover association. Another App or repository
+cannot replace this conversation's bound source.
