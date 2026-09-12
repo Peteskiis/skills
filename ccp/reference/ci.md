@@ -32,5 +32,5 @@ steps:
 `--json` prints one machine-readable result line and suppresses streamed logs.
 `--no-wait` submits and prints the job ID without waiting.
 
-Use `--org-id` or `CCP_ORG_ID` for multi-org accounts. The command exits with
+Use a saved default, `--org-id`, or `CCP_ORG_ID` for multi-org accounts. The command exits with
 the build exit code when waiting, so it can gate scripts directly.

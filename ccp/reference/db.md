@@ -26,9 +26,9 @@ commands; outside a linked project, pass an explicit ID.
 
 Databases are organization-owned. Create and list resolve the organization in
 this order: `--org-id`, the App project organization, the compute link organization,
-the named context, `CCP_ORG_ID`, sole organization, or the interactive picker.
-In headless multi-organization environments, pass
-`--org-id` or set `CCP_ORG_ID`.
+the named context, `CCP_ORG_ID`, saved default, sole organization, or the interactive picker.
+In headless multi-organization environments, use a saved default, pass
+`--org-id`, or set `CCP_ORG_ID`.
 
 `ccp db destroy` auto-confirms in headless mode and removes matching DB env from
 local `.env` when the current project is linked to that DB.

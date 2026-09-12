@@ -87,8 +87,8 @@ only creates one when the name is free (confirmed interactively, auto-yes with
 `-y`). `--name` overrides the committed name for that deploy and is **not**
 written back, so it stays per-environment; `--port` is recorded, because the
 port is part of what to run rather than which environment this is. Headless on a multi-org
-account this needs `--org-id` or `CCP_ORG_ID`, since the org hint is no longer
-committed.
+account this uses a saved default, `--org-id`, or `CCP_ORG_ID`; organization
+identity is not committed.
 
 **A redeploy needs a `cluster.toml` that describes the service.** With a link
 but no committed description — the file deleted, on a branch without it, or

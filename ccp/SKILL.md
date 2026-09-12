@@ -41,8 +41,29 @@ choose resources for you.
 project-pinned org exists. Resolution is:
 
 ```text
---org-id > project config > CCP_ORG_ID > sole-org auto-pick > error
+--org-id > project binding > named context > CCP_ORG_ID > saved default > sole-org auto-pick > error
 ```
+
+### Default organization
+
+Run `ccp org use` in a terminal to choose an organization by name and save it.
+The picker marks the saved default and distinguishes duplicate names with IDs.
+`ccp org use <id>` selects directly; `ccp org current [--json]` reports the
+effective organization and its source without prompting. `ccp org clear` removes
+only this account/environment's saved default.
+
+Defaults live under `~/.ccp/org-defaults/`, isolated by API origin, auth issuer,
+and authenticated account. They survive new shells and token renewal. Invalid
+or inaccessible defaults fail explicitly; use `ccp org clear` or
+`ccp org use <id>` to repair them. A default does not relink existing resources.
+
+In headless mode, bare `ccp org use` saves the sole accessible organization or
+fails if several exist; it never guesses. Ordinary org-scoped commands use the
+resolution order above without prompting. Development agents need no setup:
+`CCP_ORG_ID` already supplies their VM organization and wins over saved defaults.
+Do not run `ccp org use` or log in inside a development VM. Organization-scoped
+API-key automation should continue setting `CCP_ORG_ID`; saved preferences
+require an account identity from the configured issuer's `/userinfo` endpoint.
 
 ## What ccp manages
 
@@ -234,8 +255,8 @@ org. Inside one org, give the second one `--name my-staging`; that name is used 
 the deploy and is deliberately **not** written back to `cluster.toml`, so the
 shared file keeps describing the project rather than one environment. (`--port`
 IS recorded — the port is part of what to run, not which environment.)
-Headless on a multi-org account now needs `--org-id` or `CCP_ORG_ID` — the org
-hint used to come from the committed file.
+Headless on a multi-org account uses a saved default, `--org-id`, or
+`CCP_ORG_ID`; organization identity is not read from the committed file.
 
 ### `.ccp/config.json` - local serverless link
 
@@ -339,8 +360,8 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - A fresh clone has no compute link, so `ccp compute deploy` attaches to the
   service the committed `name` already identifies in the org rather than
   creating a second one. On a multi-org account headless, that lookup needs
-  `--org-id` or `CCP_ORG_ID` — the org hint no longer comes from the committed
-  file.
+  a saved default, `--org-id`, or `CCP_ORG_ID`; the org hint no longer comes
+  from the committed file.
 - Shape keys live ONLY in `cluster.toml`. `.ccp/config.json` holds the link and
   secrets. Setting `index`/`client`/`assets`/`analytics` in the gitignored file
   does nothing and is stripped on the next write.

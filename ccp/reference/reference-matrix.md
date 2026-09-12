@@ -39,6 +39,9 @@ With `CCP_HEADLESS=1` set:
 | `ccp ci` | yes | git repo with origin and `.cluster-ci.yaml` |
 | `ccp env list/get/set/unset` | yes | `--vm <vm_id>` |
 | `ccp env refresh-system` | yes | `--vm <vm_id>` |
+| `ccp org use [id]` | with ID, or sole accessible org | Lists names interactively; validates access and saves an account/environment default |
+| `ccp org current [--json]` | yes | Reports effective org and source; never prompts |
+| `ccp org clear` | yes | Removes the current account/environment saved default |
 | `ccp apply` | yes | Agent or SandboxTemplate `-f <manifest>`; `--org-id` (or `CCP_ORG_ID`); optional `--dry-run` |
 | `ccp delete` | yes, destructive | `-f <manifest>`; `--org-id` (or `CCP_ORG_ID`); optional `--dry-run` |
 | `ccp agent list` / `ccp agent ls` | yes | `--org-id` (or `CCP_ORG_ID`) for org resolution |
