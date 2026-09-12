@@ -76,8 +76,7 @@ ccp deploy --app-id <the id from the error>
 ```
 
 That clears the retired key and links the project properly; every later command
-works normally. Do not delete the key by hand: an exact same-name App can be
-reattached, but a renamed directory cannot identify the original App safely.
+works normally. Do not delete the key by hand: names cannot identify the original App safely.
 
 ### Deploy
 
@@ -87,8 +86,8 @@ ccp deploy [--prod] [--org-id O] [--app-id A] [--public-dir DIR] [PATH]
 
 - Linked config or explicit `--org-id` plus `--app-id` deploys to that
   App without prompting.
-- Unlinked headless deploy attaches an exact same-org name before creating;
-  otherwise it creates a same-named Project and App.
+- Unlinked headless deploy creates a new Project and App. An existing App or
+  Project name is not permission to reuse it; resolve explicit linkage instead.
 - Preview deploy is the default; `--prod` promotes the new deployment to prod.
 - The deployment URL is printed on stdout.
 
@@ -282,3 +281,33 @@ Pending or blocked association is separate from deployment and hosted URL health
 Retain `.ccp/config.json` and the existing deployment when retrying; do not create
 another App or redeploy just to recover association. Another App or repository
 cannot replace this conversation's bound source.
+
+
+### Cluster Bot Computers
+
+Fresh CCP-enabled Computers include the CLI, Node/npm, Bun, esbuild, Git, and
+these runbooks. Use the Computer shell tools under `/home/user`; do not install
+or update managed tools or run `ccp auth login`. The managed wrapper selects the
+Computer organization and reloads current credentials for each invocation,
+including commands launched from a shell opened before token rotation.
+
+Run `ccp dev` in the background, verify `http://127.0.0.1:8000` with shell tools,
+and open that address in the visible desktop browser. Check the changed page
+visually before reporting success. Build and run the project's checks without
+deploying unless requested; production still requires explicit authorization.
+Do not use Build-only preview or registration tools for this workflow.
+
+Credentials and refresh authority are infrastructure-owned. Missing, expired,
+or revoked authorization fails closed; never inspect token values or switch to
+another organization to bypass a failure. A running local dev server may keep
+serving during token expiry. Already-running API operations do not gain a new
+token by changing environment files: inspect deployment state before retrying
+an uncertain operation, then launch a new command through managed CCP.
+
+Keep exact App/Project IDs and existing repository linkage. A same-named App is
+not the intended App unless explicitly selected. Preserve configuration when a
+lookup, authorization, or deployment fails; never clear IDs to force creation.
+
+Existing Computers keep their original image and need recreation to receive a
+new toolchain. Preserve unsynced `/home/user` work and local App linkage before
+recreation; publishing a template does not update an existing guest.
