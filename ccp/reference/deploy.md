@@ -41,7 +41,7 @@ prints a notice and never fails the scaffold.
 Headless first deploy resolves an org, then attaches an exact same-named App
 when one already exists there. Otherwise it reuses or creates a same-named
 Project and creates the App inside it. Org resolution is `--org-id` > project
-config > `CCP_ORG_ID` > sole-org auto-pick > error. The Project, App, and org
+config > named context > `CCP_ORG_ID` > saved default > sole-org auto-pick > error. The Project, App, and org
 IDs land in `.ccp/config.json` (gitignored local state — not committed).
 
 Manage empty Projects directly when needed:
@@ -230,7 +230,7 @@ ccp remove               # alias: ccp rm
 
 `link` validates organization access before selecting the App and records its
 server-owned Project identity. Organization precedence is `--org-id`, local
-project organization, named context, then `CCP_ORG_ID`. Headless linking requires
+project organization, named context, `CCP_ORG_ID`, then the saved default. Headless linking requires
 `--app-id`; without an organization hint, a sole organization is selected
 automatically. Linking still prepares local App files.
 

@@ -15,7 +15,7 @@ ccp store rm logo.png
 resolves the store from org state or a prompt when interactive.
 
 When organization selection is needed, project `organization_id` wins over the
-named context and then `CCP_ORG_ID`. The selected organization must be an active
+named context, `CCP_ORG_ID`, and then the saved default. The selected organization must be an active
 membership; a stale project hint fails instead of falling back to another org.
 Headless ambiguity errors list the available organizations.
 
