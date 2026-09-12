@@ -232,3 +232,11 @@ After resume, credential-dependent operations return retryable
 is acknowledged. Ordinary environment changes affect new processes; credential
 wrappers resolve fresh documents for each operation. Do not cache credentials
 from a prior shell or disable the generation fence to work around refresh delays.
+
+
+### Custom builds and system base updates
+
+A ready custom build retains its published operating system and rootfs size;
+updating system templates does not require rebuilding it. Rebuild to pick up
+changes to the base itself. Historical builds without an exact stored launch
+receipt must be rebuilt once before they can launch.
