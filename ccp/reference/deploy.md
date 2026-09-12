@@ -265,7 +265,7 @@ destination while retaining the existing Project and App IDs.
 
 ## Automatic association in Build Apps
 
-Apps workspaces provide `CCP_REQUIRE_DEPLOY_SOURCE=1`. Before creating an App,
+Apps workspaces provide `BUILD_APP_DEPLOY_SOURCE_REQUIRED=1`. Before creating an App,
 `ccp deploy` requires one Git `origin`, no separate push URL, and a normalized
 repository-relative source root. GitHub HTTPS/SSH and the managed
 `CCP_FORGE_ORIGIN` are supported. Push the repository's durable source first.
