@@ -1,6 +1,9 @@
 # Agents
 
-Manage AI agents on the managed-agents service. The server owns all
+Create and update durable Agents by committing a manifest and running
+`ccp apply -f agent.yaml`. Keep the manifest as the source of truth.
+
+Manage existing Agents on the managed-agents service. The server owns all
 validation (membership, model, tools, reasoning effort) — on a 400, read the
 error message: it names valid values.
 
@@ -21,12 +24,6 @@ error message: it names valid values.
   Unknown or inaccessible IDs return the server's 404.
 - `ccp agent versions <agent_id>` — list every persisted definition snapshot,
   oldest first, with the latest marked `current`.
-- `ccp agent create --name <name> --model <model> [options]` — create an
-  agent and print its id. Options: `--org-id`, `--system <text>` or
-  `--system-file <path>` (mutually exclusive; file must be UTF-8),
-  repeatable `--tool <name>`, `--reasoning-effort <level>`, repeatable
-  `--metadata key=value`. MCP server declarations cannot be set from the
-  CLI yet.
 - `ccp agent delete <agent_id> [--yes]` — permanently delete any customer-owned
   Agent, all versions, and dependent runtime history. For an applied Agent this
   also removes its manifest binding; reapplying the file creates a new Agent id.
@@ -91,7 +88,7 @@ it when reporting a failure.
 
 ## Headless use
 
-`apply`, manifest `delete`, `list`, and `create` accept `--org-id` (or `CCP_ORG_ID`) to skip the
+`apply`, manifest `delete`, and `list` accept `--org-id` (or `CCP_ORG_ID`) to skip the
 interactive organization picker. `get` and `versions` need no org context —
 they address the agent by ID directly; an unknown or inaccessible (cross-org)
 ID returns the server's 404.

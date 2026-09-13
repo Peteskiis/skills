@@ -47,7 +47,6 @@ With `CCP_HEADLESS=1` set:
 | `ccp agent list` / `ccp agent ls` | yes | `--org-id` (or `CCP_ORG_ID`) for org resolution |
 | `ccp agent get` | yes | `AGENT_ID`; optional `--version` (no org context needed — cross-org access 404s) |
 | `ccp agent versions` | yes | `AGENT_ID` (no org context needed — cross-org access 404s) |
-| `ccp agent create` | yes | `--org-id` (or `CCP_ORG_ID`); `--name` and `--model` |
 | `ccp agent delete` | yes, destructive | `AGENT_ID`; optional `--yes` |
 | `ccp skills [topic\|all]` | yes | nothing; `--export DIR` writes the agent-skill bundle (maintainer tool) |
 | `ccp auth login [--browser\|--device] [--replace-session]` | interactive | browser PKCE locally; device approval on SSH/headless hosts; existing sessions require confirmed replacement |
