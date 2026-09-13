@@ -41,7 +41,7 @@ error rather than starting partial bytes.
 First deploy creates the service, writes the description to `cluster.toml`
 (commit it) and this machine's link to `.ccp/compute-link.json` (gitignored).
 Redeploy reads the link or `--service-id` and PATCH-updates the service. Mode is
-immutable in v1; destroy and recreate to switch image vs binary.
+immutable; edit the manifest and use `ccp compute deploy --replace` to switch modes.
 
 Binary paths are resolved against the project directory for reading and
 uploading, but remain portable in `cluster.toml`: relative spellings such as
@@ -54,13 +54,51 @@ Binary runtimes are `auto`, `alpine`, and `debian`. Resolution precedence is
 Alpine and glibc ELFs to Debian; explicit incompatible combinations fail before
 upload. The successful deploy writes the concrete runtime to
 `[binary].runtime`. Runtime is immutable for an existing service, so changing
-between Alpine and Debian also requires destroy/recreate.
+between Alpine and Debian requires `ccp compute deploy --replace`.
 
 Compute resources may be omitted to use the runtime default, or selected with
 paired `--vcpu` and `--memory-mb` flags / a `[resources]` manifest block. The
 published shapes are `1/256`, `1/512`, `2/1024`, `4/2048`, and `4/4096`
-(vCPU/MiB). Resources are immutable after creation; destroy and recreate to
-change shape. `compute list` and `compute status` show the persisted shape.
+(vCPU/MiB). Resources are immutable after creation; edit `[resources]` and run
+`ccp compute deploy --replace` to change shape. `compute list` and `compute status` show the persisted shape.
+
+### Replace immutable configuration
+
+```sh
+# After editing cluster.toml, review the plan and confirm interactively
+ccp compute deploy --replace
+
+# Explicit consent for automation; non-interactive replacement requires --yes
+ccp compute deploy --replace --yes
+```
+
+Replacement requires this project's existing local link and a valid compute
+`cluster.toml`. It reads the manifest and `.env`; put overrides in those files
+before replacing. Source/name/resource/env flags and `--service-id` cannot be
+combined with `--replace`. An optional `--org-id` must match the linked service.
+The plan names changed immutable fields and shows existing/requested resources.
+
+CCP prepares and uploads binaries before deleting the old service. Replacement
+then deletes the old guest and creates a new service: expect an interruption,
+loss of the old guest filesystem and deployment history, and new service/VM IDs.
+The existing service name and built-in public hostname are preserved, including
+a per-environment name previously set with `--name`. Custom domains targeting
+the old VM must be rebound. The committed manifest is preserved byte-for-byte.
+If `[resources]` is omitted, replacement retains the existing resource shape.
+
+The original local link remains until the API accepts the replacement. A local,
+context-scoped recovery record stores only the original identity, endpoint and
+resource shape. If deletion or creation fails, fix the reported cause and retry
+`ccp compute deploy --replace --yes` in the same project/context. Keep
+`cluster.toml`, `.env`, the link and the recovery record while recovering.
+Ordinary deploy refuses while replacement is unfinished. A retry first looks
+for an already accepted service under the original name; it can recover the
+link after a lost response without deleting that service or creating a duplicate.
+Use `ccp compute status` to inspect a recovered service's readiness. A failed
+server-side image pull or capacity check after deletion means the old guest is
+already gone; retry can recreate it, but cannot restore its disk contents.
+
+### Private networking
 
 An always-on service may join an organization-scoped private network by adding
 the following block to `cluster.toml`:

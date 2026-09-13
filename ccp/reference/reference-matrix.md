@@ -33,6 +33,7 @@ With `CCP_HEADLESS=1` set:
 | `ccp oidc create` | yes | `--name` and at least one `--redirect-uri` |
 | `ccp oidc ls/info/update/rotate-secret/destroy` | yes | org or client resolution |
 | `ccp compute deploy` | yes | source/image/binary, name, port, org resolution |
+| `ccp compute deploy --replace` | with `--yes` | linked service + `cluster.toml`; interruption and guest-data loss; retry resumes replacement |
 | `ccp compute list/status/logs/exec/restart` | yes | linked project or service ID |
 | `ccp compute destroy` | yes, destructive | linked project or service ID/name |
 | `ccp sandbox create` | yes | `--template NAME`; optional `--ttl` and `--org-id` |
