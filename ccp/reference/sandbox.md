@@ -240,3 +240,17 @@ A ready custom build retains its published operating system and rootfs size;
 updating system templates does not require rebuilding it. Rebuild to pick up
 changes to the base itself. Historical builds without an exact stored launch
 receipt must be rebuilt once before they can launch.
+
+## GitHub in development workspaces
+
+User-owned development Sandboxes launched with workspace inputs (repositories,
+environment variables, or Storage resources) use the creator's linked GitHub
+identity for guest Git and `gh`. Infra keeps the protected credential renewable;
+repository cloning and guest CLI authentication are separate operations. Link
+GitHub before launch. Trusted service launches use their explicit repository
+grant and never inherit a human's personal GitHub token.
+
+This applies at workspace launch. Existing Sandboxes missing that document are
+not enrolled by an API rollout; start a new Build workspace after rollout.
+The direct-VM `refresh-system` endpoint does not expose Sandbox backing VMs.
+Do not paste a token into chat or ordinary environment variables.
