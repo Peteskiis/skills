@@ -250,7 +250,7 @@ repository cloning and guest CLI authentication are separate operations. Link
 GitHub before launch. Trusted service launches use their explicit repository
 grant and never inherit a human's personal GitHub token.
 
-For an existing workspace missing its GitHub document, its owner can use the
-existing `POST /api/v1/vms/{vm_id}/env/refresh-system` operation with the backing
-VM ID. Wait for runtime-environment delivery before retrying `gh auth status`.
+This applies at workspace launch. Existing Sandboxes missing that document are
+not enrolled by an API rollout; start a new Build workspace after rollout.
+The direct-VM `refresh-system` endpoint does not expose Sandbox backing VMs.
 Do not paste a token into chat or ordinary environment variables.
