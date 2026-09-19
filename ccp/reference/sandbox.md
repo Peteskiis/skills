@@ -1,5 +1,15 @@
 # Sandboxes
 
+New `development` Sandboxes pause after 15 minutes without tool or proxy activity.
+The next agent tool or guest execution resumes the same VM, preserving saved files,
+uncommitted Git work and guest processes. Compute billing stops while paused and
+resumes when the VM runs again. A detached process alone is not an activity signal;
+keep polling work that needs to continue running.
+
+Idle pause does not extend the Sandbox's expiration time. Expiration still deletes
+the Sandbox and its local work. Existing Sandboxes retain the idle policy recorded
+when they were created; this default does not rewrite their launch receipts.
+
 Apply a versioned, organization-scoped reusable Sandbox template:
 
 ```sh
