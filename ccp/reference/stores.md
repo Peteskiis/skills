@@ -19,7 +19,7 @@ named context, `CCP_ORG_ID`, and then the saved default. The selected organizati
 membership; a stale project hint fails instead of falling back to another org.
 Headless ambiguity errors list the available organizations.
 
-In managed VMs, use the provided `CCP_SESSION_TOKEN`; do not run interactive
+In managed VMs, use the installed managed CCP credential; do not run interactive
 login or copy a human token into the VM. Store operations resolve that credential
 through Infra to the running VM's actor and organization. The selected Store
 must belong to that organization. Revoked membership or a stopped/revoked runtime
