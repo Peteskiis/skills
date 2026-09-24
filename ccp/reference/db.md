@@ -73,6 +73,9 @@ ccp db backup delete <BACKUP_ID> [--db-id D]
 
 Restore and delete are destructive and auto-confirm in headless mode.
 
+Backup creation and restore wait for completion. Failed or unexpected outcomes
+exit nonzero and report errors on stderr; successful completion is printed on stdout.
+
 ### Client access
 
 ```sh
