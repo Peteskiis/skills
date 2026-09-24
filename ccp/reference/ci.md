@@ -34,3 +34,7 @@ steps:
 
 Use a saved default, `--org-id`, or `CCP_ORG_ID` for multi-org accounts. The command exits with
 the build exit code when waiting, so it can gate scripts directly.
+
+A failed build forwards its nonzero exit code only when it is between `1` and `255` inclusive;
+missing, zero, or out-of-range codes become `1`. Timeout and cancellation use
+`124` and `130`. The JSON `exit_code` matches the command exit status.
