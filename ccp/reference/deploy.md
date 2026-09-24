@@ -81,7 +81,7 @@ works normally. Do not delete the key by hand: names cannot identify the origina
 ### Deploy
 
 ```sh
-ccp deploy [--prod] [--org-id O] [--app-id A] [--public-dir DIR] [PATH]
+ccp deploy [--prod] [--no-minify] [--org-id O] [--app-id A] [--public-dir DIR] [PATH]
 ```
 
 - Linked config or explicit `--org-id` plus `--app-id` deploys to that
@@ -110,6 +110,17 @@ the deploy.
 Bundling requires `esbuild` on PATH (`brew install esbuild`, or
 `npm install -g esbuild`). Run `ccp doctor` to check it and the other deploy
 toolchains.
+
+### Bundle optimization
+
+`ccp build` and `ccp deploy` minify server/client JavaScript and bundled CSS by
+default, including preview deployments. Use `--no-minify` on either command
+for readable output when debugging. Static files copied from the assets directory
+are unchanged. `ccp dev` keeps bundles readable, including with `--prod` (which
+selects production dependencies, not minification).
+
+Source maps are not generated or uploaded. Use `--no-minify` for deployed bundle
+debugging until source-map delivery is supported.
 
 ### Client bundle and CSS imports
 
@@ -192,7 +203,7 @@ Two collection tiers, selected per deployment by `analytics` under
 ```sh
 ccp dev                           # defaults to 0.0.0.0:8000
 ccp dev --port 3000 --hostname 127.0.0.1  # explicit overrides
-ccp build [PATH]
+ccp build [--no-minify] [PATH]
 ```
 
 The default bind is identical in terminals and headless execution.
