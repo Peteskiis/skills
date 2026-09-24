@@ -28,6 +28,11 @@ export CCP_HEADLESS=1
 ccp also detects non-TTY stdin/stderr and behaves headlessly, but the env var is
 the explicit and preferred signal for agents.
 
+Progress diagnostics and top-level command errors go to stderr in both terminal
+and headless modes. Capture stdout for command results; use a command's `--json`
+option when it supports structured output. Progress is cleared on early errors
+or dropped async operations; success marks require successful completion.
+
 Destructive commands require their explicit confirmation flag in headless mode.
 Verify targets before running commands such as `ccp project rm <name> --yes`, `ccp remove`, `ccp undeploy`,
 `ccp db destroy`, `ccp db backup delete`, `ccp domain rm`, and
