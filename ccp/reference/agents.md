@@ -53,7 +53,7 @@ spec:
       kickoff: Build and test the repository.
       environment:
         type: ephemeral
-        template_id: workspace
+        template_id: development
         repos:
           - url: octocat/Hello-World
   schedules:
