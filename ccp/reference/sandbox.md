@@ -113,25 +113,8 @@ persistent browser storage, and obtain a new capability after expiry. Clients
 that can set request headers may continue to use `Authorization: Bearer
 <token>`; if both forms are present, Authorization is authoritative.
 
-A trusted launcher with a pre-issued capability can use the same native tunnel
-without an account login in that machine:
-
-```bash
-trusted-access-provider | ccp sandbox desktop --access-stdin --input
-```
-
-`trusted-access-provider` stands for the caller's trusted capability delivery;
-it is not a CCP command. Supply a bounded JSON document containing `endpoint`,
-`token` and `expires_at` through a pipe, then close the pipe. Never pass the token
-in argv, a URL, logs or browser JavaScript. Omit `--input` for a read-only viewer.
-The flag changes viewer behavior only: upstream capability/lease checks remain
-authoritative. This mode neither obtains nor renews a lease and cannot be combined
-with a Sandbox ID or `--ttl`; it closes when the supplied access expires.
-It does not isolate a machine that already allows arbitrary local commands.
-
-The separate `desktop-control` transport cannot be minted with `ccp sandbox
-connect` or the account-backed `ccp sandbox desktop <id>` command. Its guest
-services are stopped by default.
+The separate `desktop-control` transport cannot be opened with `ccp sandbox
+connect` or `ccp sandbox desktop`. Its guest services are stopped by default.
 An organization member or an authenticated trusted service may acquire the
 current lease with `POST /api/v1/sandboxes/{sandbox_id}/desktop-control`.
 The request supplies a fresh `sbxcl_<uuid>` lease ID, a fresh 256-bit
