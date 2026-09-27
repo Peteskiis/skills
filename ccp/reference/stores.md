@@ -27,7 +27,9 @@ fails authorization; fix the runtime or membership instead of retrying with a
 different identity.
 
 Uploads return content-addressed URLs by default. These URLs are immutable and
-safe for long CDN caching.
+safe for long CDN caching. Upload successes and URLs go to stdout; per-file
+errors go to stderr. If any file fails, the command exits nonzero while still
+reporting successful uploads.
 
 Use `--mutable` only when a stable URL is required and old content should be
 replaced at the same path. Mutable URLs bypass the CDN cache.

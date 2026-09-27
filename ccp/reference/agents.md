@@ -1,7 +1,7 @@
 # Agents
 
 Create and update durable Agents by committing a manifest and running
-`ccp apply -f agent.yaml`. Keep the manifest as the source of truth.
+`ccp apply -f agent.yaml` or `ccp apply -f agent.toml`. Keep the manifest as the source of truth.
 
 Manage existing Agents on the managed-agents service. The server owns all
 validation (membership, model, tools, reasoning effort) — on a 400, read the
@@ -80,6 +80,13 @@ authoritative, and `schedules: []` explicitly removes all schedules managed by
 that Agent manifest. A schedule sets exactly one of `kickoff` (HTTP-only) or a
 manifest-local `deployment` name. Imperative and boot-managed resources are
 never pruned. Unknown fields and additional YAML documents are rejected.
+
+YAML, JSON and TOML encode the same document and use the same apply/delete
+API. Files ending in `.toml` use TOML parsing; malformed TOML never falls back
+to YAML. Other filenames use YAML/JSON parsing. TOML uses `[metadata]` and
+`[spec]` tables, with `[[spec.deployments]]` and `[[spec.schedules]]` for children.
+External prompt files and declarative skills, memory stores and event triggers
+are not supported by this format change.
 
 Archived agents still appear in `list` and `get`, flagged with an
 `archived` marker (and timestamp in `get`) — check for it before using an
