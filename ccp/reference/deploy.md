@@ -52,6 +52,12 @@ ccp project create my-project [--org-id O]
 ccp project rm my-project --yes [--org-id O]
 ```
 
+For explicit qualification of the Rust API candidate, use
+`ccp project ls --org-id O --grpc-endpoint https://CANDIDATE_HOST`. Only this list
+operation uses that endpoint; organization discovery and other commands retain
+the selected context. RPC errors are returned directly without an HTTP retry.
+The candidate endpoint does not imply support for Project mutations.
+
 Project names are normalized to lowercase kebab-case. Removing a Project also
 deletes its Apps and Deployments.
 
