@@ -206,6 +206,12 @@ API). For per-request debugging use `ccp logs`, not analytics.
 "Analytics backend is unavailable" means the ClickHouse store is down or not
 configured in this environment — it never blocks serving traffic.
 
+CCP reads summaries and breakdowns through native `GetAppAnalyticsStats` and
+`ListAppAnalyticsMetrics` RPCs with bearer authentication and a 20-second deadline.
+A missing summary is an error; an empty breakdown means no matching data. Ship
+this CLI with the coordinated Rust API release; there is no App analytics HTTP
+fallback.
+
 Two collection tiers, selected per deployment by `analytics` under
 `[serverless]` in `cluster.toml`:
 
