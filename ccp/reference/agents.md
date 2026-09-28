@@ -85,8 +85,16 @@ YAML, JSON and TOML encode the same document and use the same apply/delete
 API. Files ending in `.toml` use TOML parsing; malformed TOML never falls back
 to YAML. Other filenames use YAML/JSON parsing. TOML uses `[metadata]` and
 `[spec]` tables, with `[[spec.deployments]]` and `[[spec.schedules]]` for children.
-External prompt files and declarative skills, memory stores and event triggers
-are not supported by this format change.
+For an external Markdown prompt, replace `spec.system` with
+`spec.system_file: prompt.md` in YAML, or `system_file = "prompt.md"` under
+`[spec]` in TOML. CCP resolves the path relative to the manifest directory,
+reads UTF-8 text verbatim, and sends it as `system`. It does not expand shell
+variables. Apply and dry-run reject missing/unreadable files, invalid path
+values, or both fields being present before contacting the API. The server
+receives no `system_file` field. Manifest deletion strips the local reference
+without reading the prompt, so it still works after the prompt file is gone.
+
+Declarative skills, memory stores and event triggers are not yet supported.
 
 Archived agents still appear in `list` and `get`, flagged with an
 `archived` marker (and timestamp in `get`) — check for it before using an
