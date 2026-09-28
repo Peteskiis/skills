@@ -183,6 +183,13 @@ ccp logs [APP_ID] [-n LIMIT] [--level info,warn,error,debug] \
 `APP_ID` falls back to `.ccp/config.json`. Output is one plain line per
 entry and pipes cleanly.
 
+App logs use native `ListAppLogs` and `StreamAppLogs` RPCs. A snapshot returns
+the newest entries in chronological order; `-f` prints entries as they arrive
+and ignores heartbeat records. Filters and session identity travel in the typed
+request and bearer metadata. Live subscriptions do not inherit the unary request
+deadline, and Ctrl-C closes the subscription. This dev CLI requires the matching
+Rust App API for the coordinated release; it does not fall back to Go log routes.
+
 ### Web analytics
 
 ```sh
