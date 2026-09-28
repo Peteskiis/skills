@@ -58,6 +58,11 @@ operation uses that endpoint; organization discovery and other commands retain
 the selected context. RPC errors are returned directly without an HTTP retry.
 The candidate endpoint does not imply support for Project mutations.
 
+App creation uses the native Infra App RPC service on the selected context's
+API endpoint. A missing RPC indicates a CLI/API version mismatch; align their
+releases instead of deleting local Project state or retrying over HTTP. The
+read-only query candidate described above does not accept App creation.
+
 Project names are normalized to lowercase kebab-case. Removing a Project also
 deletes its Apps and Deployments.
 
