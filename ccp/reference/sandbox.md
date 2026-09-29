@@ -277,3 +277,14 @@ This operation restarts workspace sync against the selected folder. It does
 not unpack an archive over existing guest files. Repeating the same request
 renews sync credentials without replaying the initial archive. Treat a failed
 request as a failed attachment; record the new binding only after success.
+
+Direct-VM workspace and external-reference operations do not expose Sandbox
+or custom-build backing VMs. Use the Sandbox product operations for those VMs.
+
+For a direct VM, `PUT /api/v1/vms/{vm_id}/external-ref` accepts a non-empty
+`external_ref`. `GET /api/v1/vms/external/{external_ref}` returns the saved VM
+record for that reference and owning user. Both require current organization
+access and leave guest lifecycle state unchanged. References are metadata,
+not unique IDs; if several of your direct VMs share a reference, lookup returns
+the oldest one, with VM ID breaking a timestamp tie. Use the VM ID when an
+exact machine is required.
