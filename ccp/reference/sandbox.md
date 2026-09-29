@@ -278,8 +278,9 @@ not unpack an archive over existing guest files. Repeating the same request
 renews sync credentials without replaying the initial archive. Treat a failed
 request as a failed attachment; record the new binding only after success.
 
-Direct-VM workspace and external-reference operations do not expose Sandbox
-or custom-build backing VMs. Use the Sandbox product operations for those VMs.
+Direct-VM lifecycle, environment, guest, workspace and external-reference
+operations return `404 vm_not_found` for Sandbox or custom-build backing VMs,
+even to their creator. Use the Sandbox product operations for those VMs.
 
 For a direct VM, `PUT /api/v1/vms/{vm_id}/external-ref` accepts a non-empty
 `external_ref`. `GET /api/v1/vms/external/{external_ref}` returns the saved VM
