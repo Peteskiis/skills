@@ -264,3 +264,16 @@ This applies at workspace launch. Existing Sandboxes missing that document are
 not enrolled by an API rollout; start a new Build workspace after rollout.
 The direct-VM `refresh-system` endpoint does not expose Sandbox backing VMs.
 Do not paste a token into chat or ordinary environment variables.
+
+## Attach a Storage folder to an existing VM
+
+`POST /api/v1/vms/{vm_id}/workspace` accepts `folder_id` and `template_id`.
+Use the owning user's bearer token and a folder in the VM's organization;
+the request cannot select another organization. A paused VM resumes before
+attachment. The response includes `vm_id`, `folder_id`, `workspace_path` and
+`workspace_warning` (null on success).
+
+This operation restarts workspace sync against the selected folder. It does
+not unpack an archive over existing guest files. Repeating the same request
+renews sync credentials without replaying the initial archive. Treat a failed
+request as a failed attachment; record the new binding only after success.
