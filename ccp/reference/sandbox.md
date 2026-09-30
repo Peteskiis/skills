@@ -307,3 +307,17 @@ A creation retry reuses its saved GitHub result. Changing privacy or description
 for that same creation intent is a conflict. Guest Git execution is separate:
 an empty commit still fails before remote mutation, and a creation receipt does
 not mean the guest push completed. Check the operation result before continuing.
+
+## GitHub repository links on a direct VM
+
+`POST /api/v1/vms/{vm_id}/github/create` takes `repo_name`, optional `private`
+and `description`. It creates a `cluster-build-` repository and links its metadata
+to the VM; it does not initialize or push a guest checkout. Retrying the same
+creation reuses the provider result and link. Changed privacy or description
+for the saved intent returns a conflict.
+
+List links with `GET /api/v1/vms/{vm_id}/github/repos`. Delete one link with
+`DELETE /api/v1/vms/{vm_id}/github/repos/{repo_id}`, or all links with
+`DELETE /api/v1/vms/{vm_id}/github`. Unlinking removes metadata only: the remote
+repository and guest files remain. These operations leave paused VMs paused and
+conceal private Sandbox/build backing VMs.
