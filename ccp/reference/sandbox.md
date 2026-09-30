@@ -289,3 +289,21 @@ access and leave guest lifecycle state unchanged. References are metadata,
 not unique IDs; if several of your direct VMs share a reference, lookup returns
 the oldest one, with VM ID breaking a timestamp tie. Use the VM ID when an
 exact machine is required.
+
+## Git operations on an existing direct VM
+
+Use the owning user's bearer token with `POST /api/v1/vms/{vm_id}/git/clone`,
+`git/init`, `git/commit-push`, or `git/init-commit-push`. These operations resume
+paused direct VMs and conceal private Sandbox/build backing VMs.
+
+Clone takes `repo_url`, optional `working_dir`, `branch`, `checkout_sha`, `depth`
+and `timeout`. Provider credentials are forwarded only to GitHub HTTPS remotes.
+Init defaults to `/home/user` and branch `main`. Commit/push accepts an explicit
+`remote_url`, a saved repository link, or `repo_name` to create a GitHub repository.
+Init/commit/push requires `repo_name`; created names have the `cluster-build-`
+prefix. Both creation paths accept `private` and `description`.
+
+A creation retry reuses its saved GitHub result. Changing privacy or description
+for that same creation intent is a conflict. Guest Git execution is separate:
+an empty commit still fails before remote mutation, and a creation receipt does
+not mean the guest push completed. Check the operation result before continuing.
