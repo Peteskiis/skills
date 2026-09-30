@@ -321,3 +321,17 @@ List links with `GET /api/v1/vms/{vm_id}/github/repos`. Delete one link with
 `DELETE /api/v1/vms/{vm_id}/github`. Unlinking removes metadata only: the remote
 repository and guest files remain. These operations leave paused VMs paused and
 conceal private Sandbox/build backing VMs.
+
+## SSH keys and signed-URL uploads on a direct VM
+
+`POST /api/v1/vms/{vm_id}/ssh/keys` takes `public_key` in OpenSSH public-key
+format. Surrounding whitespace is accepted; malformed or multiline keys are
+rejected before resume. The operation resumes a paused VM and installs the key
+without duplicating an identical key.
+
+`POST /api/v1/vms/{vm_id}/upload-files` takes `files`, an array of one to twenty
+objects containing `url` and `filename`. Use HTTPS URLs. The guest downloads each
+file into `/mnt/uploads` with a sanitized filename. Inspect `uploaded` and the
+optional `failed` list: one failed download does not undo successful files.
+These operations conceal private Sandbox/build backing VMs. Cancellation stops
+remaining work; it does not roll back a key or file already installed.
