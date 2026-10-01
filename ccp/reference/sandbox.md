@@ -264,3 +264,74 @@ This applies at workspace launch. Existing Sandboxes missing that document are
 not enrolled by an API rollout; start a new Build workspace after rollout.
 The direct-VM `refresh-system` endpoint does not expose Sandbox backing VMs.
 Do not paste a token into chat or ordinary environment variables.
+
+## Attach a Storage folder to an existing VM
+
+`POST /api/v1/vms/{vm_id}/workspace` accepts `folder_id` and `template_id`.
+Use the owning user's bearer token and a folder in the VM's organization;
+the request cannot select another organization. A paused VM resumes before
+attachment. The response includes `vm_id`, `folder_id`, `workspace_path` and
+`workspace_warning` (null on success).
+
+This operation restarts workspace sync against the selected folder. It does
+not unpack an archive over existing guest files. Repeating the same request
+renews sync credentials without replaying the initial archive. Treat a failed
+request as a failed attachment; record the new binding only after success.
+
+Direct-VM lifecycle, environment, guest, workspace and external-reference
+operations return `404 vm_not_found` for Sandbox or custom-build backing VMs,
+even to their creator. Use the Sandbox product operations for those VMs.
+
+For a direct VM, `PUT /api/v1/vms/{vm_id}/external-ref` accepts a non-empty
+`external_ref`. `GET /api/v1/vms/external/{external_ref}` returns the saved VM
+record for that reference and owning user. Both require current organization
+access and leave guest lifecycle state unchanged. References are metadata,
+not unique IDs; if several of your direct VMs share a reference, lookup returns
+the oldest one, with VM ID breaking a timestamp tie. Use the VM ID when an
+exact machine is required.
+
+## Git operations on an existing direct VM
+
+Use the owning user's bearer token with `POST /api/v1/vms/{vm_id}/git/clone`,
+`git/init`, `git/commit-push`, or `git/init-commit-push`. These operations resume
+paused direct VMs and conceal private Sandbox/build backing VMs.
+
+Clone takes `repo_url`, optional `working_dir`, `branch`, `checkout_sha`, `depth`
+and `timeout`. Provider credentials are forwarded only to GitHub HTTPS remotes.
+Init defaults to `/home/user` and branch `main`. Commit/push accepts an explicit
+`remote_url`, a saved repository link, or `repo_name` to create a GitHub repository.
+Init/commit/push requires `repo_name`; created names have the `cluster-build-`
+prefix. Both creation paths accept `private` and `description`.
+
+A creation retry reuses its saved GitHub result. Changing privacy or description
+for that same creation intent is a conflict. Guest Git execution is separate:
+an empty commit still fails before remote mutation, and a creation receipt does
+not mean the guest push completed. Check the operation result before continuing.
+
+## GitHub repository links on a direct VM
+
+`POST /api/v1/vms/{vm_id}/github/create` takes `repo_name`, optional `private`
+and `description`. It creates a `cluster-build-` repository and links its metadata
+to the VM; it does not initialize or push a guest checkout. Retrying the same
+creation reuses the provider result and link. Changed privacy or description
+for the saved intent returns a conflict.
+
+List links with `GET /api/v1/vms/{vm_id}/github/repos`. Delete one link with
+`DELETE /api/v1/vms/{vm_id}/github/repos/{repo_id}`, or all links with
+`DELETE /api/v1/vms/{vm_id}/github`. Unlinking removes metadata only: the remote
+repository and guest files remain. These operations leave paused VMs paused and
+conceal private Sandbox/build backing VMs.
+
+## SSH keys and signed-URL uploads on a direct VM
+
+`POST /api/v1/vms/{vm_id}/ssh/keys` takes `public_key` in OpenSSH public-key
+format. Surrounding whitespace is accepted; malformed or multiline keys are
+rejected before resume. The operation resumes a paused VM and installs the key
+without duplicating an identical key.
+
+`POST /api/v1/vms/{vm_id}/upload-files` takes `files`, an array of one to twenty
+objects containing `url` and `filename`. Use HTTPS URLs. The guest downloads each
+file into `/mnt/uploads` with a sanitized filename. Inspect `uploaded` and the
+optional `failed` list: one failed download does not undo successful files.
+These operations conceal private Sandbox/build backing VMs. Cancellation stops
+remaining work; it does not roll back a key or file already installed.
