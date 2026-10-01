@@ -27,5 +27,11 @@ credentials are VM-scoped and renewed automatically while active or resumable,
 so start and resume apply current material without waiting on the credential
 provider.
 
+Refreshing an unlinked GitHub account removes its saved credentials and Git
+identity. Refresh preserves user variables, provision values and CCP credentials;
+a provider failure leaves the previously published environment intact. Project
+repository credentials remain under Project ownership and cannot be replaced by
+personal `refresh-system` calls.
+
 Important distinction: compute deployment env (`ccp compute deploy --env` and
 `cluster.toml [env]`) is workload env. `ccp env` is VM-level env for dev VMs.

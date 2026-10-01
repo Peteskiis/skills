@@ -14,13 +14,31 @@ uses `DATABASE_HTTP_URL` and `DATABASE_HTTP_TOKEN`. The CLI mirrors only the
 HTTP values into local `.env` so code-only deploys preserve the server-managed
 native URL.
 
+Creation uses native database RPC and returns credentials after the database proxy, requested private network
+and linked App are ready. An organization API key requires `compute:use`;
+its verified organization and billing account determine the payer.
+If creation reports `provision_pending`, cleanup is still being reconciled.
+Wait for cleanup before retrying creation with the same name.
+
+The API's `POST /api/v1/databases/{id}/reprovision` rebuilds a database whose
+backing VM is gone. It preserves its existing HTTP/native credentials and linked
+App environment, returns the stable host and latest completed backup ID, and
+does not restore data. Restore a completed backup separately after rebuilding.
+A surviving or unreadable backing VM, missing token hash, or an active lifecycle
+operation rejects the rebuild before provisioning.
+
 `--network` joins the database to the named organization-scoped private network.
 The database name becomes `<name>.<network>.internal`, so both names must be
 lowercase DNS labels. Networked databases and compute members can connect
 across VM nodes.
 
 `ccp db ls` shows the whole organization, sorts the project-linked database first,
-and marks it `linked`. `--json` preserves all rows and exact fields.
+and marks it `linked`. `--json` preserves all rows and public database fields,
+including `project_id`, client mode, network name, and credential generation.
+List, detail, and restore status observations use authenticated native database RPC;
+missing or malformed records and unknown states fail the command. A fresh token
+with organization memberships is required; an inaccessible detail is reported as
+not found.
 `ccp db info` defaults to the same config or `.env` database identity used by SQL
 commands; outside a linked project, pass an explicit ID.
 
