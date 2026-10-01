@@ -101,13 +101,15 @@ ccp db client-access enable [DB_ID]
 ccp db client-access disable [DB_ID]
 ```
 
-The DB must be running. Paused DBs return 409; wake with a query and retry. The
+CCP sends toggles through the native database RPC. The DB must be running.
+Paused DBs require waking with a query before retrying. The
 toggle restarts db-proxy, so in-flight requests can fail and clients should
 retry.
 
 The toggle is idempotent. The API first commits the desired mode, then reconciles
 db-proxy and records the applied generation. If convergence cannot finish in the
-request, the API returns `client_access_pending` (503). Retry safely; background
+request, CCP reports that client-access configuration is being reconciled
+(the HTTP contract is `client_access_pending`, 503). Retry safely; background
 recovery also resumes the same operation. Do not destroy and recreate the
 database to recover a pending toggle. If it remains pending, inspect VM and
 db-proxy health without discarding database state.
