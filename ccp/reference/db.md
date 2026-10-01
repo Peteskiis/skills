@@ -20,6 +20,13 @@ its verified organization and billing account determine the payer.
 If creation reports `provision_pending`, cleanup is still being reconciled.
 Wait for cleanup before retrying creation with the same name.
 
+The API's `POST /api/v1/databases/{id}/reprovision` rebuilds a database whose
+backing VM is gone. It preserves its existing HTTP/native credentials and linked
+App environment, returns the stable host and latest completed backup ID, and
+does not restore data. Restore a completed backup separately after rebuilding.
+A surviving or unreadable backing VM, missing token hash, or an active lifecycle
+operation rejects the rebuild before provisioning.
+
 `--network` joins the database to the named organization-scoped private network.
 The database name becomes `<name>.<network>.internal`, so both names must be
 lowercase DNS labels. Networked databases and compute members can connect
