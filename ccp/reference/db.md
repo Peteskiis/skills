@@ -14,6 +14,12 @@ uses `DATABASE_HTTP_URL` and `DATABASE_HTTP_TOKEN`. The CLI mirrors only the
 HTTP values into local `.env` so code-only deploys preserve the server-managed
 native URL.
 
+Creation returns credentials after the database proxy, requested private network
+and linked App are ready. An organization API key requires `compute:use`;
+its verified organization and billing account determine the payer.
+If creation reports `provision_pending`, cleanup is still being reconciled.
+Wait for cleanup before retrying creation with the same name.
+
 `--network` joins the database to the named organization-scoped private network.
 The database name becomes `<name>.<network>.internal`, so both names must be
 lowercase DNS labels. Networked databases and compute members can connect
