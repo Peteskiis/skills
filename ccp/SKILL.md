@@ -82,6 +82,13 @@ ccp manages Cluster workloads and supporting resources:
   `.ccp/config.json`.
 - Projects: organization-scoped containers for Apps and attached resources,
   managed with `ccp project ls|create|rm`.
+  Organization transfer uses the Portal/API preview and transfer operations.
+  The caller needs fresh Owner membership in both organizations. Review blockers
+  first, then retain the UUID transfer ID and retry that same request if publishing
+  access is pending. Transfer preserves resource identities and credentials while
+  moving future billing. Afterward, select the destination organization with
+  `--org-id` or `ccp org use`; a pinned local Project binding still takes precedence
+  over the saved default.
 - Compute services: long-running services with public HTTPS hostnames, driven by
   `ccp compute deploy`, linked through `cluster.toml`.
 - Sandboxes: apply versioned reusable workspace definitions with
