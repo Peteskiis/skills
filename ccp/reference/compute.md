@@ -32,7 +32,12 @@ of these are installed and how to install any that are missing (`--binary` with
 a pre-built static Linux ELF, or `--image`, skips the local toolchain entirely).
 
 Native binaries must be non-empty and no larger than 256 MiB. ccp records the
-size and SHA-256 during upload; each deploy or restart gives the VM a fresh
+size and SHA-256 during upload. Upload admission uses the native API and returns
+an organization-owned, create-only storage capability. CCP sends the returned
+metadata headers directly to GCS; the API bearer stays on the API connection.
+Redirects, expired or foreign capabilities, and overwrite attempts fail. An
+ambiguous upload response requires another deploy attempt with a fresh object.
+Each deploy or restart gives the VM a fresh
 short-lived download capability, and the guest installs the file only after
 both values match. A failed download or verification leaves the prior
 executable in place and returns a typed `binary_download_*`/`invalid_binary`
