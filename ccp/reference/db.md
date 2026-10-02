@@ -94,6 +94,19 @@ Restore and delete are destructive and auto-confirm in headless mode.
 Backup creation and restore wait for completion. Failed or unexpected outcomes
 exit nonzero and report errors on stderr; successful completion is printed on stdout.
 
+All backup commands use authenticated native database RPCs and current database
+organization access. Creation returns one backup ID before background transfer;
+a competing backup is rejected. Restore tracks its accepted generation and archive,
+so a later restore cannot be mistaken for completion of the original request.
+Unknown states or malformed acknowledgements fail rather than report success.
+
+Ready databases with a backing VM receive a scheduled backup when no completed
+backup exists from the last day and no attempt was made in the last hour.
+Retention keeps the seven newest completed backups and any older archive still
+needed by restore recovery. Running backups and archives retained by an active or
+failed restore cannot be deleted. Failed backup history remains available;
+object cleanup failures keep the exact receipt for retry.
+
 ### Client access
 
 ```sh
