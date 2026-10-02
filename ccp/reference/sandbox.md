@@ -1,5 +1,11 @@
 # Sandboxes
 
+VM-issued sessions can include `CCP_API_URL`, `CCP_ORGS_API_URL`, and
+`CCP_STORAGE_API_URL`. Keep these platform-selected endpoints with the session
+token and `CCP_ORG_ID`; the API and Storage targets are configured together.
+Workspace synchronization and initial archive downloads use the guest-facing
+Storage endpoint supplied by Infra.
+
 New `development` Sandboxes pause after 15 minutes without tool or proxy activity.
 The next agent tool or guest execution resumes the same VM, preserving saved files,
 uncommitted Git work and guest processes. Compute billing stops while paused and
