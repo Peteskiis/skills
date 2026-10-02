@@ -39,6 +39,14 @@ List, detail, and restore status observations use authenticated native database 
 missing or malformed records and unknown states fail the command. A fresh token
 with organization memberships is required; an inaccessible detail is reported as
 not found.
+API clients can attach a database to a Project with
+`PATCH /api/v1/databases/{id}` and `{"project_id":"PROJECT_ID"}`, or detach it
+with `{"project_id":null}`. The field is required. Use a fresh member token;
+the destination Project must belong to the database's current organization.
+An active Project transfer rejects the change with `project_transfer_in_progress`;
+retry after the transfer finishes. Attachment changes preserve the database's
+VM, credentials, creator and lifecycle state.
+
 `ccp db info` defaults to the same config or `.env` database identity used by SQL
 commands; outside a linked project, pass an explicit ID.
 
