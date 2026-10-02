@@ -66,6 +66,9 @@ In headless mode, bare `ccp org use` saves the sole accessible organization or
 fails if several exist; it never guesses. Ordinary org-scoped commands use the
 resolution order above without prompting. Development agents need no setup:
 `CCP_ORG_ID` already supplies their VM organization and wins over saved defaults.
+Managed VM credentials discover their sole current organization through Infra
+`GET /api/v1/organizations`; their bearer is never forwarded to Orgs. Paused or
+revoked VM enrollment and removed memberships reject discovery.
 Do not run `ccp org use` or log in inside a development VM. Organization-scoped
 API-key automation should continue setting `CCP_ORG_ID`; saved preferences
 require an account identity from the configured issuer's `/userinfo` endpoint.
