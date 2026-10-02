@@ -165,7 +165,15 @@ ccp compute destroy [SERVICE_ID|NAME] [-y]
 `exec` requires a literal `--` before the command so clap stops parsing ccp
 flags.
 
-Auto-pause is transparent for deploy, logs, exec, restart, and status paths that
+List, status, name selection and deployment inspections use authenticated native
+Infra RPCs. Run a coordinated CCP/API release; these reads require the Compute
+RPC service on the configured Infra endpoint. Status shows durable Compute
+configuration and deployment history; reading it does not wake the backing VM.
+Deployment failures show stable public diagnostics rather than saved internal
+errors. A missing service still reports whether it came from this directory's
+link or an explicit selection.
+
+Auto-pause is transparent for deploy, logs, exec, and restart paths that
 need the VM awake. `--always-on` only applies at first deploy.
 A VM previously paused by Billing performs a fresh admission check on the next
 wake attempt. If the account is now eligible, the operation resumes normally;

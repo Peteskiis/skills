@@ -14,13 +14,31 @@ uses `DATABASE_HTTP_URL` and `DATABASE_HTTP_TOKEN`. The CLI mirrors only the
 HTTP values into local `.env` so code-only deploys preserve the server-managed
 native URL.
 
+Creation uses native database RPC and returns credentials after the database proxy, requested private network
+and linked App are ready. An organization API key requires `compute:use`;
+its verified organization and billing account determine the payer.
+If creation reports `provision_pending`, cleanup is still being reconciled.
+Wait for cleanup before retrying creation with the same name.
+
+The API's `POST /api/v1/databases/{id}/reprovision` rebuilds a database whose
+backing VM is gone. It preserves its existing HTTP/native credentials and linked
+App environment, returns the stable host and latest completed backup ID, and
+does not restore data. Restore a completed backup separately after rebuilding.
+A surviving or unreadable backing VM, missing token hash, or an active lifecycle
+operation rejects the rebuild before provisioning.
+
 `--network` joins the database to the named organization-scoped private network.
 The database name becomes `<name>.<network>.internal`, so both names must be
 lowercase DNS labels. Networked databases and compute members can connect
 across VM nodes.
 
 `ccp db ls` shows the whole organization, sorts the project-linked database first,
-and marks it `linked`. `--json` preserves all rows and exact fields.
+and marks it `linked`. `--json` preserves all rows and public database fields,
+including `project_id`, client mode, network name, and credential generation.
+List, detail, and restore status observations use authenticated native database RPC;
+missing or malformed records and unknown states fail the command. A fresh token
+with organization memberships is required; an inaccessible detail is reported as
+not found.
 `ccp db info` defaults to the same config or `.env` database identity used by SQL
 commands; outside a linked project, pass an explicit ID.
 
@@ -76,6 +94,19 @@ Restore and delete are destructive and auto-confirm in headless mode.
 Backup creation and restore wait for completion. Failed or unexpected outcomes
 exit nonzero and report errors on stderr; successful completion is printed on stdout.
 
+All backup commands use authenticated native database RPCs and current database
+organization access. Creation returns one backup ID before background transfer;
+a competing backup is rejected. Restore tracks its accepted generation and archive,
+so a later restore cannot be mistaken for completion of the original request.
+Unknown states or malformed acknowledgements fail rather than report success.
+
+Ready databases with a backing VM receive a scheduled backup when no completed
+backup exists from the last day and no attempt was made in the last hour.
+Retention keeps the seven newest completed backups and any older archive still
+needed by restore recovery. Running backups and archives retained by an active or
+failed restore cannot be deleted. Failed backup history remains available;
+object cleanup failures keep the exact receipt for retry.
+
 ### Client access
 
 ```sh
@@ -83,13 +114,15 @@ ccp db client-access enable [DB_ID]
 ccp db client-access disable [DB_ID]
 ```
 
-The DB must be running. Paused DBs return 409; wake with a query and retry. The
+CCP sends toggles through the native database RPC. The DB must be running.
+Paused DBs require waking with a query before retrying. The
 toggle restarts db-proxy, so in-flight requests can fail and clients should
 retry.
 
 The toggle is idempotent. The API first commits the desired mode, then reconciles
 db-proxy and records the applied generation. If convergence cannot finish in the
-request, the API returns `client_access_pending` (503). Retry safely; background
+request, CCP reports that client-access configuration is being reconciled
+(the HTTP contract is `client_access_pending`, 503). Retry safely; background
 recovery also resumes the same operation. Do not destroy and recreate the
 database to recover a pending toggle. If it remains pending, inspect VM and
 db-proxy health without discarding database state.
