@@ -106,6 +106,14 @@ Use `ccp compute status` to inspect a recovered service's readiness. A failed
 server-side image pull or capacity check after deletion means the old guest is
 already gone; retry can recreate it, but cannot restore its disk contents.
 
+Deploy, redeploy, restart, destroy, logs and exec use the authenticated native
+Compute service. A failed image pull is a deployment failure; it does not mean
+the linked service disappeared. Retry after correcting the image or registry
+access. Pending services reject logs, exec, redeploy and restart until the
+committed creation intent reaches running. A lost request does not discard that
+intent: the API's normal recovery worker continues it. Keep the local link while
+investigating, and inspect the service before requesting another deployment.
+
 ### Private networking
 
 An always-on service may join an organization-scoped private network by adding
