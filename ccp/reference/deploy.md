@@ -52,6 +52,19 @@ ccp project create my-project [--org-id O]
 ccp project rm my-project --yes [--org-id O]
 ```
 
+For explicit qualification of the Rust API candidate, use
+`ccp project ls --org-id O --grpc-endpoint https://CANDIDATE_HOST`. Only this list
+operation uses that endpoint; organization discovery and other commands retain
+the selected context. RPC errors are returned directly without an HTTP retry.
+The candidate endpoint does not imply support for Project mutations.
+
+App creation, listing, identity reads and deletion, environment synchronization,
+and deployment creation, activation, promotion and removal use the native Infra
+App RPC service on the selected context's API endpoint. A missing RPC indicates
+a CLI/API version mismatch; align their releases instead of deleting local
+Project state or retrying over HTTP. The
+read-only query candidate described above does not accept App creation.
+
 Project names are normalized to lowercase kebab-case. Removing a Project also
 deletes its Apps and Deployments.
 
@@ -170,6 +183,13 @@ ccp logs [APP_ID] [-n LIMIT] [--level info,warn,error,debug] \
 `APP_ID` falls back to `.ccp/config.json`. Output is one plain line per
 entry and pipes cleanly.
 
+App logs use native `ListAppLogs` and `StreamAppLogs` RPCs. A snapshot returns
+the newest entries in chronological order; `-f` prints entries as they arrive
+and ignores heartbeat records. Filters and session identity travel in the typed
+request and bearer metadata. Live subscriptions do not inherit the unary request
+deadline, and Ctrl-C closes the subscription. This dev CLI requires the matching
+Rust App API for the coordinated release; it does not fall back to Go log routes.
+
 ### Web analytics
 
 ```sh
@@ -185,6 +205,12 @@ falls back to `.ccp/config.json`. Collection is on by default per app
 API). For per-request debugging use `ccp logs`, not analytics.
 "Analytics backend is unavailable" means the ClickHouse store is down or not
 configured in this environment — it never blocks serving traffic.
+
+CCP reads summaries and breakdowns through native `GetAppAnalyticsStats` and
+`ListAppAnalyticsMetrics` RPCs with bearer authentication and a 20-second deadline.
+A missing summary is an error; an empty breakdown means no matching data. Ship
+this CLI with the coordinated Rust API release; there is no App analytics HTTP
+fallback.
 
 Two collection tiers, selected per deployment by `analytics` under
 `[serverless]` in `cluster.toml`:
