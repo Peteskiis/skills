@@ -308,6 +308,24 @@ for that same creation intent is a conflict. Guest Git execution is separate:
 an empty commit still fails before remote mutation, and a creation receipt does
 not mean the guest push completed. Check the operation result before continuing.
 
+## Linked GitHub account
+
+The account routes under `/api/v1/github` use the owning user's bearer token.
+Complete GitHub OAuth before `POST /save-token` with `{"code":"..."}`; this
+accepts an authorization code, never a provider token. `GET /status` reports the
+linked identity and App installation. `GET /app-info` supplies the App
+installation URL and OAuth client information; `GET /token-info` returns a token
+preview, scopes, and user information.
+
+List visible repositories with `GET /repos?page=1&per_page=30`, and branches with
+`GET /repos/{owner}/{repo}/branches`. `POST /resolve-installation` takes
+`{"repository":"owner/name"}` and requires the user to have access to that exact
+App installation's repository. `POST /repositories/create` takes `name`, optional
+`private` and `description`, and creates a `cluster-build-` repository under the
+linked user. It does not attach the repository to a VM or push guest files.
+`DELETE /disconnect` removes only this user's personal account link. It leaves
+remote repositories and saved VM repository metadata intact.
+
 ## GitHub repository links on a direct VM
 
 `POST /api/v1/vms/{vm_id}/github/create` takes `repo_name`, optional `private`
