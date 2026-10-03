@@ -49,12 +49,17 @@ spec:
 
 `metadata.name` is the stable organization-scoped template identity. Resources
 are required as one supported `vcpu` and `memory_mb` pair. `base` is exactly one
-of `debian` or `alpine`; Infra resolves it to a committed immutable minimal
-system build. Debian supports `apt`; Alpine supports `apk`. Language runtimes
-are not preinstalled: add needed runtimes through OS packages and install
-language dependencies in the run step. The retired `ubuntu` base and the full
-`development` image are not accepted as manifest bases. Incompatible
-package managers are rejected before build admission. Changing the base,
+of `debian`, `alpine`, `development`, `browser`, or `desktop`; Infra resolves
+it to a committed immutable system build. Debian supports only `apt` and Alpine
+only `apk`. The managed-agent bases (`development`, `browser`, `desktop`) keep
+their preinstalled tools and accept `apt`, `pip`, `npm`, `cargo`, `gem`, and
+`go` lists, but not `apk`. Language runtimes are not preinstalled on the
+minimal `debian`/`alpine` bases: add needed runtimes through OS packages and
+install language dependencies in the run step. A build on `development` or
+`desktop` that declares no ports inherits the base's idle-pause policy and
+ports; declaring any ports replaces the base list. The retired `ubuntu` base
+is not accepted. Incompatible package managers are rejected before build
+admission. Changing the base,
 resources, packages, ports, or run step admits a new immutable build; existing
 builds are never mutated.
 
