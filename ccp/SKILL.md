@@ -33,10 +33,11 @@ and headless modes. Capture stdout for command results; use a command's `--json`
 option when it supports structured output. Progress is cleared on early errors
 or dropped async operations; success marks require successful completion.
 
-Destructive commands require their explicit confirmation flag in headless mode.
-Verify targets before running commands such as `ccp project rm <name> --yes`, `ccp remove`, `ccp undeploy`,
-`ccp db destroy`, `ccp db backup delete`, `ccp domain rm`, and
-`ccp compute destroy`.
+Most destructive commands run without confirmation in headless mode:
+`ccp remove`, `ccp undeploy`, `ccp db destroy`, `ccp db backup delete`,
+`ccp domain rm`, `ccp compute destroy`, and `ccp oidc destroy` execute
+immediately. Verify the target before running them. `ccp project rm <name>`
+is the exception: without a terminal it fails unless you pass `--yes`.
 
 Identity flags such as `--org-id`, `--app-id`, `--db-id`, `--store-id`,
 and `--service-id` still matter. Headless mode controls prompting; it does not
@@ -66,6 +67,9 @@ In headless mode, bare `ccp org use` saves the sole accessible organization or
 fails if several exist; it never guesses. Ordinary org-scoped commands use the
 resolution order above without prompting. Development agents need no setup:
 `CCP_ORG_ID` already supplies their VM organization and wins over saved defaults.
+Managed VM credentials discover their sole current organization through Infra
+`GET /api/v1/organizations`; their bearer is never forwarded to Orgs. Paused or
+revoked VM enrollment and removed memberships reject discovery.
 Do not run `ccp org use` or log in inside a development VM. Organization-scoped
 API-key automation should continue setting `CCP_ORG_ID`; saved preferences
 require an account identity from the configured issuer's `/userinfo` endpoint.
@@ -79,6 +83,13 @@ ccp manages Cluster workloads and supporting resources:
   `.ccp/config.json`.
 - Projects: organization-scoped containers for Apps and attached resources,
   managed with `ccp project ls|create|rm`.
+  Organization transfer uses the Portal/API preview and transfer operations.
+  The caller needs fresh Owner membership in both organizations. Review blockers
+  first, then retain the UUID transfer ID and retry that same request if publishing
+  access is pending. Transfer preserves resource identities and credentials while
+  moving future billing. Afterward, select the destination organization with
+  `--org-id` or `ccp org use`; a pinned local Project binding still takes precedence
+  over the saved default.
 - Compute services: long-running services with public HTTPS hostnames, driven by
   `ccp compute deploy`, linked through `cluster.toml`.
 - Sandboxes: apply versioned reusable workspace definitions with

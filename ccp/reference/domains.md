@@ -29,3 +29,20 @@ retires the ownership record and auto-confirms in headless mode.
 Binding, withdrawal, and certificate readiness are asynchronous. A successful
 link or unlink means Domains durably accepted the next desired revision;
 external reachability can lag.
+
+The authenticated Infra standalone proxy HTTP API also accepts a verified,
+currently unbound custom hostname for an organization-owned VM. The caller
+must own the VM and belong to that organization, and the hostname must appear in its canonical
+Domains inventory with the required A record. An active binding conflicts with
+standalone registration. Proxy deletion withdraws its accepted Domain revision;
+a later Domain link or unlink supersedes that proxy receipt and remains authoritative.
+Generated service-name proxy hostnames remain supported and reject collisions.
+App names, App identity hostnames, deployment preview UUIDs and Compute hostnames
+share this namespace. App creation, rename or deployment allocation rejects a
+hostname reserved by another product, including a proxy awaiting deletion.
+
+Standalone HTTP proxy ports must be 1–65535. Its optional path must be an
+absolute ASCII path prefix without a query, fragment or Traefik expression
+characters; invalid routing input returns `400 invalid_request`. Registering
+against a stopped VM retains `400 vm_not_running`. Hostname collisions return
+`409 hostname_conflict`; denied custom ownership returns `403 forbidden`.
