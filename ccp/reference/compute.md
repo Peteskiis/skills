@@ -32,7 +32,12 @@ of these are installed and how to install any that are missing (`--binary` with
 a pre-built static Linux ELF, or `--image`, skips the local toolchain entirely).
 
 Native binaries must be non-empty and no larger than 256 MiB. ccp records the
-size and SHA-256 during upload; each deploy or restart gives the VM a fresh
+size and SHA-256 during upload. Upload admission uses the native API and returns
+an organization-owned, create-only storage capability. CCP sends the returned
+metadata headers directly to GCS; the API bearer stays on the API connection.
+Redirects, expired or foreign capabilities, and overwrite attempts fail. An
+ambiguous upload response requires another deploy attempt with a fresh object.
+Each deploy or restart gives the VM a fresh
 short-lived download capability, and the guest installs the file only after
 both values match. A failed download or verification leaves the prior
 executable in place and returns a typed `binary_download_*`/`invalid_binary`
@@ -101,6 +106,14 @@ Use `ccp compute status` to inspect a recovered service's readiness. A failed
 server-side image pull or capacity check after deletion means the old guest is
 already gone; retry can recreate it, but cannot restore its disk contents.
 
+Deploy, redeploy, restart, destroy, logs and exec use the authenticated native
+Compute service. A failed image pull is a deployment failure; it does not mean
+the linked service disappeared. Retry after correcting the image or registry
+access. Pending services reject logs, exec, redeploy and restart until the
+committed creation intent reaches running. A lost request does not discard that
+intent: the API's normal recovery worker continues it. Keep the local link while
+investigating, and inspect the service before requesting another deployment.
+
 ### Private networking
 
 An always-on service may join an organization-scoped private network by adding
@@ -165,7 +178,15 @@ ccp compute destroy [SERVICE_ID|NAME] [-y]
 `exec` requires a literal `--` before the command so clap stops parsing ccp
 flags.
 
-Auto-pause is transparent for deploy, logs, exec, restart, and status paths that
+List, status, name selection and deployment inspections use authenticated native
+Infra RPCs. Run a coordinated CCP/API release; these reads require the Compute
+RPC service on the configured Infra endpoint. Status shows durable Compute
+configuration and deployment history; reading it does not wake the backing VM.
+Deployment failures show stable public diagnostics rather than saved internal
+errors. A missing service still reports whether it came from this directory's
+link or an explicit selection.
+
+Auto-pause is transparent for deploy, logs, exec, and restart paths that
 need the VM awake. `--always-on` only applies at first deploy.
 A VM previously paused by Billing performs a fresh admission check on the next
 wake attempt. If the account is now eligible, the operation resumes normally;

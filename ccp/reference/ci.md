@@ -15,9 +15,14 @@ Defaults:
 
 The directory must be a git repo with an `origin` remote. The CLI sends the spec
 as normalized JSON together with the current full commit SHA. The server clones
-the repository through its configured credential helper and checks out that
+public repositories or authorized GitHub repositories and checks out that
 exact commit; the branch is display metadata only. If local `HEAD` differs from
 the remote branch, the CLI warns before submission.
+
+Job results contain result metadata, not the submitted environment or raw spec.
+Native log following resumes after an exact cursor and ends with the terminal
+marker. Artifact and archived-log downloads require current organization access
+and use the immutable winning object generation.
 
 Minimal spec shape:
 

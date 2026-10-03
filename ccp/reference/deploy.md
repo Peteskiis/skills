@@ -44,7 +44,7 @@ Project and creates the App inside it. Org resolution is `--org-id` > project
 config > named context > `CCP_ORG_ID` > saved default > sole-org auto-pick > error. The Project, App, and org
 IDs land in `.ccp/config.json` (gitignored local state — not committed).
 
-Manage empty Projects directly when needed:
+Manage Projects directly when needed:
 
 ```sh
 ccp project ls [--org-id O]
@@ -66,7 +66,11 @@ Project state or retrying over HTTP. The
 read-only query candidate described above does not accept App creation.
 
 Project names are normalized to lowercase kebab-case. Removing a Project also
-deletes its Apps and Deployments.
+deletes its Apps and Deployments through the App owner. Databases, Compute and
+Stores remain available with their Project association cleared. If deletion
+reports pending cleanup or a concurrent Project change, retry the same command;
+the Project remains until App cleanup finishes. Withdraw externally owned
+Domain bindings before retrying a Domain-withdrawal rejection.
 
 To target the same App from CI or another machine, pass `--app-id` and
 set `CCP_ORG_ID` (dev VMs get `CCP_ORG_ID` + `CCP_SESSION_TOKEN` auto-injected)

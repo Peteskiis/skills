@@ -1,5 +1,11 @@
 # Sandboxes
 
+VM-issued sessions can include `CCP_API_URL`, `CCP_ORGS_API_URL`, and
+`CCP_STORAGE_API_URL`. Keep these platform-selected endpoints with the session
+token and `CCP_ORG_ID`; the API and Storage targets are configured together.
+Workspace synchronization and initial archive downloads use the guest-facing
+Storage endpoint supplied by Infra.
+
 New `development` Sandboxes pause after 15 minutes without tool or proxy activity.
 The next agent tool or guest execution resumes the same VM, preserving saved files,
 uncommitted Git work and guest processes. Compute billing stops while paused and
@@ -49,12 +55,17 @@ spec:
 
 `metadata.name` is the stable organization-scoped template identity. Resources
 are required as one supported `vcpu` and `memory_mb` pair. `base` is exactly one
-of `debian` or `alpine`; Infra resolves it to a committed immutable minimal
-system build. Debian supports `apt`; Alpine supports `apk`. Language runtimes
-are not preinstalled: add needed runtimes through OS packages and install
-language dependencies in the run step. The retired `ubuntu` base and the full
-`development` image are not accepted as manifest bases. Incompatible
-package managers are rejected before build admission. Changing the base,
+of `debian`, `alpine`, `development`, `browser`, or `desktop`; Infra resolves
+it to a committed immutable system build. Debian supports only `apt` and Alpine
+only `apk`. The managed-agent bases (`development`, `browser`, `desktop`) keep
+their preinstalled tools and accept `apt`, `pip`, `npm`, `cargo`, `gem`, and
+`go` lists, but not `apk`. Language runtimes are not preinstalled on the
+minimal `debian`/`alpine` bases: add needed runtimes through OS packages and
+install language dependencies in the run step. A build on `development` or
+`desktop` that declares no ports inherits the base's idle-pause policy and
+ports; declaring any ports replaces the base list. The retired `ubuntu` base
+is not accepted. Incompatible package managers are rejected before build
+admission. Changing the base,
 resources, packages, ports, or run step admits a new immutable build; existing
 builds are never mutated.
 
@@ -307,6 +318,24 @@ A creation retry reuses its saved GitHub result. Changing privacy or description
 for that same creation intent is a conflict. Guest Git execution is separate:
 an empty commit still fails before remote mutation, and a creation receipt does
 not mean the guest push completed. Check the operation result before continuing.
+
+## Linked GitHub account
+
+The account routes under `/api/v1/github` use the owning user's bearer token.
+Complete GitHub OAuth before `POST /save-token` with `{"code":"..."}`; this
+accepts an authorization code, never a provider token. `GET /status` reports the
+linked identity and App installation. `GET /app-info` supplies the App
+installation URL and OAuth client information; `GET /token-info` returns a token
+preview, scopes, and user information.
+
+List visible repositories with `GET /repos?page=1&per_page=30`, and branches with
+`GET /repos/{owner}/{repo}/branches`. `POST /resolve-installation` takes
+`{"repository":"owner/name"}` and requires the user to have access to that exact
+App installation's repository. `POST /repositories/create` takes `name`, optional
+`private` and `description`, and creates a `cluster-build-` repository under the
+linked user. It does not attach the repository to a VM or push guest files.
+`DELETE /disconnect` removes only this user's personal account link. It leaves
+remote repositories and saved VM repository metadata intact.
 
 ## GitHub repository links on a direct VM
 
