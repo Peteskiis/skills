@@ -33,10 +33,11 @@ and headless modes. Capture stdout for command results; use a command's `--json`
 option when it supports structured output. Progress is cleared on early errors
 or dropped async operations; success marks require successful completion.
 
-Destructive commands require their explicit confirmation flag in headless mode.
-Verify targets before running commands such as `ccp project rm <name> --yes`, `ccp remove`, `ccp undeploy`,
-`ccp db destroy`, `ccp db backup delete`, `ccp domain rm`, and
-`ccp compute destroy`.
+Most destructive commands run without confirmation in headless mode:
+`ccp remove`, `ccp undeploy`, `ccp db destroy`, `ccp db backup delete`,
+`ccp domain rm`, `ccp compute destroy`, and `ccp oidc destroy` execute
+immediately. Verify the target before running them. `ccp project rm <name>`
+is the exception: without a terminal it fails unless you pass `--yes`.
 
 Identity flags such as `--org-id`, `--app-id`, `--db-id`, `--store-id`,
 and `--service-id` still matter. Headless mode controls prompting; it does not
