@@ -113,8 +113,6 @@ returns the complete machine-readable apply receipt. Omission preserves pins;
 `skills: []` detaches them. Deletion needs no local skill files and retains
 immutable revisions for other agents. Skills grant no tools or credentials.
 
-Event triggers are not yet supported by this manifest workflow.
-
 Archived agents still appear in `list` and `get`, flagged with an
 `archived` marker (and timestamp in `get`) — check for it before using an
 agent from a listing. API errors include the server's `request_id`; quote
