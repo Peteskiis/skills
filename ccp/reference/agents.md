@@ -10,7 +10,7 @@ error message: it names valid values.
 ## Commands
 
 - `ccp apply -f <manifest.yaml> [--org-id <org>] [--dry-run]` — reconcile one
-  `Agent` document and its optional Deployments and schedules. The server reports each resource
+  `Agent` document and its optional Deployments, schedules, and GitHub triggers. The server reports each resource
   as `created`, `updated`, `unchanged`, or `deleted`. `--dry-run` performs the
   same validation and diff without persisting anything.
 - `ccp delete -f <manifest.yaml> [--org-id <org>] [--dry-run]` — permanently
@@ -94,7 +94,24 @@ values, or both fields being present before contacting the API. The server
 receives no `system_file` field. Manifest deletion strips the local reference
 without reading the prompt, so it still works after the prompt file is gone.
 
-Declarative skills, memory stores and event triggers are not yet supported.
+Select a catalog skill with `spec.skills: [{skill_id: skill-id, version: 2}]`,
+or package a local directory with `spec.skills: [{path: ./skills/news-writing}]`.
+In TOML use `[[spec.skills]]` followed by `path = "./skills/news-writing"`.
+The directory is relative to the manifest and must contain `SKILL.md` with
+`name` and `description` YAML frontmatter, plus instructions. Supporting files
+are included with their executable flags; no files run during packaging. Paths
+must remain inside the manifest directory with no symlinks. Each bundle allows
+128 files and 8 MiB; all bundles together allow 16 MiB. Python caches and `.git`
+are excluded. Do not combine `path` with a catalog pin in one entry.
+
+`ccp apply -f agent.yaml --org-id <org> --dry-run --json` reports planned skill
+IDs, immutable versions and content digests without writing. Apply previews
+bundles, checks expected versions and saves skills and agent pins atomically.
+An unchanged reapply reuses its revision; changed or removed files produce a
+new snapshot. Concurrent edits reject the apply; preview and retry. `--json`
+returns the complete machine-readable apply receipt. Omission preserves pins;
+`skills: []` detaches them. Deletion needs no local skill files and retains
+immutable revisions for other agents. Skills grant no tools or credentials.
 
 Archived agents still appear in `list` and `get`, flagged with an
 `archived` marker (and timestamp in `get`) — check for it before using an
@@ -113,3 +130,34 @@ ID returns the server's 404.
 Commands talk to the managed-agents service, derived from `CCP_API_URL`
 (production: `https://agents.clusterbase.dev`). `CCP_AGENTS_API_URL`
 overrides the derivation for bespoke clusters.
+
+### GitHub event triggers
+
+Declare `spec.triggers` alongside deployments. CCP forwards the declarations to
+Agents and prints per-trigger create/update/unchanged/delete receipts; `--json`
+preserves the same receipts. Example declaration:
+
+```yaml
+triggers:
+  - name: repo-merged
+    repo: owner/repo
+    events: [pull_request.merged]
+    deployment: merge-review
+    enabled: false
+    kickoff_template: "Describe {{repo}} PR {{pr}}. Do not publish."
+```
+
+Names and deployment references are lowercase DNS labels. The referenced
+Deployment must belong to this applied Agent. Events may be
+`pull_request.opened`, `pull_request.ready_for_review`, or `pull_request.merged`.
+GitHub repository access is resolved from the caller's authorization, including
+for disabled declarations. Do not put installation IDs or credentials in YAML.
+The deployment supplies environment/vaults; an omitted kickoff template uses the
+neutral event kickoff, not the deployment kickoff. Enabled defaults to true;
+keep source inventories explicitly disabled until activation is requested.
+
+Omitting triggers preserves them; `triggers: []` removes only this Agent's
+apply-owned subscriptions. Only their execution owner may reconcile them.
+Dry-run writes nothing, reapply is idempotent, and a still-referenced deployment
+cannot be removed. Remove/rebind its triggers in the same manifest. Applied
+triggers cannot be changed through imperative trigger PATCH/DELETE routes.
