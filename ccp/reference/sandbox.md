@@ -303,8 +303,13 @@ Use the owning user's bearer token with `POST /api/v1/vms/{vm_id}/git/clone`,
 paused direct VMs and conceal private Sandbox/build backing VMs.
 
 Clone takes `repo_url`, optional `working_dir`, `branch`, `checkout_sha`, `depth`
-and `timeout`. Provider credentials are forwarded only to GitHub HTTPS remotes.
-Init defaults to `/workspace` and branch `main`. Commit/push accepts an explicit
+and `timeout`; without `working_dir` it clones to `/workspace/<name>`. Provider
+credentials are forwarded only to GitHub HTTPS remotes. Init requires
+`working_dir` and defaults to branch `main`; commit/push without `working_dir`
+uses `/workspace/<repo_name>`. A relative `working_dir` resolves under
+`/workspace`. Paths inside `library-files`, `scratch`, `inputs` or `uploads`
+return 400 `reserved_repo_path`; the `/workspace` root or a path escaping it
+returns 400 `invalid_repo_path`; no path at all returns 400 `missing_repo_path`. Commit/push accepts an explicit
 `remote_url`, a saved repository link, or `repo_name` to create a GitHub repository.
 Init/commit/push requires `repo_name`; created names have the `cluster-build-`
 prefix. Both creation paths accept `private` and `description`.
