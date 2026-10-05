@@ -176,7 +176,7 @@ User clients can browse a running Sandbox with the normal Infra bearer token:
 
 Directory responses contain `path`, `entries` (`name`, `path`, `kind`, `size`),
 and `truncated`. Hidden and ignored files are included, directories sort first,
-and paths or symlinks outside the workspace are rejected. Lost organization
+and paths or symlinks resolving outside `/workspace` return 403. Lost organization
 access returns 403, missing paths return 404, and a non-running Sandbox returns
 409. These routes do not write, rename, or delete files.
 
@@ -279,8 +279,11 @@ the request cannot select another organization. A paused VM resumes before
 attachment. The response includes `vm_id`, `folder_id`, `workspace_path` and
 `workspace_warning` (null on success).
 
-This operation restarts workspace sync against the selected folder. It does
-not unpack an archive over existing guest files. Repeating the same request
+Every folder mounts at `/workspace/library-files`, so a VM keeps one folder for
+its lifetime: mounting a different folder returns `409
+workspace_folder_already_mounted`; create a new VM to use another folder. This
+operation restarts workspace sync against the mounted folder. It does not
+unpack an archive over existing guest files. Repeating the same request
 renews sync credentials without replaying the initial archive. Treat a failed
 request as a failed attachment; record the new binding only after success.
 
@@ -307,9 +310,12 @@ and `timeout`; without `working_dir` it clones to `/workspace/<name>`. Provider
 credentials are forwarded only to GitHub HTTPS remotes. Init requires
 `working_dir` and defaults to branch `main`; commit/push without `working_dir`
 uses `/workspace/<repo_name>`. A relative `working_dir` resolves under
-`/workspace`. Paths inside `library-files`, `scratch`, `inputs` or `uploads`
-return 400 `reserved_repo_path`; the `/workspace` root or a path escaping it
-returns 400 `invalid_repo_path`; no path at all returns 400 `missing_repo_path`. Commit/push accepts an explicit
+`/workspace`; absolute paths outside `/workspace` are allowed. Paths inside
+`library-files`, `scratch`, `inputs` or `uploads` return 400
+`reserved_repo_path`; the `/workspace` root or a relative path escaping it
+returns 400 `invalid_repo_path`; no path at all returns 400
+`missing_repo_path`; init/commit/push into a missing directory returns 400
+`repo_path_not_found` before any repository is created. Commit/push accepts an explicit
 `remote_url`, a saved repository link, or `repo_name` to create a GitHub repository.
 Init/commit/push requires `repo_name`; created names have the `cluster-build-`
 prefix. Both creation paths accept `private` and `description`.
