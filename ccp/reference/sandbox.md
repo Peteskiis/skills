@@ -166,8 +166,9 @@ ready build. Wait for the applied build to publish, then retry the create.
 User clients can browse a running Sandbox with the normal Infra bearer token:
 
 - `GET /api/v1/sandboxes/{sandbox_id}/files` lists the guest workspace root
-  (normally `/home/user`). Pass `?path=` to open a cloned repository path or
-  expand a project directory. Synced uploads are separate under `/mnt/workspace`.
+  (normally `/workspace`). Pass `?path=` to open a cloned repository path or
+  expand a project directory. The synced Storage folder is
+  `/workspace/library-files`.
 - `GET /api/v1/sandboxes/{sandbox_id}/files/content?path=...` reads text. URL-encode
   paths, including spaces. The response contains `path`, `content`, `size`, and
   `truncated`; the preview is limited to 1 MiB. Binary files return 415 and files
@@ -303,7 +304,7 @@ paused direct VMs and conceal private Sandbox/build backing VMs.
 
 Clone takes `repo_url`, optional `working_dir`, `branch`, `checkout_sha`, `depth`
 and `timeout`. Provider credentials are forwarded only to GitHub HTTPS remotes.
-Init defaults to `/home/user` and branch `main`. Commit/push accepts an explicit
+Init defaults to `/workspace` and branch `main`. Commit/push accepts an explicit
 `remote_url`, a saved repository link, or `repo_name` to create a GitHub repository.
 Init/commit/push requires `repo_name`; created names have the `cluster-build-`
 prefix. Both creation paths accept `private` and `description`.
@@ -336,7 +337,7 @@ without duplicating an identical key.
 
 `POST /api/v1/vms/{vm_id}/upload-files` takes `files`, an array of one to twenty
 objects containing `url` and `filename`. Use HTTPS URLs. The guest downloads each
-file into `/mnt/uploads` with a sanitized filename. Inspect `uploaded` and the
+file into `/workspace/uploads` with a sanitized filename. Inspect `uploaded` and the
 optional `failed` list: one failed download does not undo successful files.
 These operations conceal private Sandbox/build backing VMs. Cancellation stops
 remaining work; it does not roll back a key or file already installed.

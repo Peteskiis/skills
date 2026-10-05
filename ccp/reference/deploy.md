@@ -323,7 +323,7 @@ cannot replace this conversation's bound source.
 ### Cluster Bot Computers
 
 Fresh CCP-enabled Computers include the CLI, Node/npm, Bun, esbuild, Git, and
-these runbooks. Use the Computer shell tools under `/home/user`; do not install
+these runbooks. Use the Computer shell tools under `/workspace`; do not install
 or update managed tools or run `ccp auth login`. The managed wrapper selects the
 Computer organization and reloads current credentials for each invocation,
 including commands launched from a shell opened before token rotation.
@@ -346,5 +346,6 @@ not the intended App unless explicitly selected. Preserve configuration when a
 lookup, authorization, or deployment fails; never clear IDs to force creation.
 
 Existing Computers keep their original image and need recreation to receive a
-new toolchain. Preserve unsynced `/home/user` work and local App linkage before
-recreation; publishing a template does not update an existing guest.
+new toolchain. Preserve unsynced work (anything outside `/workspace/library-files`)
+and local App linkage before recreation; publishing a template does not update an
+existing guest.
