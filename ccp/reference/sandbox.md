@@ -1,5 +1,11 @@
 # Sandboxes
 
+VM-issued sessions can include `CCP_API_URL`, `CCP_ORGS_API_URL`, and
+`CCP_STORAGE_API_URL`. Keep these platform-selected endpoints with the session
+token and `CCP_ORG_ID`; the API and Storage targets are configured together.
+Workspace synchronization and initial archive downloads use the guest-facing
+Storage endpoint supplied by Infra.
+
 New `development` Sandboxes pause after 15 minutes without tool or proxy activity.
 The next agent tool or guest execution resumes the same VM, preserving saved files,
 uncommitted Git work and guest processes. Compute billing stops while paused and
@@ -146,8 +152,8 @@ Keep manifests commit-safe. Unknown fields are rejected, including plaintext
 `secrets` or `env` blocks and mutable `templateId`, `templateBuildId`, `vmId`,
 or `sandboxId` fields. Build and runtime identities are server-derived.
 
-Ephemeral creation is a separate lifecycle operation. The next Sandbox slice
-launches the applied template's current exact ready build:
+Ephemeral creation is a separate lifecycle operation that launches the applied
+template's current exact ready build:
 
 ```sh
 ccp sandbox create --template python-tools --ttl 15m --org-id "$CCP_ORG_ID"
@@ -159,7 +165,13 @@ same immutable build. Applying desired template state never launches a Sandbox.
 
 Creation fails with `template_not_found` when the active organization-scoped
 name does not exist and `template_not_ready` while its current recipe has no
-ready build. Wait for the applied build to publish, then retry the create.
+ready build. Wait for the applied build to publish, then retry the create. A request pinned to
+an older ready build fails with `template_changed` if the current definition or
+build changes before admission. Creation and artifact retirement share an atomic
+consumer reference, so an admitted Sandbox keeps its exact build protected.
+Environment and workspace launch options follow the validated system base used
+by the custom build; minimal Debian and Alpine bases do not support workspace
+attachment.
 
 ## Read-only workspace files over HTTP
 
@@ -324,6 +336,24 @@ A creation retry reuses its saved GitHub result. Changing privacy or description
 for that same creation intent is a conflict. Guest Git execution is separate:
 an empty commit still fails before remote mutation, and a creation receipt does
 not mean the guest push completed. Check the operation result before continuing.
+
+## Linked GitHub account
+
+The account routes under `/api/v1/github` use the owning user's bearer token.
+Complete GitHub OAuth before `POST /save-token` with `{"code":"..."}`; this
+accepts an authorization code, never a provider token. `GET /status` reports the
+linked identity and App installation. `GET /app-info` supplies the App
+installation URL and OAuth client information; `GET /token-info` returns a token
+preview, scopes, and user information.
+
+List visible repositories with `GET /repos?page=1&per_page=30`, and branches with
+`GET /repos/{owner}/{repo}/branches`. `POST /resolve-installation` takes
+`{"repository":"owner/name"}` and requires the user to have access to that exact
+App installation's repository. `POST /repositories/create` takes `name`, optional
+`private` and `description`, and creates a `cluster-build-` repository under the
+linked user. It does not attach the repository to a VM or push guest files.
+`DELETE /disconnect` removes only this user's personal account link. It leaves
+remote repositories and saved VM repository metadata intact.
 
 ## GitHub repository links on a direct VM
 
