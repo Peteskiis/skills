@@ -166,8 +166,9 @@ ready build. Wait for the applied build to publish, then retry the create.
 User clients can browse a running Sandbox with the normal Infra bearer token:
 
 - `GET /api/v1/sandboxes/{sandbox_id}/files` lists the guest workspace root
-  (normally `/home/user`). Pass `?path=` to open a cloned repository path or
-  expand a project directory. Synced uploads are separate under `/mnt/workspace`.
+  (normally `/workspace`). Pass `?path=` to open a cloned repository path or
+  expand a project directory. The synced Storage folder is
+  `/workspace/library-files`.
 - `GET /api/v1/sandboxes/{sandbox_id}/files/content?path=...` reads text. URL-encode
   paths, including spaces. The response contains `path`, `content`, `size`, and
   `truncated`; the preview is limited to 1 MiB. Binary files return 415 and files
@@ -175,7 +176,7 @@ User clients can browse a running Sandbox with the normal Infra bearer token:
 
 Directory responses contain `path`, `entries` (`name`, `path`, `kind`, `size`),
 and `truncated`. Hidden and ignored files are included, directories sort first,
-and paths or symlinks outside the workspace are rejected. Lost organization
+and paths or symlinks resolving outside `/workspace` return 403. Lost organization
 access returns 403, missing paths return 404, and a non-running Sandbox returns
 409. These routes do not write, rename, or delete files.
 
@@ -278,8 +279,11 @@ the request cannot select another organization. A paused VM resumes before
 attachment. The response includes `vm_id`, `folder_id`, `workspace_path` and
 `workspace_warning` (null on success).
 
-This operation restarts workspace sync against the selected folder. It does
-not unpack an archive over existing guest files. Repeating the same request
+Every folder mounts at `/workspace/library-files`, so a VM keeps one folder for
+its lifetime: mounting a different folder returns `409
+workspace_folder_already_mounted`; create a new VM to use another folder. This
+operation restarts workspace sync against the mounted folder. It does not
+unpack an archive over existing guest files. Repeating the same request
 renews sync credentials without replaying the initial archive. Treat a failed
 request as a failed attachment; record the new binding only after success.
 
@@ -302,8 +306,16 @@ Use the owning user's bearer token with `POST /api/v1/vms/{vm_id}/git/clone`,
 paused direct VMs and conceal private Sandbox/build backing VMs.
 
 Clone takes `repo_url`, optional `working_dir`, `branch`, `checkout_sha`, `depth`
-and `timeout`. Provider credentials are forwarded only to GitHub HTTPS remotes.
-Init defaults to `/home/user` and branch `main`. Commit/push accepts an explicit
+and `timeout`; without `working_dir` it clones to `/workspace/<name>`. Provider
+credentials are forwarded only to GitHub HTTPS remotes. Init requires
+`working_dir` and defaults to branch `main`; commit/push without `working_dir`
+uses `/workspace/<repo_name>`. A relative `working_dir` resolves under
+`/workspace`; absolute paths outside `/workspace` are allowed. Paths inside
+`library-files`, `scratch`, `inputs` or `uploads` return 400
+`reserved_repo_path`; the `/workspace` root or a relative path escaping it
+returns 400 `invalid_repo_path`; no path at all returns 400
+`missing_repo_path`; init/commit/push into a missing directory returns 400
+`repo_path_not_found` before any repository is created. Commit/push accepts an explicit
 `remote_url`, a saved repository link, or `repo_name` to create a GitHub repository.
 Init/commit/push requires `repo_name`; created names have the `cluster-build-`
 prefix. Both creation paths accept `private` and `description`.
@@ -336,7 +348,7 @@ without duplicating an identical key.
 
 `POST /api/v1/vms/{vm_id}/upload-files` takes `files`, an array of one to twenty
 objects containing `url` and `filename`. Use HTTPS URLs. The guest downloads each
-file into `/mnt/uploads` with a sanitized filename. Inspect `uploaded` and the
+file into `/workspace/uploads` with a sanitized filename. Inspect `uploaded` and the
 optional `failed` list: one failed download does not undo successful files.
 These operations conceal private Sandbox/build backing VMs. Cancellation stops
 remaining work; it does not roll back a key or file already installed.
