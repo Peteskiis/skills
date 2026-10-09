@@ -1,5 +1,11 @@
 # Sandboxes
 
+VM-issued sessions can include `CCP_API_URL`, `CCP_ORGS_API_URL`, and
+`CCP_STORAGE_API_URL`. Keep these platform-selected endpoints with the session
+token and `CCP_ORG_ID`; the API and Storage targets are configured together.
+Workspace synchronization and initial archive downloads use the guest-facing
+Storage endpoint supplied by Infra.
+
 New `development` Sandboxes pause after 15 minutes without tool or proxy activity.
 The next agent tool or guest execution resumes the same VM, preserving saved files,
 uncommitted Git work and guest processes. Compute billing stops while paused and
@@ -19,7 +25,12 @@ ccp apply -f sandbox.yaml --org-id "$CCP_ORG_ID"
 Infra reconciles the stable template identity and admits one immutable build
 for its exact recipe. Reapplying an unchanged manifest reuses the same template
 and ready or in-progress build. Use `--dry-run` to plan the same reconciliation
-without writing a template or build.
+without writing a template or build. Add `--wait` to observe that exact build until
+it is ready (up to 30 minutes). Progress goes to stderr; `--json` returns the apply
+receipt with the final ready status. Build failure, cancellation, timeout, or a
+status-request error exits nonzero. Stopping the CLI does not cancel the build.
+`--wait` is only supported for SandboxTemplate manifests and conflicts with
+`--dry-run`.
 
 ## Manifest
 
@@ -146,8 +157,8 @@ Keep manifests commit-safe. Unknown fields are rejected, including plaintext
 `secrets` or `env` blocks and mutable `templateId`, `templateBuildId`, `vmId`,
 or `sandboxId` fields. Build and runtime identities are server-derived.
 
-Ephemeral creation is a separate lifecycle operation. The next Sandbox slice
-launches the applied template's current exact ready build:
+Ephemeral creation is a separate lifecycle operation that launches the applied
+template's current exact ready build:
 
 ```sh
 ccp sandbox create --template python-tools --ttl 15m --org-id "$CCP_ORG_ID"
@@ -159,26 +170,35 @@ same immutable build. Applying desired template state never launches a Sandbox.
 
 Creation fails with `template_not_found` when the active organization-scoped
 name does not exist and `template_not_ready` while its current recipe has no
-ready build. Wait for the applied build to publish, then retry the create.
+ready build. Wait for the applied build to publish, then retry the create. A request pinned to
+an older ready build fails with `template_changed` if the current definition or
+build changes before admission. Creation and artifact retirement share an atomic
+consumer reference, so an admitted Sandbox keeps its exact build protected.
+Environment and workspace launch options follow the validated system base used
+by the custom build; minimal Debian and Alpine bases do not support workspace
+attachment.
 
 ## Read-only workspace files over HTTP
 
 User clients can browse a running Sandbox with the normal Infra bearer token:
 
-- `GET /api/v1/sandboxes/{sandbox_id}/files` lists the guest workspace root
-  (normally `/workspace`). Pass `?path=` to open a cloned repository path or
-  expand a project directory. The synced Storage folder is
-  `/workspace/library-files`.
+- `GET /api/v1/sandboxes/{sandbox_id}/files` lists the guest workspace root,
+  `/workspace`. Pass `?path=` to open a cloned repository path, expand a project
+  directory, or browse anywhere else beneath `/workspace`. The synced Storage
+  folder is `/workspace/library-files`.
 - `GET /api/v1/sandboxes/{sandbox_id}/files/content?path=...` reads text. URL-encode
   paths, including spaces. The response contains `path`, `content`, `size`, and
   `truncated`; the preview is limited to 1 MiB. Binary files return 415 and files
   above the guest input limit return 413.
 
 Directory responses contain `path`, `entries` (`name`, `path`, `kind`, `size`),
-and `truncated`. Hidden and ignored files are included, directories sort first,
-and paths or symlinks resolving outside `/workspace` return 403. Lost organization
-access returns 403, missing paths return 404, and a non-running Sandbox returns
-409. These routes do not write, rename, or delete files.
+and `truncated`. Hidden and ignored files are included and directories sort
+first. These routes are confined to `/workspace`: after resolving `..` and
+symlinks, any path outside it (for example runtime credentials, `/root`, `/run`
+or `/proc`) returns `403 access_denied`, even though agent Shell and file tools
+can reach the whole VM. Lost organization access also returns 403, missing paths
+return 404, and a non-running Sandbox returns 409. These routes do not write,
+rename, or delete files.
 
 ## CCP identity in managed Build workspaces
 
@@ -276,16 +296,16 @@ Do not paste a token into chat or ordinary environment variables.
 `POST /api/v1/vms/{vm_id}/workspace` accepts `folder_id` and `template_id`.
 Use the owning user's bearer token and a folder in the VM's organization;
 the request cannot select another organization. A paused VM resumes before
-attachment. The response includes `vm_id`, `folder_id`, `workspace_path` and
-`workspace_warning` (null on success).
+attachment. The response includes `vm_id`, `folder_id`, `workspace_path`
+(always `/workspace/library-files`) and `workspace_warning` (null on success).
 
-Every folder mounts at `/workspace/library-files`, so a VM keeps one folder for
-its lifetime: mounting a different folder returns `409
-workspace_folder_already_mounted`; create a new VM to use another folder. This
-operation restarts workspace sync against the mounted folder. It does not
-unpack an archive over existing guest files. Repeating the same request
-renews sync credentials without replaying the initial archive. Treat a failed
-request as a failed attachment; record the new binding only after success.
+This operation restarts workspace sync against the selected folder. It does
+not unpack an archive over existing guest files. Repeating the same request
+renews sync credentials without replaying the initial archive. A VM keeps one
+folder for its lifetime: selecting a different folder than the one already
+mounted returns `409 workspace_folder_already_mounted` and changes nothing;
+create a new VM to use another folder. Treat a failed request as a failed
+attachment; record the new binding only after success.
 
 Direct-VM lifecycle, environment, guest, workspace and external-reference
 operations return `404 vm_not_found` for Sandbox or custom-build backing VMs,
@@ -306,16 +326,22 @@ Use the owning user's bearer token with `POST /api/v1/vms/{vm_id}/git/clone`,
 paused direct VMs and conceal private Sandbox/build backing VMs.
 
 Clone takes `repo_url`, optional `working_dir`, `branch`, `checkout_sha`, `depth`
-and `timeout`; without `working_dir` it clones to `/workspace/<name>`. Provider
-credentials are forwarded only to GitHub HTTPS remotes. Init requires
-`working_dir` and defaults to branch `main`; commit/push without `working_dir`
-uses `/workspace/<repo_name>`. A relative `working_dir` resolves under
-`/workspace`; absolute paths outside `/workspace` are allowed. Paths inside
-`library-files`, `scratch`, `inputs` or `uploads` return 400
-`reserved_repo_path`; the `/workspace` root or a relative path escaping it
-returns 400 `invalid_repo_path`; no path at all returns 400
-`missing_repo_path`; init/commit/push into a missing directory returns 400
-`repo_path_not_found` before any repository is created. Commit/push accepts an explicit
+and `timeout`. Provider credentials are forwarded only to GitHub HTTPS remotes.
+Relative `working_dir` values resolve beneath `/workspace`; absolute paths
+outside `/workspace` are allowed as given. Clone without `working_dir` uses
+`/workspace/<name>` from the repository URL; commit/push and init/commit/push
+without `working_dir` use `/workspace/<repo_name>`. Init has no `repo_name`, so
+it requires `working_dir`. Path errors are `400`:
+
+- `missing_repo_path`: neither `working_dir` nor `repo_name` was given.
+- `invalid_repo_path`: a relative path escapes `/workspace`, or the path is the
+  `/workspace` root itself.
+- `reserved_repo_path`: the path is under `library-files`, `scratch`, `inputs`
+  or `uploads`, whether written relative or absolute.
+- `repo_path_not_found`: init/commit/push checks the directory exists before
+  creating a GitHub repository.
+
+Init defaults to branch `main`. Commit/push accepts an explicit
 `remote_url`, a saved repository link, or `repo_name` to create a GitHub repository.
 Init/commit/push requires `repo_name`; created names have the `cluster-build-`
 prefix. Both creation paths accept `private` and `description`.
@@ -324,6 +350,24 @@ A creation retry reuses its saved GitHub result. Changing privacy or description
 for that same creation intent is a conflict. Guest Git execution is separate:
 an empty commit still fails before remote mutation, and a creation receipt does
 not mean the guest push completed. Check the operation result before continuing.
+
+## Linked GitHub account
+
+The account routes under `/api/v1/github` use the owning user's bearer token.
+Complete GitHub OAuth before `POST /save-token` with `{"code":"..."}`; this
+accepts an authorization code, never a provider token. `GET /status` reports the
+linked identity and App installation. `GET /app-info` supplies the App
+installation URL and OAuth client information; `GET /token-info` returns a token
+preview, scopes, and user information.
+
+List visible repositories with `GET /repos?page=1&per_page=30`, and branches with
+`GET /repos/{owner}/{repo}/branches`. `POST /resolve-installation` takes
+`{"repository":"owner/name"}` and requires the user to have access to that exact
+App installation's repository. `POST /repositories/create` takes `name`, optional
+`private` and `description`, and creates a `cluster-build-` repository under the
+linked user. It does not attach the repository to a VM or push guest files.
+`DELETE /disconnect` removes only this user's personal account link. It leaves
+remote repositories and saved VM repository metadata intact.
 
 ## GitHub repository links on a direct VM
 
