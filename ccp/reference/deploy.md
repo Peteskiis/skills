@@ -44,7 +44,7 @@ Project and creates the App inside it. Org resolution is `--org-id` > project
 config > named context > `CCP_ORG_ID` > saved default > sole-org auto-pick > error. The Project, App, and org
 IDs land in `.ccp/config.json` (gitignored local state — not committed).
 
-Manage empty Projects directly when needed:
+Manage Projects directly when needed:
 
 ```sh
 ccp project ls [--org-id O]
@@ -66,7 +66,11 @@ Project state or retrying over HTTP. The
 read-only query candidate described above does not accept App creation.
 
 Project names are normalized to lowercase kebab-case. Removing a Project also
-deletes its Apps and Deployments.
+deletes its Apps and Deployments through the App owner. Databases, Compute and
+Stores remain available with their Project association cleared. If deletion
+reports pending cleanup or a concurrent Project change, retry the same command;
+the Project remains until App cleanup finishes. Withdraw externally owned
+Domain bindings before retrying a Domain-withdrawal rejection.
 
 To target the same App from CI or another machine, pass `--app-id` and
 set `CCP_ORG_ID` (dev VMs get `CCP_ORG_ID` + `CCP_SESSION_TOKEN` auto-injected)
@@ -323,7 +327,8 @@ cannot replace this conversation's bound source.
 ### Cluster Bot Computers
 
 Fresh CCP-enabled Computers include the CLI, Node/npm, Bun, esbuild, Git, and
-these runbooks. Use the Computer shell tools under `/workspace`; do not install
+these runbooks. Use the Computer shell tools under `/workspace` (keep scratch work in
+`/workspace/scratch`); do not install
 or update managed tools or run `ccp auth login`. The managed wrapper selects the
 Computer organization and reloads current credentials for each invocation,
 including commands launched from a shell opened before token rotation.
@@ -346,6 +351,5 @@ not the intended App unless explicitly selected. Preserve configuration when a
 lookup, authorization, or deployment fails; never clear IDs to force creation.
 
 Existing Computers keep their original image and need recreation to receive a
-new toolchain. Preserve unsynced work (anything outside `/workspace/library-files`)
-and local App linkage before recreation; publishing a template does not update an
-existing guest.
+new toolchain. Preserve unsynced `/workspace` work and local App linkage before
+recreation; publishing a template does not update an existing guest.
