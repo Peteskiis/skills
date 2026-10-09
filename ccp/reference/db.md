@@ -35,6 +35,29 @@ across VM nodes.
 `ccp db ls` shows the whole organization, sorts the project-linked database first,
 and marks it `linked`. `--json` preserves all rows and public database fields,
 including `project_id`, client mode, network name, and credential generation.
+Human list/info output shows effective `availability`, not provisioning completion.
+JSON retains `status` (the provisioning lifecycle), nullable `runtime_status` and
+`pause_reason`, plus `availability`, `postgres_status`, and `postgres_checked_at`.
+`billing_paused` means the guest is paused for Billing; `checking` means a running
+guest has no fresh SQL readiness observation. Only `available` has a successful
+SQL probe from the current running guest generation within the last 90 seconds.
+The probe reaches db-proxy's local `SELECT 1`; it does not attest application
+credentials or cross-node connectivity. Read/status requests never wake guests.
+
+Managed databases have no idle timeout. When Billing pauses a database, its owner
+retries current Billing admission without waiting for public HTTP traffic.
+Retries run on a 60-second worker cadence, backing off through 60, 120, 240 and
+300 seconds; persisted retries survive API restart. After eligibility returns,
+allow up to six minutes for the next attempt on an uncongested worker, then up
+to three minutes for snapshot resume and one further cycle for SQL readiness.
+Busy fleets additionally incur the bounded worker queue (100 records per batch,
+four concurrent attempts, 240-second attempt budget). Continued denial leaves
+the guest paused. An explicit user pause is preserved. Do not call public health
+as a keepalive or edit VM state to force recovery. If recovery stalls, inspect
+`pause_reason`, readiness age, the `managed_database_funding_retries` receipt and
+`Managed database funded recovery remains pending` logs. A guest-resumed log
+alone is not PostgreSQL readiness.
+
 List, detail, and restore status observations use authenticated native database RPC;
 missing or malformed records and unknown states fail the command. A fresh token
 with organization memberships is required; an inaccessible detail is reported as
@@ -123,7 +146,8 @@ ccp db client-access disable [DB_ID]
 ```
 
 CCP sends toggles through the native database RPC. The DB must be running.
-Paused DBs require waking with a query before retrying. The
+For a Billing pause, restore eligibility and wait for owner recovery before retrying.
+Explicit user pauses require an authorized resume. The
 toggle restarts db-proxy, so in-flight requests can fail and clients should
 retry.
 
