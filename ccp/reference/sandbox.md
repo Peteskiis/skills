@@ -177,20 +177,23 @@ attachment.
 
 User clients can browse a running Sandbox with the normal Infra bearer token:
 
-- `GET /api/v1/sandboxes/{sandbox_id}/files` lists the guest workspace root
-  (normally `/workspace`). Pass `?path=` to open a cloned repository path or
-  expand a project directory. The synced Storage folder is
-  `/workspace/library-files`.
+- `GET /api/v1/sandboxes/{sandbox_id}/files` lists the guest workspace root,
+  `/workspace`. Pass `?path=` to open a cloned repository path, expand a project
+  directory, or browse anywhere else beneath `/workspace`. The synced Storage
+  folder is `/workspace/library-files`.
 - `GET /api/v1/sandboxes/{sandbox_id}/files/content?path=...` reads text. URL-encode
   paths, including spaces. The response contains `path`, `content`, `size`, and
   `truncated`; the preview is limited to 1 MiB. Binary files return 415 and files
   above the guest input limit return 413.
 
 Directory responses contain `path`, `entries` (`name`, `path`, `kind`, `size`),
-and `truncated`. Hidden and ignored files are included, directories sort first,
-and paths or symlinks resolving outside `/workspace` return 403. Lost organization
-access returns 403, missing paths return 404, and a non-running Sandbox returns
-409. These routes do not write, rename, or delete files.
+and `truncated`. Hidden and ignored files are included and directories sort
+first. These routes are confined to `/workspace`: after resolving `..` and
+symlinks, any path outside it (for example runtime credentials, `/root`, `/run`
+or `/proc`) returns `403 access_denied`, even though agent Shell and file tools
+can reach the whole VM. Lost organization access also returns 403, missing paths
+return 404, and a non-running Sandbox returns 409. These routes do not write,
+rename, or delete files.
 
 ## CCP identity in managed Build workspaces
 
@@ -288,16 +291,16 @@ Do not paste a token into chat or ordinary environment variables.
 `POST /api/v1/vms/{vm_id}/workspace` accepts `folder_id` and `template_id`.
 Use the owning user's bearer token and a folder in the VM's organization;
 the request cannot select another organization. A paused VM resumes before
-attachment. The response includes `vm_id`, `folder_id`, `workspace_path` and
-`workspace_warning` (null on success).
+attachment. The response includes `vm_id`, `folder_id`, `workspace_path`
+(always `/workspace/library-files`) and `workspace_warning` (null on success).
 
-Every folder mounts at `/workspace/library-files`, so a VM keeps one folder for
-its lifetime: mounting a different folder returns `409
-workspace_folder_already_mounted`; create a new VM to use another folder. This
-operation restarts workspace sync against the mounted folder. It does not
-unpack an archive over existing guest files. Repeating the same request
-renews sync credentials without replaying the initial archive. Treat a failed
-request as a failed attachment; record the new binding only after success.
+This operation restarts workspace sync against the selected folder. It does
+not unpack an archive over existing guest files. Repeating the same request
+renews sync credentials without replaying the initial archive. A VM keeps one
+folder for its lifetime: selecting a different folder than the one already
+mounted returns `409 workspace_folder_already_mounted` and changes nothing;
+create a new VM to use another folder. Treat a failed request as a failed
+attachment; record the new binding only after success.
 
 Direct-VM lifecycle, environment, guest, workspace and external-reference
 operations return `404 vm_not_found` for Sandbox or custom-build backing VMs,
@@ -318,16 +321,22 @@ Use the owning user's bearer token with `POST /api/v1/vms/{vm_id}/git/clone`,
 paused direct VMs and conceal private Sandbox/build backing VMs.
 
 Clone takes `repo_url`, optional `working_dir`, `branch`, `checkout_sha`, `depth`
-and `timeout`; without `working_dir` it clones to `/workspace/<name>`. Provider
-credentials are forwarded only to GitHub HTTPS remotes. Init requires
-`working_dir` and defaults to branch `main`; commit/push without `working_dir`
-uses `/workspace/<repo_name>`. A relative `working_dir` resolves under
-`/workspace`; absolute paths outside `/workspace` are allowed. Paths inside
-`library-files`, `scratch`, `inputs` or `uploads` return 400
-`reserved_repo_path`; the `/workspace` root or a relative path escaping it
-returns 400 `invalid_repo_path`; no path at all returns 400
-`missing_repo_path`; init/commit/push into a missing directory returns 400
-`repo_path_not_found` before any repository is created. Commit/push accepts an explicit
+and `timeout`. Provider credentials are forwarded only to GitHub HTTPS remotes.
+Relative `working_dir` values resolve beneath `/workspace`; absolute paths
+outside `/workspace` are allowed as given. Clone without `working_dir` uses
+`/workspace/<name>` from the repository URL; commit/push and init/commit/push
+without `working_dir` use `/workspace/<repo_name>`. Init has no `repo_name`, so
+it requires `working_dir`. Path errors are `400`:
+
+- `missing_repo_path`: neither `working_dir` nor `repo_name` was given.
+- `invalid_repo_path`: a relative path escapes `/workspace`, or the path is the
+  `/workspace` root itself.
+- `reserved_repo_path`: the path is under `library-files`, `scratch`, `inputs`
+  or `uploads`, whether written relative or absolute.
+- `repo_path_not_found`: init/commit/push checks the directory exists before
+  creating a GitHub repository.
+
+Init defaults to branch `main`. Commit/push accepts an explicit
 `remote_url`, a saved repository link, or `repo_name` to create a GitHub repository.
 Init/commit/push requires `repo_name`; created names have the `cluster-build-`
 prefix. Both creation paths accept `private` and `description`.
