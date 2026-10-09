@@ -25,7 +25,12 @@ ccp apply -f sandbox.yaml --org-id "$CCP_ORG_ID"
 Infra reconciles the stable template identity and admits one immutable build
 for its exact recipe. Reapplying an unchanged manifest reuses the same template
 and ready or in-progress build. Use `--dry-run` to plan the same reconciliation
-without writing a template or build.
+without writing a template or build. Add `--wait` to observe that exact build until
+it is ready (up to 30 minutes). Progress goes to stderr; `--json` returns the apply
+receipt with the final ready status. Build failure, cancellation, timeout, or a
+status-request error exits nonzero. Stopping the CLI does not cancel the build.
+`--wait` is only supported for SandboxTemplate manifests and conflicts with
+`--dry-run`.
 
 ## Manifest
 
