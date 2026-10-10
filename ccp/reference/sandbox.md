@@ -12,6 +12,9 @@ uncommitted Git work and guest processes. Compute billing stops while paused and
 resumes when the VM runs again. A detached process alone is not an activity signal;
 keep polling work that needs to continue running.
 
+After an offline interruption, the next tool request preserves the guest state
+and checks billing before resuming. A payment rejection leaves the guest paused.
+
 Idle pause does not extend the Sandbox's expiration time. Expiration still deletes
 the Sandbox and its local work. Existing Sandboxes retain the idle policy recorded
 when they were created; this default does not rewrite their launch receipts.
