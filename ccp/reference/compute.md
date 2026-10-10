@@ -43,6 +43,11 @@ both values match. A failed download or verification leaves the prior
 executable in place and returns a typed `binary_download_*`/`invalid_binary`
 error rather than starting partial bytes.
 
+Deployment and restart may take several minutes while the guest starts and
+health checks settle. Let the command finish. If interrupted, check the existing
+service before deploying again; use its service ID to continue an existing
+operation instead of creating a duplicate.
+
 First deploy creates the service, writes the description to `cluster.toml`
 (commit it) and this machine's link to `.ccp/compute-link.json` (gitignored).
 Redeploy reads the link or `--service-id` and PATCH-updates the service. Mode is
