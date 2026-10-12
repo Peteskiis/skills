@@ -399,3 +399,8 @@ file into `/workspace/uploads` with a sanitized filename. Inspect `uploaded` and
 optional `failed` list: one failed download does not undo successful files.
 These operations conceal private Sandbox/build backing VMs. Cancellation stops
 remaining work; it does not roll back a key or file already installed.
+
+Machine provisioning uses the configured `TRIGGER_CLIENT_ID` with a matching
+Hydra client/subject and `managed-agents:vm-provision`. The API audience does
+not grant service attribution. Human billing attribution does not authorize CCP
+enrollment or access to another payer's Sandbox.
