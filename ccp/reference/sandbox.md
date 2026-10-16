@@ -12,6 +12,10 @@ uncommitted Git work and guest processes. Compute billing stops while paused and
 resumes when the VM runs again. A detached process alone is not an activity signal;
 keep polling work that needs to continue running.
 
+If guest execution reports `node activity demand capacity exhausted`, let active
+requests or streams finish, reduce concurrent guest work, and retry against the
+same Sandbox. Creating a replacement Sandbox does not resolve node saturation.
+
 After an offline interruption, the next tool request preserves the guest state
 and checks billing before resuming. A payment rejection leaves the guest paused.
 
