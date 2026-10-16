@@ -1,5 +1,9 @@
 # Sandboxes
 
+A successful creation response describes the completed creation operation. A
+concurrent later pause or deletion can change current state; use a fresh status
+read when you need the Sandbox's current state.
+
 VM-issued sessions can include `CCP_API_URL`, `CCP_ORGS_API_URL`, and
 `CCP_STORAGE_API_URL`. Keep these platform-selected endpoints with the session
 token and `CCP_ORG_ID`; the API and Storage targets are configured together.
@@ -11,6 +15,10 @@ The next agent tool or guest execution resumes the same VM, preserving saved fil
 uncommitted Git work and guest processes. Compute billing stops while paused and
 resumes when the VM runs again. A detached process alone is not an activity signal;
 keep polling work that needs to continue running.
+
+If guest execution reports `node activity demand capacity exhausted`, let active
+requests or streams finish, reduce concurrent guest work, and retry against the
+same Sandbox. Creating a replacement Sandbox does not resolve node saturation.
 
 After an offline interruption, the next tool request preserves the guest state
 and checks billing before resuming. A payment rejection leaves the guest paused.
@@ -399,3 +407,8 @@ file into `/workspace/uploads` with a sanitized filename. Inspect `uploaded` and
 optional `failed` list: one failed download does not undo successful files.
 These operations conceal private Sandbox/build backing VMs. Cancellation stops
 remaining work; it does not roll back a key or file already installed.
+
+Machine provisioning uses the configured `TRIGGER_CLIENT_ID` with a matching
+Hydra client/subject and `managed-agents:vm-provision`. The API audience does
+not grant service attribution. Human billing attribution does not authorize CCP
+enrollment or access to another payer's Sandbox.

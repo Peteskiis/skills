@@ -21,8 +21,11 @@ System/session sources own those names.
 
 `refresh-system` publishes a new runtime-environment generation containing
 system credentials such as GitHub credentials. The active VM reconciler applies
-it in the background; credential-dependent operations fail with
-`runtime_environment_unavailable` until that exact generation is active. CCP
+it in the background. After the VM resumes, shell and execution operations also
+attempt pending environment delivery before running, so they need not wait for
+the background retry timer. They fail with `runtime_environment_unavailable` if
+current material is missing or cannot be acknowledged within the bounded attempt.
+CCP
 credentials are VM-scoped and renewed automatically while active or resumable,
 so start and resume apply current material without waiting on the credential
 provider.
