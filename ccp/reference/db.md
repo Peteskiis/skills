@@ -20,7 +20,12 @@ lowercase DNS labels. Networked databases and compute members can connect
 across VM nodes.
 
 `ccp db ls` shows the whole organization, sorts the project-linked database first,
-and marks it `linked`. `--json` preserves all rows and exact fields.
+and marks it `linked`. `--json` preserves all rows and public database fields,
+including `project_id`, client mode, network name, and credential generation.
+List, detail, and restore status observations use authenticated native database RPC;
+missing or malformed records and unknown states fail the command. A fresh token
+with organization memberships is required; an inaccessible detail is reported as
+not found.
 `ccp db info` defaults to the same config or `.env` database identity used by SQL
 commands; outside a linked project, pass an explicit ID.
 
