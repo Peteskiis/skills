@@ -20,7 +20,9 @@ Reserved prefixes are blocked for user env: `GH_`, `GIT_`, `CCP_`, `CLUSTA_`.
 System/session sources own those names.
 
 `refresh-system` publishes a new runtime-environment generation containing
-system credentials such as GitHub credentials. The active VM reconciler applies
+system credentials such as GitHub credentials. GitHub token lookup is current;
+commit identity (login, name and email) may use an account/token-scoped cache
+for up to 60 seconds. The active VM reconciler applies
 it in the background. After the VM resumes, shell and execution operations also
 attempt pending environment delivery before running, so they need not wait for
 the background retry timer. They fail with `runtime_environment_unavailable` if
