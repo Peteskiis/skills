@@ -297,6 +297,10 @@ repository cloning and guest CLI authentication are separate operations. Link
 GitHub before launch. Trusted service launches use their explicit repository
 grant and never inherit a human's personal GitHub token.
 
+Git commit identity (login, name and email) may be cached for up to 60 seconds
+per linked account and token. Token lookup remains current on every launch;
+changing or disconnecting the linked account does not reuse its old credential.
+
 This applies at workspace launch. Existing Sandboxes missing that document are
 not enrolled by an API rollout; start a new Build workspace after rollout.
 The direct-VM `refresh-system` endpoint does not expose Sandbox backing VMs.
