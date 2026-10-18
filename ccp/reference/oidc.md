@@ -33,3 +33,8 @@ Headless behavior:
 - Single-org accounts auto-resolve org; multi-org accounts need `--org-id` or
   `CCP_ORG_ID`.
 - `rotate-secret` and `destroy` auto-confirm in headless mode.
+
+For LAN staging, select `https://api.staging.clusterbase.dev`. CCP maps this API
+to `https://accounts.staging.clusterbase.ai` for sign-in, while generated App
+and database hosts remain under `staging.clusterbase.dev`. Use public TLS trust
+and a fresh staging session after the issuer cutover.
