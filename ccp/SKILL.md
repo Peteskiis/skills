@@ -323,10 +323,10 @@ The whole `.ccp/` dir is **local state and gitignored** (like Vercel's `.vercel/
 it holds this `config.json` — whose `database_token` is a secret — plus
 `compute-link.json` and build output (`.ccp/index.js`, `.ccp/public/`). It also
 carries its own `.gitignore` containing `*`, so it stays out of git even in a
-project that was never `ccp init`'d. Do not commit it; select the org with
-`CCP_ORG_ID` and `ccp deploy` re-establishes the App and Project link by exact
-project name. Use `--app-id` only as an explicit override — the shape needs no
-re-establishing, because `cluster.toml` is committed. New projects use
+project that was never `ccp init`'d. Do not commit it. On a fresh checkout,
+select the organization and deploy with the intended `--app-id`, or use
+`ccp link --org-id O --app-id A`. Names alone never re-establish identity.
+The shape needs no re-establishing because `cluster.toml` is committed. New projects use
 `.ccp/`; a legacy `.cluster/config.json` (pre-migration) is still read as a
 fallback, so existing linked projects keep working without changes.
 

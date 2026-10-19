@@ -38,9 +38,9 @@ scaffold, unless the target directory is already inside one; `--no-git` skips
 this. It is best-effort: a missing `git` or an unconfigured commit identity
 prints a notice and never fails the scaffold.
 
-Headless first deploy resolves an org, then attaches an exact same-named App
-when one already exists there. Otherwise it reuses or creates a same-named
-Project and creates the App inside it. Org resolution is `--org-id` > project
+An unlinked headless deploy resolves an org and creates a new Project and App.
+Existing names cause a conflict; select the intended App explicitly with
+`--app-id` or `ccp link` to deploy to an existing identity. Org resolution is `--org-id` > project
 config > named context > `CCP_ORG_ID` > saved default > sole-org auto-pick > error. The Project, App, and org
 IDs land in `.ccp/config.json` (gitignored local state — not committed).
 
