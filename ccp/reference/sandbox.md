@@ -4,8 +4,8 @@ A successful creation response describes the completed creation operation. A
 concurrent later pause or deletion can change current state; use a fresh status
 read when you need the Sandbox's current state.
 
-VM-issued sessions can include `CCP_API_URL`, `CCP_ORGS_API_URL`, and
-`CCP_STORAGE_API_URL`. Keep these platform-selected endpoints with the session
+VM-issued sessions can include `CCP_API_URL` and `CCP_STORAGE_API_URL`.
+Organization discovery uses the authenticated Infra RPC at the API endpoint. Keep these platform-selected endpoints with the session
 token and `CCP_ORG_ID`; the API and Storage targets are configured together.
 Workspace synchronization and initial archive downloads use the guest-facing
 Storage endpoint supplied by Infra.

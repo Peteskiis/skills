@@ -141,10 +141,10 @@ start and resume can apply current material without waiting on the credential pr
 The client secret never enters the guest.
 
 `CCP_API_URL` selects the cluster. For a non-production `api.<cluster>` origin,
-ccp derives the sibling `accounts.<cluster>`, `orgs.<cluster>`, and
-`storage.<cluster>` origins. The canonical production API retains production's
-pinned, nonuniform service origins. `CCP_AUTH_ISSUER`, `CCP_ORGS_API_URL`, and
-`CCP_STORAGE_API_URL` remain available as advanced per-service overrides.
+ccp derives the sibling `accounts.<cluster>` and `storage.<cluster>` origins.
+Organization discovery uses the generated Infra RPC at `CCP_API_URL`; human and
+managed sessions share that endpoint while Infra enforces their distinct authority. The canonical production API retains production's
+pinned, nonuniform service origins. `CCP_AUTH_ISSUER` and `CCP_STORAGE_API_URL` remain available as advanced per-service overrides.
 `SSL_CERT_FILE` supplies a PEM CA bundle to both API and OAuth requests for
 private-CA environments. Empty values keep the binary's defaults, and trailing
 slashes are ignored.
