@@ -124,6 +124,10 @@ deployment merely because the first response was lost.
 added/updated; absent keys are preserved server-side. A failed env write aborts
 the deploy.
 
+Asset uploads run at most two at a time. Deployment activation requires every
+code and asset upload to succeed; an upload error leaves the previous deployment
+active. Concurrent deployments can still encounter Storage admission limits.
+
 Bundling requires `esbuild` on PATH (`brew install esbuild`, or
 `npm install -g esbuild`). Run `ccp doctor` to check it and the other deploy
 toolchains.
