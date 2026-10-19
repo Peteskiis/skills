@@ -178,6 +178,9 @@ under `CCP_HEADLESS`, `CCP_SESSION_TOKEN`, or `CI`; set
 
 `ccp update` self-updates the binary in place: it downloads the latest release,
 verifies its SHA256, smoke-tests the staged binary, and atomically swaps it.
+It prints plain progress lines to stdout for checking, the version change,
+downloading, verification, and installation, including when piped. Only the
+final `ccp updated` line confirms success; a failed step exits nonzero.
 The installer defaults to a user-writable dir (prefers `~/.local/bin`), so a
 normal install updates with no sudo. Only a system-wide install
 (`INSTALL_DIR=/usr/local/bin`) lands in a root-owned dir; there `ccp update`
