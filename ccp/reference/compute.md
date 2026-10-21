@@ -197,7 +197,10 @@ After funding an account whose VM was paused by Billing, run
 `ccp compute restart SERVICE_ID` or redeploy it. These explicit operations obtain
 fresh Billing admission before resuming the same guest. An ineligible account
 remains paused and returns `payment_required` (HTTP 402). The saved deployment
-intent lets recovery finish after an interrupted request. Ordinary proxy traffic,
+intent lets recovery finish after an interrupted request. Retry the same operation
+and configuration after funding; an identical retry reuses the saved intent
+without creating duplicate deployment history. Different configuration conflicts
+with unfinished work. Ordinary proxy traffic,
 logs and exec do not recover a billing pause. Status reads do not resume guests.
 Workload operations return `service_not_running` while initial deployment is
 still pending; wait for deployment to finish before retrying.
