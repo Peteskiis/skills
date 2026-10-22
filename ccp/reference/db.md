@@ -44,8 +44,16 @@ SQL probe from the current running guest generation within the last 90 seconds.
 The probe reaches db-proxy's local `SELECT 1`; it does not attest application
 credentials or cross-node connectivity. Read/status requests never wake guests.
 
-Managed databases have no idle timeout. When Billing pauses a database, its owner
-retries current Billing admission without waiting for public HTTP traffic.
+`pause_reason=billing_unavailable` identifies a prolonged Billing policy outage,
+not an insufficient-credit decision; availability remains `paused`. Existing
+sessions may continue for at most 24 hours without a fresh Billing observation,
+capped by their last known grace deadline. Restarting the API does not reset the
+limit. The metering worker initiates safe suspension at the next reconciliation;
+node failures can delay completion. Mail delivery failures do not extend grace.
+
+Managed databases have no idle timeout. When billing enforcement or outage
+expiry pauses a database, its owner retries current Billing admission without
+waiting for public HTTP traffic.
 Retries run on a 60-second worker cadence, backing off through 60, 120, 240 and
 300 seconds; persisted retries survive API restart. After eligibility returns,
 allow up to six minutes for the next attempt on an uncongested worker, then up
