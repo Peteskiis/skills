@@ -9,10 +9,15 @@ ccp db destroy <DB_ID>
 
 `ccp db create` writes `database_id`, `database_token`, and `organization_id` to
 `.ccp/config.json` and binds the selected App when possible. A networked bound
-App receives a native PostgreSQL `DATABASE_URL`; the existing HTTPS interface
+App must already select the same existing network through `[network]` and
+`ccp deploy`; a mismatch rejects creation before guest provisioning. It receives
+a native PostgreSQL `DATABASE_URL`; the existing HTTPS interface
 uses `DATABASE_HTTP_URL` and `DATABASE_HTTP_TOKEN`. The CLI mirrors only the
 HTTP values into local `.env` so code-only deploys preserve the server-managed
-native URL.
+native URL. Binding manages credentials only. Unbinding removes managed
+environment keys and preserves the App network attachment; detaching the App
+network revokes private connectivity. A correctly attached App can also use
+valid credentials for an unbound database in that network.
 
 Creation uses native database RPC and returns credentials after the database proxy, requested private network
 and linked App are ready. An organization API key requires `compute:use`;

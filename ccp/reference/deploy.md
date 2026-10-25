@@ -84,6 +84,37 @@ To target the same App from CI or another machine, pass `--app-id` and
 set `CCP_ORG_ID` (dev VMs get `CCP_ORG_ID` + `CCP_SESSION_TOKEN` auto-injected)
 rather than committing `.ccp/config.json`.
 
+### Private PostgreSQL networks
+
+Select an existing network in the App's organization using the shared root table:
+
+```toml
+[network]
+name = "backend"
+```
+
+The network must already exist through a Compute or managed-database member.
+`ccp deploy` applies this selection to the App for production and preview
+Deployments. Removing `[network]` explicitly detaches on the next deploy.
+The API's partial-update contract differs: omitted `network` preserves selection,
+a name selects, and `null` detaches. `skip_redeploy` does not defer attachment
+changes. `ccp ls` inside a linked App shows the network and convergence state;
+`ccp ls --json` includes immutable ID, desired/published generations and expiry.
+
+Use Postgres.js or Drizzle with a valid PostgreSQL URL for a ready database in
+that network. Port 5432 is supported; arbitrary TCP destinations and private
+HTTP/HTTPS are not supported. Environment variables alone cannot grant network
+access. Binding a database supplies managed credentials, while attachment grants
+connectivity to eligible PostgreSQL members across the selected network.
+
+A missing or foreign network fails selection. A deleted and recreated network
+with the same name requires explicit detach followed by selection of the new
+identity. Ownership transfer detaches. `pending` means publication is incomplete;
+`unavailable` means fresh authority is absent. Renewal runs every 20 seconds,
+with runtime refresh every five seconds and at most 60 seconds of authority.
+Restart requires a fresh publication. Detach or authority expiry also closes warm
+connections; clients may reconnect after fresh authority returns.
+
 ### A config written before the App rename
 
 A `.ccp/config.json` that links the project by `function_id` (the pre-rename
