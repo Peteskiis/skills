@@ -138,7 +138,11 @@ another across VM nodes at `<service>.backend.internal`; services outside the
 network cannot resolve or connect to that private address. Network and service
 names must be lowercase DNS labels. Private networking currently requires
 `always_on = true`, is immutable for an existing service, and does not change
-its public `<name>.clusterbase.dev` route.
+its public `<name>.clusterbase.dev` route. A Serverless App attached to this same
+network can fetch `http://<service>.backend.internal:<internal_port>` without
+binding the service individually. HTTPS requires a backend certificate trusted
+by the runtime and valid for that private hostname. Listen on the guest interface,
+not only loopback.
 
 A checkout with a `cluster.toml` but no link — a fresh clone, or CI — attaches
 on deploy: ccp looks the name up in the org and redeploys that service, and
