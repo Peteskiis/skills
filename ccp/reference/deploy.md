@@ -84,7 +84,7 @@ To target the same App from CI or another machine, pass `--app-id` and
 set `CCP_ORG_ID` (dev VMs get `CCP_ORG_ID` + `CCP_SESSION_TOKEN` auto-injected)
 rather than committing `.ccp/config.json`.
 
-### Private PostgreSQL networks
+### Private backend networks
 
 Select an existing network in the App's organization using the shared root table:
 
@@ -102,10 +102,23 @@ changes. `ccp ls` inside a linked App shows the network and convergence state;
 `ccp ls --json` includes immutable ID, desired/published generations and expiry.
 
 Use Postgres.js or Drizzle with a valid PostgreSQL URL for a ready database in
-that network. Port 5432 is supported; arbitrary TCP destinations and private
-HTTP/HTTPS are not supported. Environment variables alone cannot grant network
-access. Binding a database supplies managed credentials, while attachment grants
-connectivity to eligible PostgreSQL members across the selected network.
+that network on port 5432. Fetch an always-on Compute member using its declared
+service port, for example `fetch("http://catalog.backend.internal:8080/items")`.
+HTTP and HTTPS are supported on that exact port (1–65535); arbitrary extra ports,
+TCP and UDP are not. HTTPS verifies the private backend's hostname and certificate
+against the runtime trust store. Backend authentication remains the caller's
+responsibility. A second eligible backend in the same network needs no App binding.
+
+Environment variables alone cannot grant network access. Binding a database
+supplies managed credentials; attachment grants network connectivity. Private
+names never fall back to public DNS or public backend routing. Every redirect is
+authorized again, and cross-origin redirects strip Authorization and Cookie.
+For a browser-facing proxy, use `redirect: "manual"` to return the backend's
+redirect status, Location and cookies to the browser. `redirect: "error"` rejects
+redirect responses without contacting the next destination.
+Fetch streams request and response bodies, supports AbortSignal cancellation, and
+has a 30-second total deadline. A streaming request body cannot be replayed by a
+307/308 redirect. Public fetch retains its private-address SSRF restrictions.
 
 A missing or foreign network fails selection. A deleted and recreated network
 with the same name requires explicit detach followed by selection of the new
