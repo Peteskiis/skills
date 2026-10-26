@@ -43,6 +43,11 @@ both values match. A failed download or verification leaves the prior
 executable in place and returns a typed `binary_download_*`/`invalid_binary`
 error rather than starting partial bytes.
 
+Binary workload environment values and arguments preserve literal whitespace,
+newlines, quotes and shell metacharacters. Pass PEM credentials as their actual
+multiline value; do not convert newlines into literal `\\n` sequences. Environment
+names must be shell identifiers, and values and arguments cannot contain NUL.
+
 Deployment and restart may take several minutes while the guest starts and
 health checks settle. Let the command finish. If interrupted, check the existing
 service before deploying again; use its service ID to continue an existing
