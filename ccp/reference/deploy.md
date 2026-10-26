@@ -109,6 +109,12 @@ TCP and UDP are not. HTTPS verifies the private backend's hostname and certifica
 against the runtime trust store. Backend authentication remains the caller's
 responsibility. A second eligible backend in the same network needs no App binding.
 
+Parallel private fetches wait for one of four active HTTP stream slots per
+isolate, within the existing 64-session fetch budget. The ten-second connection
+deadline includes that wait. Finished or cancelled responses release capacity;
+idle HTTP connections do not reserve slots. Consume or cancel response bodies
+promptly so later requests can proceed.
+
 Environment variables alone cannot grant network access. Binding a database
 supplies managed credentials; attachment grants network connectivity. Private
 names never fall back to public DNS or public backend routing. Every redirect is
