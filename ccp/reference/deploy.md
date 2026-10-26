@@ -113,6 +113,9 @@ Environment variables alone cannot grant network access. Binding a database
 supplies managed credentials; attachment grants network connectivity. Private
 names never fall back to public DNS or public backend routing. Every redirect is
 authorized again, and cross-origin redirects strip Authorization and Cookie.
+For a browser-facing proxy, use `redirect: "manual"` to return the backend's
+redirect status, Location and cookies to the browser. `redirect: "error"` rejects
+redirect responses without contacting the next destination.
 Fetch streams request and response bodies, supports AbortSignal cancellation, and
 has a 30-second total deadline. A streaming request body cannot be replayed by a
 307/308 redirect. Public fetch retains its private-address SSRF restrictions.
