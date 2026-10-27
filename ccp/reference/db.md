@@ -37,6 +37,25 @@ The database name becomes `<name>.<network>.internal`, so both names must be
 lowercase DNS labels. Networked databases and compute members can connect
 across VM nodes.
 
+For a ready, running database created without a network:
+
+```bash
+ccp db attach-network backend --db-id db-ID
+```
+
+This calls `POST /api/v1/databases/{id}/network` with `{"network":"backend"}`.
+It retains the existing guest, data, HTTP token and managed native credential.
+A database without a managed native credential keeps native login disabled;
+use `POST /api/v1/databases/{id}/native-access/enable` separately when needed.
+For a bound App, select the same organization network before enabling native
+access so the App owner can publish its managed `DATABASE_URL`.
+Attachment briefly restarts db-proxy. Success requires current private-network
+acknowledgements. If the request is interrupted or returns
+`network_attachment_pending`, retry the same command; the owner also reconciles
+saved intent. Selecting a different network is rejected. Wake paused databases
+before attaching. This command does not create or rotate credentials.
+
+
 `ccp db ls` shows the whole organization, sorts the project-linked database first,
 and marks it `linked`. `--json` preserves all rows and public database fields,
 including `project_id`, client mode, network name, and credential generation.
