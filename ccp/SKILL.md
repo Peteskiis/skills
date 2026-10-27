@@ -244,10 +244,8 @@ swallow them.
 per-machine and per-environment, so they live in the gitignored
 `.ccp/compute-link.json` (#610). A project whose `cluster.toml` still carries a
 `[managed]` table keeps working — reads fall back to it — and the next
-`ccp compute deploy` moves it into `.ccp/` and strips it, saying so. **After
-that migration every machine on the repo needs ccp 0.1.68 or newer**: older
-builds declare `[managed]` as a required field and fail every compute command
-with a "missing field managed" error.
+`ccp compute deploy` moves it into `.ccp/` and strips it, saying so. The local-link format requires ccp 0.1.68 or newer on
+teammates, CI and template images when updating committed configuration.
 
 ### `.ccp/compute-link.json` - local compute link
 
@@ -358,9 +356,8 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
   use the interactive `--replace-session` recovery path.
 - A `.ccp/config.json` carrying the pre-rename `function_id` is rejected with
   an error naming the id. Relink with `ccp deploy --app-id <id>` — the id is
-  unchanged. Never "fix" it by deleting the key: a same-name App can be
-  reattached, but a renamed checkout cannot safely identify the original App
-  while the original keeps the production hostname and domains.
+  unchanged. Never recover by deleting identity or guessing from a name; select
+  the exact App with `--app-id` or `ccp link` and preserve its organization.
 - Do not use TUI commands in headless mode. Use `ccp db exec`, not
   `ccp db connect`.
 - Destructive commands may require `--yes` with `CCP_HEADLESS=1`; check the
@@ -372,11 +369,8 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - The compute LINK is not in `cluster.toml`. `service_id`, `organization_id`
   and `hostname` live in the gitignored `.ccp/compute-link.json`; a project
   still carrying a committed `[managed]` table has it moved there — and
-  stripped — by the next `ccp compute deploy`. **Once that happens, every
-  machine on the repo needs ccp 0.1.68+**: older builds require `[managed]` and
-  fail every compute command with a "missing field managed" error. Unlike the
-  serverless split, this break travels through git, so upgrade teammates, CI
-  and any VM template before committing the stripped file.
+  stripped — by the next `ccp compute deploy`. The local-link format requires ccp 0.1.68 or newer
+  across teammates, CI and template images when changing the committed configuration.
 - A fresh clone has no compute link, so `ccp compute deploy` attaches to the
   service the committed `name` already identifies in the org rather than
   creating a second one. On a multi-org account headless, that lookup needs
@@ -388,16 +382,12 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - A LINKED project (one with `.ccp/config.json`) whose `cluster.toml` is missing
   has no entry point — ccp fails and says so rather than guessing. A directory
   with neither file still falls back to probing `index.tsx`/`index.ts`.
-- Downgrading ccp below 0.1.66 in a project a newer ccp has written fails with
-  `missing field \`index\``: older builds require that key in
-  `.ccp/config.json`. Re-add it by hand from `cluster.toml`'s `[serverless]`,
-  or upgrade again.
 - Do not commit `.env`, `node_modules/`, or `.ccp/` — `.ccp/` is local ccp state
   (gitignored wholesale, like Vercel's `.vercel/`), holding build output and a
   `config.json` whose `database_token` is a secret. On CI / another machine,
-  select the org with `CCP_ORG_ID`; `ccp deploy` re-establishes the App and
-  Project link by exact project name. Use `--app-id` only as an explicit
-  override.
+  select the org with `CCP_ORG_ID` and an existing App with `--app-id` or
+  `ccp link`. An unlinked deploy creates a new Project/App and rejects an
+  existing name; it does not recover serverless identity by name.
 - `CCP_API_KEY` and externally supplied `CCP_SESSION_TOKEN` values are used as-is
   and are not refreshed by ccp. In development VMs, the ccp wrapper instead
   reloads the private runtime credential document for every operation and
