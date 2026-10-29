@@ -274,6 +274,15 @@ They retain the desktop's 15-minute idle pause and resume the same memory and
 disk on the next authorized operation. Temporary CLI template runs remain bounded.
 Screen tokens and human-control leases remain short-lived and must be renewed.
 
+To resume a Computer before unattended work instead of on its first tool call,
+send `POST /api/v1/sandboxes/{sandbox_id}/wake` with no body and the same
+authority guest execution needs. It resumes a paused or offline guest through
+the normal billing check and returns `204` once the guest runs; on a running
+guest it returns `204` and refreshes the idle timer. Allow several minutes for
+a cold resume. An inaccessible or unknown Sandbox returns 404, a non-running
+or expired one `409 sandbox_not_running`, and a billing-enforced pause
+`402 payment_required`, leaving the guest paused.
+
 After resume, credential-dependent operations return retryable
 `runtime_environment_unavailable` until the exact desired environment generation
 is acknowledged. Ordinary environment changes affect new processes; credential
