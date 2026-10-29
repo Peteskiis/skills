@@ -416,3 +416,13 @@ Machine provisioning uses the configured `TRIGGER_CLIENT_ID` with a matching
 Hydra client/subject and `managed-agents:vm-provision`. The API audience does
 not grant service attribution. Human billing attribution does not authorize CCP
 enrollment or access to another payer's Sandbox.
+
+## Direct integrations
+
+Sandbox HTTP/JSON and the public native `cluster.infra.v1.SandboxService` are
+peer interfaces. CCP Sandbox commands retain HTTP. Creation may be accepted and
+pending: save its stable ID for observation and cleanup. A later GET does not
+reconstruct create-only launch metadata. Delete acceptance is distinct from
+completed teardown. Do not automatically replay mutations or execution after a
+timeout or lost reply; cancellation does not prove remote work was rolled back.
+Desktop view tokens and human-control leases are separate capabilities.
