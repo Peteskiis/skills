@@ -1,8 +1,9 @@
 # Sandboxes
 
-A successful creation response describes the completed creation operation. A
-concurrent later pause or deletion can change current state; use a fresh status
-read when you need the Sandbox's current state.
+A ready creation response describes the completed creation operation. An accepted,
+pending response retains the stable ID for observation and cleanup. A concurrent
+later pause or deletion can change current state; use a fresh status read when
+you need the Sandbox's current state.
 
 VM-issued sessions can include `CCP_API_URL` and `CCP_STORAGE_API_URL`.
 Organization discovery uses the authenticated Infra RPC at the API endpoint. Keep these platform-selected endpoints with the session
