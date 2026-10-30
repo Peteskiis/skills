@@ -436,3 +436,17 @@ reconstruct create-only launch metadata. Delete acceptance is distinct from
 completed teardown. Do not automatically replay mutations or execution after a
 timeout or lost reply; cancellation does not prove remote work was rolled back.
 Desktop view tokens and human-control leases are separate capabilities.
+
+### CCP transport and pending creation
+
+`ccp sandbox create`, `ccp sandbox connect`, and the view grant obtained by
+`ccp sandbox desktop` use the public native Sandbox gRPC service. The configured
+API endpoint, bearer credentials, and TLS trust apply to these calls. Creation
+has a 360-second deadline; access grants have a ten-second deadline. The desktop
+tunnel retains HTTPS/WebSocket, and template apply/build operations retain HTTP.
+
+Creation may print `Sandbox creation pending` with a stable Sandbox ID. Save that
+ID for observation and cleanup; acceptance does not mean the guest is running.
+A lost response or timeout does not prove rollback. CCP does not automatically
+retry the mutation or fall back to HTTP. Production use of this client requires
+the public Sandbox service and ingress to have been deployed first.
