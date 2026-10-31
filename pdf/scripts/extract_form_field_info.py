@@ -36,8 +36,8 @@ def make_field_dict(field, field_id):
         field_dict["type"] = "choice"
         states = field.get("/_States_", [])
         field_dict["choice_options"] = [{
-            "value": state[0],
-            "text": state[1],
+            "value": state[0] if isinstance(state, (list, tuple)) else state,
+            "text": state[1] if isinstance(state, (list, tuple)) else state,
         } for state in states]
     else:
         field_dict["type"] = f"unknown ({ft})"
@@ -51,10 +51,11 @@ def get_field_info(reader: PdfReader):
     possible_radio_names = set()
 
     for field_id, field in fields.items():
-        if field.get("/Kids"):
-            if field.get("/FT") == "/Btn":
-                possible_radio_names.add(field_id)
+        if field.get("/Kids") and field.get("/FT") == "/Btn":
+            possible_radio_names.add(field_id)
             continue
+        # Text/choice fields may own widget children; their parent still carries
+        # the value and field name. Page annotations provide the widget location.
         field_info_by_id[field_id] = make_field_dict(field, field_id)
 
 
