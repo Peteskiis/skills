@@ -19,6 +19,12 @@ public repositories or authorized GitHub repositories and checks out that
 exact commit; the branch is display metadata only. If local `HEAD` differs from
 the remote branch, the CLI warns before submission.
 
+Submission also pins the build-machine image, resources, billing identity and
+effective timeout. Server timeout defaults and limits apply when the job is
+accepted; later configuration changes do not change queued jobs. A job with an
+invalid or missing launch receipt fails before provisioning and must be
+resubmitted.
+
 Job results contain result metadata, not the submitted environment or raw spec.
 Native log following resumes after an exact cursor and ends with the terminal
 marker. Artifact and archived-log downloads require current organization access
