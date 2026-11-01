@@ -216,10 +216,27 @@ return `FAILED_PRECONDITION`. Typed environment error details are packed into
 `google.rpc.Status` in `grpc-status-details-bin`. Set an RPC deadline; the server
 caps each operation at ten seconds.
 
-This registry saves execution configuration only. It does not start a session,
-clone repositories or execute setup. The current `ccp sandbox create --template`
-command still resolves the current template definition; there is no environment
-revision CLI launch flag yet.
+The registry saves execution configuration. To provision a separate Sandbox from
+its pinned image, use:
+
+```sh
+ccp sandbox create --environment-revision envr_<id> --ttl 1h --org-id "$CCP_ORG_ID"
+```
+
+Choose exactly one of `--environment-revision` and `--template`. The native
+`SandboxService.CreateSandbox` request uses the same exclusive template selector,
+with `organization_id`, an explicit TTL of 60–86400 seconds, and no runtime-profile
+override. The response echoes `environment_revision_id`; CCP verifies this pin
+before displaying success. An archived or retired selection fails admission;
+foreign or missing revisions are concealed. Existing Sandboxes retain their image
+and revision after archive. Template edits do not change a published pin.
+
+This provisions the machine; it does not start Build chat, run the revision's
+setup script, or run CI. Execution consumers must inspect the revision, supply
+their workspace inputs, and complete checkout/setup before starting agent work or
+checks. Native Sandbox RPC callers can supply the existing checkout/mount inputs.
+A pending response retains the Sandbox ID for inspection and cleanup. Do not retry
+an ambiguous create automatically: each accepted request creates a new Sandbox.
 
 ## Read-only workspace files over HTTP
 
