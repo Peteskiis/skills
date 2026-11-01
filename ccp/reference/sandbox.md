@@ -190,6 +190,28 @@ Environment and workspace launch options follow the validated system base used
 by the custom build; minimal Debian and Alpine bases do not support workspace
 attachment.
 
+## Published execution environment revisions
+
+The Infra HTTP registry at `/api/v1/environment-revisions` publishes reusable,
+organization-owned desktop configuration. Use an authenticated member token.
+POST an `organization_id`, display `name`, `template_name` and exact ready
+`template_build_id`. Optional `setup` contains `script`, absolute `directory` and
+`timeout_seconds` (1–3600). Scripts are limited to 16 KiB; do not embed credentials.
+Repository selections, secret bindings and session inputs belong to execution,
+not the revision. Unknown request fields are rejected.
+
+GET `?org_id=ORG&limit=50&offset=0` lists active revisions. GET `/{id}` inspects an
+exact revision, including `archived_at`; DELETE `/{id}` archives it idempotently.
+An active revision retains its exact template artifact. Archive every reference
+before retiring that build. Later template edits do not change saved revisions.
+Publication requires a desktop-derived custom template with its private desktop
+and desktop-control WebSocket ports; an unready or changed build is rejected.
+
+This registry saves execution configuration only. It does not start a session,
+clone repositories or execute setup. The current `ccp sandbox create --template`
+command still resolves the current template definition; there is no environment
+revision CLI launch flag yet.
+
 ## Read-only workspace files over HTTP
 
 User clients can browse a running Sandbox with the normal Infra bearer token:
