@@ -192,20 +192,29 @@ attachment.
 
 ## Published execution environment revisions
 
-The Infra HTTP registry at `/api/v1/environment-revisions` publishes reusable,
-organization-owned desktop configuration. Use an authenticated member token.
-POST an `organization_id`, display `name`, `template_name` and exact ready
-`template_build_id`. Optional `setup` contains `script`, absolute `directory` and
-`timeout_seconds` (1–3600). Scripts are limited to 16 KiB; do not embed credentials.
-Repository selections, secret bindings and session inputs belong to execution,
-not the revision. Unknown request fields are rejected.
+Use the generated `cluster.infra.v1.EnvironmentRevisionsService` client with an
+organization member's bearer token in RPC metadata. Native gRPC serves CLI and
+service callers; browsers use the same schema over gRPC-Web. There is no REST
+registry. Infra owns the schema in `proto/cluster/infra/v1/environments.proto`.
 
-GET `?org_id=ORG&limit=50&offset=0` lists active revisions. GET `/{id}` inspects an
-exact revision, including `archived_at`; DELETE `/{id}` archives it idempotently.
-An active revision retains its exact template artifact. Archive every reference
-before retiring that build. Later template edits do not change saved revisions.
+`PublishEnvironmentRevision` accepts `organization_id`, display `name`,
+`template_name` and exact ready `template_build_id`. Optional `setup` contains
+`script`, absolute `directory` and `timeout_seconds` (1–3600). Scripts are limited
+to 16 KiB; do not embed credentials. Repository selections, secret bindings and
+session inputs belong to execution, not the revision.
+
+`ListEnvironmentRevisions` returns active revisions with optional `limit`
+(default 50; explicit zero returns an empty page; maximum 100) and `offset`.
+`GetEnvironmentRevision` inspects an exact `revision_id`, including `archived_at`;
+`ArchiveEnvironmentRevision` archives it idempotently. Active revisions retain
+their exact template artifacts. Archive the revisions and remove live Sandbox
+consumers before retiring an image. Template edits never rewrite saved revisions.
+
 Publication requires a desktop-derived custom template with its private desktop
-and desktop-control WebSocket ports; an unready or changed build is rejected.
+and desktop-control WebSocket ports. Incompatible, unready and changed selections
+return `FAILED_PRECONDITION`. Typed environment error details are packed into
+`google.rpc.Status` in `grpc-status-details-bin`. Set an RPC deadline; the server
+caps each operation at ten seconds.
 
 This registry saves execution configuration only. It does not start a session,
 clone repositories or execute setup. The current `ccp sandbox create --template`
