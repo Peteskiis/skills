@@ -365,6 +365,7 @@ fallback, so existing linked projects keep working without changes.
 
 Read only the runbook your task needs:
 
+- `reference/canvas.md` - Local interactive React canvases: source, protected preview and persistent state
 - `reference/deploy.md` - Apps: scaffold, deploy, promote, logs, dev, link, list, delete
 - `reference/stores.md` - Static-file buckets: put/get/ls/rm, content-addressed URLs, image transforms
 - `reference/oidc.md` - Sign in with Cluster: register OAuth2/OIDC clients, redirect URIs, secrets
