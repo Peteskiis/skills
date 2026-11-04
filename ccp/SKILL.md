@@ -33,6 +33,41 @@ and headless modes. Capture stdout for command results; use a command's `--json`
 option when it supports structured output. Progress is cleared on early errors
 or dropped async operations; success marks require successful completion.
 
+### Managed local previews
+
+Use an ephemeral loopback port and an explicit environment policy when a client
+supervises a local preview:
+
+```sh
+ccp dev /absolute/project --hostname 127.0.0.1 --port 0 --json --no-env
+```
+
+`--no-env` skips both automatic `.env` discovery and file loading; it conflicts
+with `--env`. It does not sandbox the app or restrict its network access.
+Without it, normal dev environment loading is unchanged. Neither option changes
+or removes the environment file.
+
+`--json` emits one versioned JSON object per stdout line. Configuration messages
+and command failures stay on stderr. App console messages are escaped `log`
+events, not raw stdout. Read the bound address from `listening`; never persist
+the address as project identity or assume port zero is the bound port.
+
+```json
+{"version":1,"event":"listening","data":"127.0.0.1:49152"}
+```
+
+Version 1 events are `build_started`, `build_finished`, `listening`, `rebuilding`,
+`ready`, `build_failed`, `request`, `log`, and `error`. Unit events omit `data`.
+`build_finished` carries diagnostic rows with `level` and `message`;
+`build_failed` carries a message string. `request` carries `method`, `path`,
+and `asset`; `log` carries `level` and `message`; `error` carries `operation`
+and `message`. `listening` reports initial startup with the bound address;
+`ready` reports a successful rebuild and is not emitted during initial startup.
+Rebuild failure retains the previous successful build and emits
+`build_failed`; it must not be presented as the edited source rendering
+successfully. Supervisors must also observe process exit, including failure
+before any event. Stopping the owning process stops dev.
+
 Most destructive commands run without confirmation in headless mode:
 `ccp remove`, `ccp undeploy`, `ccp db destroy`, `ccp db backup delete`,
 `ccp domain rm`, `ccp compute destroy`, and `ccp oidc destroy` execute
@@ -330,6 +365,7 @@ fallback, so existing linked projects keep working without changes.
 
 Read only the runbook your task needs:
 
+- `reference/canvas.md` - Local interactive React canvases: source, protected preview and persistent state
 - `reference/deploy.md` - Apps: scaffold, deploy, promote, logs, dev, link, list, delete
 - `reference/stores.md` - Static-file buckets: put/get/ls/rm, content-addressed URLs, image transforms
 - `reference/oidc.md` - Sign in with Cluster: register OAuth2/OIDC clients, redirect URIs, secrets
