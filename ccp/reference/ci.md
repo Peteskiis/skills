@@ -4,7 +4,7 @@
 the remote build result.
 
 ```sh
-ccp ci [DIRECTORY] [-f FILE] [--org-id O] [--git-ref REF] [--no-wait] [--json]
+ccp ci [DIRECTORY] [-f FILE] [--org-id O] [--git-ref REF] [--request-id ID] [--no-wait] [--json]
 ```
 
 Defaults:
@@ -19,12 +19,26 @@ public repositories or authorized GitHub repositories and checks out that
 exact commit; the branch is display metadata only. If local `HEAD` differs from
 the remote branch, the CLI warns before submission.
 
+Each invocation generates a fresh request ID and prints it to stderr before
+submission. If the response is lost, repeat the same command with
+`--request-id ID`, preserving the repository, commit, ref and specification.
+The same authenticated actor and organization receive the original job, including
+its current terminal result. A fresh execution requires a new request ID.
+IDs contain 1–128 ASCII letters, digits, `.`, `:`, `_` or `-`.
+
+Reusing an ID with changed inputs returns a conflict. JSON object key order is
+irrelevant; explicitly adding defaults or changing a command is a different input.
+Accepted requests keep their original image and timeout when retried, even after
+the environment is archived or the queue fills. Current organization membership
+is still required. Native API callers must supply `SubmitJobRequest.request_id`;
+the retained HTTP adapter requires the same `request_id` field.
+
 Submission pins the selected published environment image (or the default
 build-machine image), resources, billing identity and
 effective timeout. Server timeout defaults and limits apply when the job is
 accepted; later configuration changes do not change queued jobs. A job with an
 invalid or missing launch receipt fails before provisioning and must be
-resubmitted.
+resubmitted with a new request ID.
 
 Job results contain result metadata, not the submitted environment or raw spec.
 Native log following resumes after an exact cursor and ends with the terminal
