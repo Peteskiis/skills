@@ -83,8 +83,11 @@ timeout_sec: 600
 steps:
   - run: make check
   - run: make build
-artifact:
-  path: dist/server
+artifacts:
+  - name: server
+    path: dist/server
+  - name: SHA256SUMS
+    path: dist/SHA256SUMS
 ```
 
 Use the revision ID returned by `EnvironmentRevisionsService`, not an Agents saved
@@ -139,3 +142,17 @@ The sequence is checkout → dependency preparation → environment startup → 
 preparation and set `CARGO_NET_OFFLINE=true` for checks to prove that preparation
 was complete. Dependency commands can explicitly override that variable while
 fetching. A cache is an optional accelerator, not a dependency source.
+
+Artifacts declare up to ten uniquely named files. Names use 1–120 ASCII letters,
+digits, `.`, `_` or `-` and cannot be `.` or `..`. Paths are repository-relative;
+absolute paths and parent traversal are rejected. Each file must be nonempty and
+at most 256 MiB. Each upload has its own step and immutable receipt. A missing or
+failed optional upload does not hide other successful outputs or change the check
+result. Failed, cancelled and timed-out jobs do not publish artifact winners.
+
+`--json` exposes an `artifacts` list containing each `name`, `source_url`,
+`size_bytes` and `sha256`. Portal displays those files with independent downloads.
+Native callers select `ArtifactDownloadRequest.artifact_name` from that list;
+downloads recheck current organization access and pin the retained generation.
+The old singular `artifact` specification is rejected. These are run outputs,
+not releases; release publication remains a separate operation.
