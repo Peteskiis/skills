@@ -46,15 +46,11 @@ origins; CSP restricts scripts and resource requests to this preview. The runtim
 does not execute generated server code or expose host IPC. A Desktop embedding
 must also constrain native navigation and keep app privileges out of the page.
 
-Publishing remains explicit: the project has the ordinary `cluster.toml` shape
-and static server handler for CCP build/deploy. Only run deployment after a user
-requests it, selecting their intended environment and organization. Deployed
-readers use their own browser storage; the author's local interaction state and
-preview capability are not uploaded. Deployment is not proof of a verified live
-view. The Canvas command itself does not publish.
-
-Read `ccp skills deploy` for target discovery. Use `ccp org current --json`,
-`ccp ls --json`, and command help to resolve available targets. Ask users to
-choose by friendly name, rather than requiring internal organization or app
-IDs. Resolve missing new-versus-existing app and preview-versus-production
-choices before deployment.
+Publishing requires a user request. Run `npm run typecheck`, then `ccp deploy`
+in the Canvas folder. The ordinary App workflow builds the saved source and
+publishes a hosted preview; use `--prod` only when production is requested.
+Reuse existing App linkage and organization defaults. If CCP needs an
+organization, offer the returned names and supply the chosen ID yourself.
+Read `ccp skills deploy` for details and verify the returned URL. Published
+readers use browser-local state; the author's local state and preview capability
+are not uploaded. Canvas creation and preview never publish.
