@@ -1,6 +1,6 @@
 ## Canvas
 
-Canvas is a local interactive React project. Creation and preview do not log in,
+Canvas is a local information document with interactive React content. Creation and preview do not log in,
 create a cloud App, or publish content.
 
 ```sh
@@ -14,14 +14,20 @@ React dependencies with npm scripts disabled. `--no-install` writes source only.
 The metadata has version 1, a stable random ID, and a title. Do not change the ID
 when revising an existing canvas. `inspect` validates and prints that metadata.
 
-Edit `src/App.tsx`, `src/styles.css`, and files beneath `src/`; place static assets
+Read `CANVAS.md` and `src/App.tsx` first. Compose the supplied typed Canvas,
+Section, Columns, Stat, Table, and Callout components from `./canvas-ui`.
+Lead with the explanation; use diagrams, examples, comparisons, and controls
+to support it. Keep the neutral document styling, light/dark colors and narrow
+panel layout. Avoid building a branded website or app shell unless requested.
+
+Edit `src/App.tsx` and files beneath `src/`; extend `src/styles.css` for figures and place static assets
 in `public/`. Canvas preview compiles `src/main.tsx` and `index.html`. It does not
 read the server handler, project `.env`, or CCP login credentials. Compiler inputs
 must resolve inside `src/` or `node_modules/`; public assets cannot escape their
 directory through symlinks. No package scripts run during preview.
 
 Use `useCanvasState<T>(key, initial)` from `./canvas` for JSON interaction state.
-The starter demonstrates a counter. Local state is bounded to 200 KiB, belongs
+The starter demonstrates scaling a list with a slider and result table. Local state is bounded to 200 KiB, belongs
 to the canvas ID, and persists under `.ccp/` across server restarts. One process
 owns state writes. Viewers use revisions; a stale save refreshes the view and
 asks the viewer to repeat their edit instead of overwriting another viewer.
@@ -46,3 +52,9 @@ requests it, selecting their intended environment and organization. Deployed
 readers use their own browser storage; the author's local interaction state and
 preview capability are not uploaded. Deployment is not proof of a verified live
 view. The Canvas command itself does not publish.
+
+Read `ccp skills deploy` for target discovery. Use `ccp org current --json`,
+`ccp ls --json`, and command help to resolve available targets. Ask users to
+choose by friendly name, rather than requiring internal organization or app
+IDs. Resolve missing new-versus-existing app and preview-versus-production
+choices before deployment.
