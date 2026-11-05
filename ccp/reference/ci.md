@@ -52,8 +52,17 @@ version: 1
 timeout_sec: 600
 
 steps:
-  - run: cargo test -p ccp
+  - name: Test CLI
+    run: cargo test -p ccp
 ```
+
+Step `name` is an optional display label (1–120 characters after trimming; no
+control characters). Unnamed commands appear as “Step 1”, “Step 2”, and so on.
+The CI gRPC job includes durable ordered step states, start/end times and command
+exit codes. Streamed log entries carry their step ID. Portal groups this output
+into collapsible steps; completed runs retain step metadata after live logs expire.
+Old runs without step records show ungrouped output. Optional cache/artifact/log
+publication steps can fail while the job's commands still pass.
 
 `--json` prints one machine-readable result line and suppresses streamed logs.
 `--no-wait` submits and prints the job ID without waiting.
