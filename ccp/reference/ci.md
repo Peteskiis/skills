@@ -90,3 +90,43 @@ steps. Set the startup working directory to `/workspace/repository` when it need
 that checkout. Startup failure or timeout prevents steps from running. Logs,
 cancellation, timeouts and VM cleanup use the normal CI lifecycle. Commands are
 explicit: CI does not infer which test runner or build command your service uses.
+
+Secondary repositories use exact commits and distinct sibling directories:
+
+```yaml
+sources:
+  - repository: https://github.com/example/rig.git
+    commit: 0123456789abcdef0123456789abcdef01234567
+    path: rig
+```
+
+CI clones this source at `/workspace/rig` before any user command. Paths must be
+single directory names; the main `repository` directory and platform directories
+are reserved. At most ten secondary sources are accepted.
+
+Private dependency fetching is an explicit phase before environment startup:
+
+```yaml
+dependencies:
+  github_repositories:
+    - example/protocol
+  steps:
+    - run: cargo fetch --locked
+```
+
+Every declared repository requires current linked-account access to the same
+GitHub App installation. The dependency phase receives an installation token
+restricted to those repositories with `contents:read`, through the existing Git
+HTTPS credential helper. It does not receive the personal checkout token. SSH
+Cargo URLs need a process-local HTTPS rewrite during fetching. Dependency output
+is masked and retained; failure prevents startup and checks. Credential withdrawal
+must be acknowledged before startup or checks run. GitHub grants are short-lived;
+withdrawal removes guest delivery, not copies deliberately made by dependency
+commands. Only run dependency preparation that you trust with the declared read
+access. No token is persisted in the CI specification or reusable image.
+
+The sequence is checkout → dependency preparation → environment startup → caches
+→ steps → output capture → cleanup. For Cargo, run `cargo fetch --locked` in
+preparation and set `CARGO_NET_OFFLINE=true` for checks to prove that preparation
+was complete. Dependency commands can explicitly override that variable while
+fetching. A cache is an optional accelerator, not a dependency source.
