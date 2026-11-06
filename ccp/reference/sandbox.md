@@ -190,6 +190,14 @@ Environment and workspace launch options follow the validated system base used
 by the custom build; minimal Debian and Alpine bases do not support workspace
 attachment.
 
+Creation returns HTTP 503 `node_capacity_exhausted` when placement or node
+admission explicitly rejects capacity. The rejected intent enters owned cleanup,
+including durable reconciliation if node deletion is temporarily unavailable.
+After an admission rejection, placement attempts a bounded refresh of that node's
+capacity before returning. Retry a new create with backoff; do not treat this rejection as a
+pending Sandbox. Lost or ambiguous RPC replies still return pending creation
+and retain their stable ID for observation and cleanup.
+
 ## Published execution environment revisions
 
 Use the generated `cluster.infra.v1.EnvironmentRevisionsService` client with an
