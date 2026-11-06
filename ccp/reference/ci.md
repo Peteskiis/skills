@@ -40,6 +40,13 @@ accepted; later configuration changes do not change queued jobs. A job with an
 invalid or missing launch receipt fails before provisioning and must be
 resubmitted with a new request ID.
 
+When no node has capacity, the job remains `scheduling` and its setup logs show
+“Waiting for node capacity”. It retries every five seconds within the five-minute
+setup budget, which also covers provisioning and checkout. Cancellation remains
+available while waiting. Exhausting that budget fails the job with `setup_timeout`;
+the command timeout starts only after checkout succeeds. Billing failures and
+ambiguous VM creation failures are not retried as capacity shortages.
+
 Job results contain result metadata, not the submitted environment or raw spec.
 Native log following resumes after an exact cursor and ends with the terminal
 marker. Artifact and archived-log downloads require current organization access
