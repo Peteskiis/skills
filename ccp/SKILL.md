@@ -134,8 +134,9 @@ ccp manages Cluster workloads and supporting resources:
 - Supporting resources: stores, managed Postgres databases, custom domains,
   OIDC clients, per-VM env vars, and ephemeral CI builds.
 
-State lives server-side. Local files hold pointers and project intent, not
-secrets.
+Workload state lives server-side. Local files hold project intent and resource
+links; the gitignored `.ccp/` directory can also hold credentials such as the
+linked database token. Never commit it.
 
 ## Authentication
 
@@ -154,10 +155,11 @@ so a login there does not survive a restart; the durable file is therefore the
 default, and `CCP_AUTH_STORE=keyring` is only for an intentionally memory-only
 session. The production issuer is `https://accounts.clusterbase.ai`. For a
 non-production `api.<cluster>` origin, ccp derives the matching
-`accounts.<cluster>` issuer; the canonical production API keeps its pinned
-production issuer. Use `CCP_AUTH_ISSUER` only to override that selection for
-advanced testing. Refresh tokens are bound to the issuer that minted them, so
-switching clusters requires a login for the selected cluster.
+`accounts.<cluster>` issuer, with canonical staging mapped to
+`https://accounts.staging.clusterbase.ai`; production keeps its pinned issuer.
+Use `CCP_AUTH_ISSUER` only to override that selection for advanced testing. Refresh
+tokens are bound to the issuer that minted them, so switching clusters requires a
+login for the selected cluster.
 
 Organization automation should set `CCP_API_KEY` and `CCP_ORG_ID`; ccp keeps
 the key in memory and never persists or refreshes it. Human automation may
@@ -177,10 +179,14 @@ start and resume can apply current material without waiting on the credential pr
 The client secret never enters the guest.
 
 `CCP_API_URL` selects the cluster. For a non-production `api.<cluster>` origin,
-ccp derives the sibling `accounts.<cluster>` and `storage.<cluster>` origins.
-Organization discovery uses the generated Infra RPC at `CCP_API_URL`; human and
-managed sessions share that endpoint while Infra enforces their distinct authority. The canonical production API retains production's
-pinned, nonuniform service origins. `CCP_AUTH_ISSUER` and `CCP_STORAGE_API_URL` remain available as advanced per-service overrides.
+ccp selects the matching auth and storage origins, including the canonical
+staging auth mapping above. Named `--context` / `CCP_CONTEXT` selection uses
+`~/.ccp/config.toml` and rejects endpoint environment overrides; use that context's
+API origin and optional CA instead of combining the two mechanisms.
+Organization discovery uses the generated Infra RPC at the selected API origin;
+human and managed sessions share that endpoint with distinct server authorization.
+Production retains its pinned service origins. Without a named context,
+`CCP_AUTH_ISSUER` and `CCP_STORAGE_API_URL` provide advanced per-service overrides.
 `SSL_CERT_FILE` supplies a PEM CA bundle to both API and OAuth requests for
 private-CA environments. Empty values keep the binary's defaults, and trailing
 slashes are ignored.
@@ -221,8 +227,11 @@ fails fast with a `sudo ccp update` hint — nothing is downloaded.
 
 Do not run `ccp update` inside managed VMs: their ccp is baked into the
 template rootfs and refreshed on template rebuilds. To pin or roll back a
-version, use the installer instead: `VERSION=x.y.z curl -fsSL
-https://assets.cluster.app/serve/cstatic-assets/releases/ccp/install.sh | sh`.
+version, pass the pin to the installer process:
+
+```sh
+curl -fsSL https://assets.cluster.app/serve/cstatic-assets/releases/ccp/install.sh | VERSION=x.y.z sh
+```
 
 ## Project shape
 
@@ -427,10 +436,13 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
   for a VM credential, verify that the VM is active and runtime reconciliation
   is healthy.
 - Set `CCP_API_URL` to the environment's `api.<cluster>` origin when targeting a
-  non-production cluster; ccp derives the matching auth, orgs, and storage
-  origins. If the API hostname does not use the `api.` convention, set the
-  corresponding per-service overrides explicitly. Use `SSL_CERT_FILE` when the
-  cluster is signed by a private CA.
+  non-production cluster; ccp selects the matching auth and storage origins.
+  Organization discovery uses Infra's RPC on the selected API origin, not a
+  separate Orgs endpoint. Canonical staging selects `accounts.staging.clusterbase.ai`.
+  If the API hostname does not use the `api.` convention, set the supported
+  per-service overrides explicitly. Use `SSL_CERT_FILE` for private-CA clusters.
+  Named `--context` / `CCP_CONTEXT` selection cannot be combined with endpoint
+  overrides; use the context's configured API origin and CA instead.
 - `ccp deploy` merges `.env` into serverless env; removing a key from `.env`
   does not delete it server-side.
 - Compute services must bind to `0.0.0.0` or `[::]`, not `127.0.0.1`, if they
