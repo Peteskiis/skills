@@ -50,6 +50,8 @@ With `CCP_HEADLESS=1` set:
 | `ccp agent versions` | yes | `AGENT_ID` (no org context needed — cross-org access 404s) |
 | `ccp agent delete` | yes, destructive | `AGENT_ID`; optional `--yes` |
 | `ccp skills [topic\|all]` | yes | nothing; `--export DIR` writes the agent-skill bundle (maintainer tool) |
+| `ccp capabilities` | yes | nothing; offline versioned JSON without configuration, login, or update checks |
+| `ccp canvas init/inspect/typecheck/dev` | yes | local path; init/typecheck/dev require Node/npm and project dependencies; no login or publication |
 | `ccp auth login [--browser\|--device]` | interactive | browser PKCE locally; device approval on SSH/headless hosts; successful login replaces the saved session |
 | `ccp auth print/export-access-token` | yes | logged-in session |
 | `ccp auth logout` | yes | existing session |
