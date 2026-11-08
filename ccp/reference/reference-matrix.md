@@ -53,5 +53,5 @@ With `CCP_HEADLESS=1` set:
 | `ccp auth login [--browser\|--device]` | interactive | browser PKCE locally; device approval on SSH/headless hosts; successful login replaces the saved session |
 | `ccp auth print/export-access-token` | yes | logged-in session |
 | `ccp auth logout` | yes | existing session |
-| `ccp doctor` | yes | nothing (offline V8/JIT self-check; then an advisory toolchain-deps report — go/esbuild/cargo+musl for deploys. Exits non-zero only when the runtime is broken, never for a missing dep. `--deps` = report only, no V8; `--yes` = auto-install the safe subset) |
+| `ccp doctor` | yes | nothing (offline V8/JIT self-check; then an advisory toolchain-deps report — go/node/cargo+musl for deploys. Exits non-zero only when the runtime is broken, never for a missing dep. `--deps` = report only, no V8; `--yes` = auto-install the safe subset) |
 | `ccp update` | yes (not in managed VMs) | network; writable install dir (else `sudo ccp update`) |

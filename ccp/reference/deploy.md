@@ -7,6 +7,7 @@ Use this topic for serverless apps. Compute services use
 
 ```sh
 ccp init my-app --template react   # blank | api | static | react
+ccp init my-app --template react --no-tailwind   # React with plain CSS
 cd my-app
 ccp dev                           # 0.0.0.0:8000, also reachable via localhost
 # In another shell, after validation:
@@ -179,9 +180,24 @@ Asset uploads run at most two at a time. Deployment activation requires every
 code and asset upload to succeed; an upload error leaves the previous deployment
 active. Concurrent deployments can still encounter Storage admission limits.
 
-Bundling requires `esbuild` on PATH (`brew install esbuild`, or
-`npm install -g esbuild`). Run `ccp doctor` to check it and the other deploy
-toolchains.
+Bundling requires Node.js 22+ and installed project dependencies, including
+`esbuild`. `ccp init` declares and installs these; after cloning, use your package
+manager's locked install. Builds never download dependencies. `ccp doctor` checks
+the Node host; the compiler reports missing project packages with an install hint.
+
+New React apps use Tailwind v4 by default. For a plain-CSS starter, use
+`ccp init my-app --template react --no-tailwind`. The flag is valid only for React
+and changes the generated styles, dependencies and guidance. Build/dev/deploy
+infer styling from the project; they do not need a styling flag.
+In the default starter, `src/styles.css` imports Tailwind and
+owns `@theme` tokens; components use complete utility names in `className`.
+`ccp dev` retains a compiler worker between edits, and build/deploy use the same
+pipeline. No CDN compiler or separate Tailwind watcher is needed. Source detection
+starts at the project root and includes SSR components. Use `@source` for extra
+project source directories; keep declared source directories within the project.
+Package/lockfile changes recreate the compiler session. Compilation failures keep
+the last successful preview; fix and save to retry. Ordinary CSS/CSS modules remain
+supported. Canvas currently uses plain CSS and does not run Tailwind processing.
 
 ### Bundle optimization
 
