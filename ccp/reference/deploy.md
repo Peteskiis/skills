@@ -7,6 +7,7 @@ Use this topic for serverless apps. Compute services use
 
 ```sh
 ccp init my-app --template react   # blank | api | static | react
+ccp init my-app --template react --no-tailwind   # React with plain CSS
 cd my-app
 ccp dev                           # 0.0.0.0:8000, also reachable via localhost
 # In another shell, after validation:
@@ -184,7 +185,11 @@ Bundling requires Node.js 22+ and installed project dependencies, including
 manager's locked install. Builds never download dependencies. `ccp doctor` checks
 the Node host; the compiler reports missing project packages with an install hint.
 
-New React apps use Tailwind v4 by default. `src/styles.css` imports Tailwind and
+New React apps use Tailwind v4 by default. For a plain-CSS starter, use
+`ccp init my-app --template react --no-tailwind`. The flag is valid only for React
+and changes the generated styles, dependencies and guidance. Build/dev/deploy
+infer styling from the project; they do not need a styling flag.
+In the default starter, `src/styles.css` imports Tailwind and
 owns `@theme` tokens; components use complete utility names in `className`.
 `ccp dev` retains a compiler worker between edits, and build/deploy use the same
 pipeline. No CDN compiler or separate Tailwind watcher is needed. Source detection
