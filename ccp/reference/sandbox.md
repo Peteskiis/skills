@@ -115,7 +115,7 @@ and never beyond a bounded Sandbox TTL. `--json` is the stable automation contra
 with `endpoint`, `token`, and `expires_at` fields; the token is never embedded
 in the URL.
 
-The graphical Ubuntu desktop is a native system template. Managed products
+The graphical desktop is a native system template, composed by cOS on Debian. Managed products
 create it with the stable `desktop` system identity; it does not require an
 organization-owned manifest or custom build.
 
