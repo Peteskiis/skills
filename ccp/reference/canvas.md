@@ -6,6 +6,7 @@ create a cloud App, or publish content.
 ```sh
 ccp canvas init ./vector-lab --title "Vector lab"
 ccp canvas inspect ./vector-lab
+ccp canvas typecheck ./vector-lab
 ccp canvas dev ./vector-lab
 ```
 
@@ -46,7 +47,7 @@ origins; CSP restricts scripts and resource requests to this preview. The runtim
 does not execute generated server code or expose host IPC. A Desktop embedding
 must also constrain native navigation and keep app privileges out of the page.
 
-Publishing requires a user request. Run `npm run typecheck`, then `ccp deploy`
+Publishing requires a user request. Run `ccp canvas typecheck .`, then `ccp deploy`
 in the Canvas folder. The ordinary App workflow builds the saved source and
 publishes a hosted preview; use `--prod` only when production is requested.
 Reuse existing App linkage and organization defaults. If CCP needs an
@@ -54,3 +55,8 @@ organization, offer the returned names and supply the chosen ID yourself.
 Read `ccp skills deploy` for details and verify the returned URL. Published
 readers use browser-local state; the author's local state and preview capability
 are not uploaded. Canvas creation and preview never publish.
+
+Host installers can query `ccp capabilities` for versioned JSON without loading
+user configuration, logging in, or checking for updates. Canvas requires Node/npm
+for dependencies and typechecking. The compiler loads the project-local esbuild
+dependency declared by the scaffold. Managed hosts supply CCP and Node/npm together; do not suggest updating a managed CCP in place.
