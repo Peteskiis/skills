@@ -424,3 +424,9 @@ lookup, authorization, or deployment fails; never clear IDs to force creation.
 Existing Computers keep their original image and need recreation to receive a
 new toolchain. Preserve unsynced `/workspace` work and local App linkage before
 recreation; publishing a template does not update an existing guest.
+
+App lists display the workspace label in the heading and exact App names in rows.
+Personal workspaces are labeled `Personal`; no organization slug is synthesized.
+Use organization/App IDs for automation. App-list JSON has `organization.id` and
+`organization.name`, without `organization.slug`; deployment JSON retains
+`app.organization_id` and no longer includes `app.organization_slug`.
