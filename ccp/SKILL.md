@@ -89,6 +89,9 @@ project-pinned org exists. Resolution is:
 
 Run `ccp org use` in a terminal to choose an organization by name and save it.
 The picker marks the saved default and distinguishes duplicate names with IDs.
+Personal workspaces display as `Personal`; teams display their organization name.
+These labels never replace organization IDs in flags, links, or saved defaults.
+Managed VM and Sandbox credentials retain their sole bound organization ID label.
 `ccp org use <id>` selects directly; `ccp org current [--json]` reports the
 effective organization and its source without prompting. `ccp org clear` removes
 only this account/environment's saved default.
