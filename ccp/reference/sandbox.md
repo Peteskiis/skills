@@ -5,6 +5,14 @@ pending response retains the stable ID for observation and cleanup. A concurrent
 later pause or deletion can change current state; use a fresh status read when
 you need the Sandbox's current state.
 
+When creation returns a pending ID under provisioning load, observe that same ID
+instead of submitting another creation. Replayable creations resume automatically
+when capacity becomes available. Request-only launches can reject overload with
+`sandbox_provisioning_busy` (gRPC ResourceExhausted / HTTP 503) before creating an
+intent; retry that rejection with backoff. An interrupted launch can instead
+return its cleanup identity: inspect its current state, because `destroying` or
+`deleted` does not mean the launch will be replayed.
+
 VM-issued sessions can include `CCP_API_URL` and `CCP_STORAGE_API_URL`.
 Organization discovery uses the authenticated Infra RPC at the API endpoint. Keep these platform-selected endpoints with the session
 token and `CCP_ORG_ID`; the API and Storage targets are configured together.
