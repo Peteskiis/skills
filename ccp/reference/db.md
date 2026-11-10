@@ -22,6 +22,10 @@ valid credentials for an unbound database in that network.
 Creation uses native database RPC and returns credentials after the database proxy, requested private network
 and linked App are ready. An organization API key requires `compute:use`;
 its verified organization and billing account determine the payer.
+Creation allows up to 250 seconds; database reads retain a 10-second server
+budget. A caller's shorter RPC deadline still applies. If creation is canceled,
+check `ccp db ls` before retrying: committed provisioning intent may still exist
+until the database owner finishes recovery.
 If creation reports `provision_pending`, cleanup is still being reconciled.
 Wait for cleanup before retrying creation with the same name.
 
