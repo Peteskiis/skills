@@ -34,6 +34,11 @@ owns state writes. Viewers use revisions; a stale save refreshes the view and
 asks the viewer to repeat their edit instead of overwriting another viewer.
 Do not edit `.ccp/canvas-state.json` while a preview is running.
 
+A managed host can gracefully restart previews during its own update. Accepted
+state writes finish before retirement; the replacement opens the same saved state
+with a new preview URL. Use `useCanvasState` for interaction state that must survive
+this handoff. Unsaved React-local state is not durable.
+
 `dev` always emits the same version-1 JSON envelope as `dev --json`. Its startup
 event is `canvas_listening` with `data.id` and `data.url`. Open that exact URL to
 establish the preview's scoped cookie. The URL is a temporary capability; do not
