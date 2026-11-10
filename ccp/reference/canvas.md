@@ -63,5 +63,5 @@ are not uploaded. Canvas creation and preview never publish.
 
 Host installers can query `ccp capabilities` for versioned JSON without loading
 user configuration, logging in, or checking for updates. Canvas requires Node/npm
-for dependencies and typechecking. The compiler loads the project-local esbuild
-dependency declared by the scaffold. Managed hosts supply CCP and Node/npm together; do not suggest updating a managed CCP in place.
+for dependencies and typechecking. The compiler invokes the native esbuild executable
+provided by the scaffold dependency or host PATH. Managed hosts supply CCP and Node/npm together; do not suggest updating a managed CCP in place.
