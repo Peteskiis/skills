@@ -180,10 +180,13 @@ Asset uploads run at most two at a time. Deployment activation requires every
 code and asset upload to succeed; an upload error leaves the previous deployment
 active. Concurrent deployments can still encounter Storage admission limits.
 
-Bundling requires Node.js 22+ and installed project dependencies, including
-`esbuild`. `ccp init` declares and installs these; after cloning, use your package
-manager's locked install. Builds never download dependencies. `ccp doctor` checks
-the Node host; the compiler reports missing project packages with an install hint.
+Plain Apps bundle with the native `esbuild` executable; Node and a project-local
+esbuild package are not required. Tailwind Apps use Node.js 22+ and CCP's shared,
+locked compiler installation. `ccp init --template react` prepares it once;
+after cloning or using `--no-install`, run `ccp setup` and your package manager's
+locked install. Do not add esbuild, PostCSS, or the Tailwind PostCSS plugin to an
+App just to satisfy CCP. Keep `tailwindcss` for the project's CSS imports.
+Build/dev/deploy never download dependencies. `ccp doctor` reports host tools.
 
 New React apps use Tailwind v4 by default. For a plain-CSS starter, use
 `ccp init my-app --template react --no-tailwind`. The flag is valid only for React
