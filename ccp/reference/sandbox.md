@@ -13,6 +13,16 @@ intent; retry that rejection with backoff. An interrupted launch can instead
 return its cleanup identity: inspect its current state, because `destroying` or
 `deleted` does not mean the launch will be replayed.
 
+Sandbox deletion is durable and asynchronous. A successful HTTP DELETE or native
+`DeleteSandbox` response with `status: destroying` means Infra accepted cleanup;
+it does not mean the guest has stopped or capacity has been released. Observe the
+same Sandbox until `deleted` when you need completion confirmation. Repeated
+DELETE calls do not accelerate cleanup or create another deletion generation.
+Infra continues cleanup after the client disconnects or the API restarts. A
+temporary admission failure returns `sandbox_unavailable` (HTTP 503 / gRPC
+Unavailable); retry that request with backoff. Never treat acceptance as proof
+that a replacement of equal size can already be allocated.
+
 VM-issued sessions can include `CCP_API_URL` and `CCP_STORAGE_API_URL`.
 Organization discovery uses the authenticated Infra RPC at the API endpoint. Keep these platform-selected endpoints with the session
 token and `CCP_ORG_ID`; the API and Storage targets are configured together.
