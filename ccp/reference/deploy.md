@@ -186,6 +186,7 @@ locked compiler installation. `ccp init --template react` prepares it once;
 after cloning or using `--no-install`, run `ccp setup` and your package manager's
 locked install. Do not add esbuild, PostCSS, or the Tailwind PostCSS plugin to an
 App just to satisfy CCP. Keep `tailwindcss` for the project's CSS imports.
+In a Desktop Build session, run `ccp dev` directly. The managed toolchain supplies the compiler and local preview requires no CCP login.
 Build/dev/deploy never download dependencies. `ccp doctor` reports host tools.
 
 New React apps use Tailwind v4 by default. For a plain-CSS starter, use
