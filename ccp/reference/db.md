@@ -202,6 +202,8 @@ Do not use `ccp compute restart` for managed DBs. They are not compute services.
 A member of the App organization can send an authenticated
 `PUT /api/v1/serverless/apps/{id}/sqlite` to create and bind a database. A
 successful response contains `database_id`. Retrying returns the same ID.
+Staging databases have a 64 MB size limit. If every ready pod has filled its
+four slots, a new bind returns HTTP 503. Retry after capacity is available.
 Allow a few seconds for a warm deployment to receive its binding. In the
 server handler, use `await env.DB.query("SELECT title FROM todos WHERE id=?", [id])`.
 The result is an array of row objects. For an atomic transaction, call
