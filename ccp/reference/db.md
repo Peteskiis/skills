@@ -196,3 +196,12 @@ database to recover a pending toggle. If it remains pending, inspect VM and
 db-proxy health without discarding database state.
 
 Do not use `ccp compute restart` for managed DBs. They are not compute services.
+
+### Shared SQLite on LAN staging
+
+An operator can bind a Serverless App to a shared SQLite database. In the
+server handler, use `await env.DB.query("SELECT title FROM todos WHERE id=?", [id])`.
+The result is an array of row objects. For an atomic transaction, call
+`env.DB.batch([{sql, params}, ...])` and read one result array per statement.
+Use string, number or null parameters. The runtime selects the database and
+authenticates each call. The existing `ccp db` commands manage PostgreSQL.
