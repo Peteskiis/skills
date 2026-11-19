@@ -511,6 +511,13 @@ completed teardown. Do not automatically replay mutations or execution after a
 timeout or lost reply; cancellation does not prove remote work was rolled back.
 Desktop view tokens and human-control leases are separate capabilities.
 
+Trusted service launches with a Storage folder can return a preparing workspace
+receipt while the VM is running. Retain the receipt and observe the same Sandbox.
+The Console shows workspace progress on the Sandbox list and detail pages. The
+`workspace_sync` field reports counts and bytes verified. On a capacity failure
+inspect `required_bytes`, `available_bytes`, `required_inodes`, and `available_inodes`.
+Start execution after Sandbox status is `running` and workspace phase is `ready`.
+
 ### CCP transport and pending creation
 
 `ccp sandbox create`, `ccp sandbox connect`, and the view grant obtained by
