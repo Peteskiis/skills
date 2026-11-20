@@ -374,18 +374,17 @@ receipt must be rebuilt once before they can launch.
 
 ## GitHub in development and desktop workspaces
 
-Guest Git and `gh` use the creator's linked GitHub account in these workspaces.
+In a shared system desktop, select GitHub HTTPS repositories in `git_repos`.
+For authenticated reads, link GitHub and select repositories from one Cluster
+GitHub App installation that you can access. Organization members using the
+desktop can read code, pull requests, Actions, and checks on those repositories.
+The guest grant lasts up to 55 minutes. Start a fresh desktop for a new grant.
+Public repositories outside the installation can still clone anonymously.
 
-- A user launches a development Sandbox with repositories, environment variables, or Storage resources.
-- A user launches the system desktop Sandbox with a GitHub HTTPS repository in `git_repos`.
-
-Infra renews the protected credential for Git and `gh` after checkout. Link
-GitHub before launch. Trusted service launches use their explicit repository
-grant and never inherit a human's personal GitHub token.
-
-Git commit identity (login, name and email) may be cached for up to 60 seconds
-per linked account and token. Token lookup remains current on every launch;
-changing or disconnecting the linked account does not reuse its old credential.
+User-launched development Sandboxes with workspace inputs use the creator's
+linked GitHub account for guest Git and `gh`. Commit identity may be cached for
+up to 60 seconds per linked account and token. Trusted service launches use
+their explicit repository grant.
 
 This applies at workspace launch. Existing Sandboxes missing that document are
 not enrolled by an API rollout; start a new Build workspace after rollout.
