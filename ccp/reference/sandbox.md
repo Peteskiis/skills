@@ -372,14 +372,15 @@ updating system templates does not require rebuilding it. Rebuild to pick up
 changes to the base itself. Historical builds without an exact stored launch
 receipt must be rebuilt once before they can launch.
 
-## GitHub in development workspaces
+## GitHub in development and desktop workspaces
 
 User-owned development Sandboxes launched with workspace inputs (repositories,
 environment variables, or Storage resources) use the creator's linked GitHub
-identity for guest Git and `gh`. Infra keeps the protected credential renewable;
-repository cloning and guest CLI authentication are separate operations. Link
-GitHub before launch. Trusted service launches use their explicit repository
-grant and never inherit a human's personal GitHub token.
+identity for guest Git and `gh`. User-owned desktop Sandboxes receive the same
+credential when their launch includes a GitHub HTTPS checkout, so `git fetch`
+and `gh pr view` work from that checkout. Infra renews the protected credential
+for later commands. Link GitHub before launch. Trusted service launches use
+their explicit repository grant.
 
 Git commit identity (login, name and email) may be cached for up to 60 seconds
 per linked account and token. Token lookup remains current on every launch;
