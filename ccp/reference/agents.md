@@ -161,3 +161,22 @@ apply-owned subscriptions. Only their execution owner may reconcile them.
 Dry-run writes nothing, reapply is idempotent, and a still-referenced deployment
 cannot be removed. Remove/rebind its triggers in the same manifest. Applied
 triggers cannot be changed through imperative trigger PATCH/DELETE routes.
+
+## Delegate a coding task
+
+A configured Cluster environment can run native Codex in a private Debian sandbox.
+Set `CCP_CODEX_VAULT_ID` to your private vault ID, or pass `--vault-id`. The
+vault supplies the worker's `CODEX_API_KEY`. Use the vault ID in commands.
+
+```sh
+ccp --context staging task delegate 'Fix the failing test and run it' --worker codex --source . --include tests/new_case.py --json
+ccp --context staging task result run_<uuid> --json
+ccp --context staging task result run_<uuid> --patch result.patch
+git apply --check result.patch
+```
+
+Use a Git checkout root. Tracked worktree changes and individually selected
+nonignored untracked files enter the snapshot. Review its digest and paths at
+the terminal prompt. The task continues after CCP exits. Save the printed run ID
+even if the launch response is lost. Read the result using that same ID. The
+patch destination must be a new file. CCP leaves applying it to the parent.
