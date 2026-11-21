@@ -195,8 +195,13 @@ After both results report `succeeded`, pass their IDs to the parent. Integration
 requires Git 2.38 or later, a Git author identity, a new branch name and a new
 worktree path outside the source checkout. CCP verifies the commit and tree,
 applies each patch to its own index at the base, and merges the resulting
-sibling commits. A conflict reports the affected task and paths before branch
-creation. Run the repository's tests from the integration worktree.
+sibling commits. On conflict, CCP exits with a failure before creating the branch
+or worktree. With `--json`, read `status: "conflict"`, `task_id`,
+`conflicted_files`, and the ordered `recovery` steps from stdout. Follow the
+printed Git commands one step at a time in the same local repository. They use
+the reconstructed commits and preserve earlier merges. Edit and stage the
+conflicted files in the new worktree, commit the resolution, merge any remaining
+tasks in order, and run the repository's tests there.
 
 ```sh
 ccp --context staging task integrate "$task_a" "$task_b" --source . --base "$base" --branch integration/greetings --worktree ../greetings --json
