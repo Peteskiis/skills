@@ -180,3 +180,25 @@ nonignored untracked files enter the snapshot. Review its digest and paths at
 the terminal prompt. The task continues after CCP exits. Save the printed run ID
 even if the launch response is lost. Read the result using that same ID. The
 patch destination must be a new file. CCP leaves applying it to the parent.
+
+For a clean commit, give each worker the same HTTPS GitHub URL and full SHA.
+Staging must be able to clone that commit. Each invocation returns its own task ID.
+
+```sh
+base=$(git rev-parse HEAD)
+repo=$(git remote get-url origin)  # HTTPS GitHub URL
+ccp --context staging task delegate 'Implement name normalization and its tests' --repo "$repo" --commit "$base" --worker codex --json
+ccp --context staging task delegate 'Implement greeting formatting and its tests' --repo "$repo" --commit "$base" --worker codex --json
+```
+
+After both results report `succeeded`, pass their IDs to the parent. Integration
+requires Git 2.38 or later, a Git author identity, a new branch name and a new
+worktree path outside the source checkout. CCP verifies the commit and tree,
+applies each patch to its own index at the base, and merges the resulting
+sibling commits. A conflict reports the affected task and paths before branch
+creation. Run the repository's tests from the integration worktree.
+
+```sh
+ccp --context staging task integrate "$task_a" "$task_b" --source . --base "$base" --branch integration/greetings --worktree ../greetings --json
+(cd ../greetings && python3 -B -m unittest discover)
+```
