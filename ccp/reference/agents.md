@@ -170,8 +170,8 @@ vault supplies the worker's `CODEX_API_KEY`. Use the vault ID in commands.
 
 ```sh
 ccp --context staging task delegate 'Fix the failing test and run it' --worker codex --source . --include tests/new_case.py --json
-ccp --context staging task result run_<uuid> --json
-ccp --context staging task result run_<uuid> --patch result.patch
+ccp --context staging task result "$task_id" --json
+ccp --context staging task result "$task_id" --patch result.patch
 git apply --check result.patch
 ```
 
@@ -181,29 +181,57 @@ the terminal prompt. The task continues after CCP exits. Save the printed run ID
 even if the launch response is lost. Read the result using that same ID. The
 patch destination must be a new file. CCP leaves applying it to the parent.
 
-For a clean commit, give each worker the same HTTPS GitHub URL and full SHA.
-Staging must be able to clone that commit. Each invocation returns its own task ID.
+## Coordinate multiple coding tasks
+
+**Already have task IDs?** Resume at **Integrate saved results** with the original
+context and base SHA. Saved results remain available after sandbox teardown.
+
+**Delegate new work.** Give each worker a bounded change and acceptance tests it
+can complete from the same base. Choose a commit accessible at an HTTPS GitHub
+URL and pin its full SHA once. Submit one task per worker before waiting for
+either to finish. Keep the context, base SHA and each task ID with its brief.
 
 ```sh
 base=$(git rev-parse HEAD)
-repo=$(git remote get-url origin)  # HTTPS GitHub URL
-ccp --context staging task delegate 'Implement name normalization and its tests' --repo "$repo" --commit "$base" --worker codex --json
-ccp --context staging task delegate 'Implement greeting formatting and its tests' --repo "$repo" --commit "$base" --worker codex --json
+repo=https://github.com/OWNER/REPO.git  # Set to the GitHub repository containing $base.
+receipts=$(mktemp -d)
+ccp --context staging task delegate 'Implement name normalization and test blank input' \
+  --worker codex --repo "$repo" --commit "$base" --json > "$receipts/names.json"
+ccp --context staging task delegate 'Implement greeting formatting and test the greeting' \
+  --worker codex --repo "$repo" --commit "$base" --json > "$receipts/greetings.json"
+task_a=$(jq -er .task_id "$receipts/names.json")
+task_b=$(jq -er .task_id "$receipts/greetings.json")
 ```
 
-After both results report `succeeded`, pass their IDs to the parent. Integration
-requires Git 2.38 or later, a Git author identity, a new branch name and a new
-worktree path outside the source checkout. CCP verifies the commit and tree,
-applies each patch to its own index at the base, and merges the resulting
-sibling commits. On conflict, CCP exits with a failure before creating the branch
-or worktree. With `--json`, read `status: "conflict"`, `task_id`,
-`conflicted_files`, and the ordered `recovery` steps from stdout. Follow the
-printed Git commands one step at a time in the same local repository. They use
-the reconstructed commits and preserve earlier merges. Edit and stage the
-conflicted files in the new worktree, commit the resolution, merge any remaining
-tasks in order, and run the repository's tests there.
+**Integrate saved results.** Check each ID with `ccp --context staging task result
+"$id" --json`. Poll while its status is `requested`, `starting`, or `running`.
+Read each terminal result. Proceed when all have `succeeded`. Use Git 2.38 or
+later, a configured Git identity, a fresh branch, and a new worktree path outside
+the source checkout.
 
 ```sh
-ccp --context staging task integrate "$task_a" "$task_b" --source . --base "$base" --branch integration/greetings --worktree ../greetings --json
-(cd ../greetings && python3 -B -m unittest discover)
+worktree=../greetings-integration
+report=$(mktemp)
+if ccp --context staging task integrate "$task_a" "$task_b" --source . \
+  --base "$base" --branch integration/greetings --worktree "$worktree" --json > "$report"; then
+  jq '{branch, worktree, head}' "$report"
+elif jq -e '.status == "conflict"' "$report" >/dev/null; then
+  jq '{task_id, conflicted_files}' "$report"
+  jq -r '.recovery[]' "$report"
+else
+  exit 1  # Inspect the CCP error on stderr.
+fi
 ```
+
+On conflict, the requested worktree and branch have yet to be created. Follow
+the printed `recovery` steps **one at a time**. They recreate the merge from
+local commits. At the edit step, inspect both sides in the new worktree and
+compare them with the task briefs and tests. Preserve both behaviors where they
+are compatible. If the requirements disagree, ask which behavior should win
+before committing. Stage the resolved paths, finish the merge and apply any
+remaining task commits in the order shown.
+
+**Verify the combined result.** On either path, read the repository's test
+instructions and run the suite from the integration worktree. Include the
+workers' regression cases and check their changes together where they interact.
+Report the branch, merge commit and observed test results.
