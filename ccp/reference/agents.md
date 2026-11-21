@@ -225,9 +225,9 @@ fi
 
 On conflict, the requested worktree and branch have yet to be created. Follow
 the printed `recovery` steps **one at a time**. They recreate the merge from
-local commits. At the edit step, inspect both sides in the new worktree and
-compare them with the task briefs and tests. Preserve both behaviors where they
-are compatible. If the requirements disagree, ask which behavior should win
+local commits. At the edit step, inspect both sides in the new worktree. Use the
+worker replies, regression tests and any saved briefs to identify the intended
+behaviors. Preserve both where they are compatible. If the requirements disagree, ask which behavior should win
 before committing. Stage the resolved paths, finish the merge and apply any
 remaining task commits in the order shown.
 
