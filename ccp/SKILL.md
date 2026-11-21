@@ -453,6 +453,10 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - `ccp compute exec` runs in the compute workload context. For VM-rootfs
   inspection, use the envd-exec API or a dev VM flow.
 - ccp does not commit, push, or open PRs. Agents must handle git delivery.
+- When an actor resumes a direct VM by API, retry a transient timeout against
+  the same VM ID. On staging deployments with cross-node restore enabled,
+  the guest can return on another node with its original disk and RAM.
+  Read the VM record again after resume to get its current placement.
 - If `ccp dev` crashes instantly on macOS ("Failed to reserve virtual memory
   for CodeRange"), the binary's code signature is broken, not the machine's
   memory. Run `ccp doctor` for a diagnosis; reinstall via install.sh to fix.
