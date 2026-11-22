@@ -1,6 +1,6 @@
 ---
 name: ccp
-description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, apply reusable Sandbox templates, create ephemeral Sandboxes, provision managed Postgres databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
+description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, apply reusable Sandbox templates, create ephemeral Sandboxes, provision managed Postgres or App SQLite databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
 ---
 
 # ccp - Agent Runbook
@@ -134,7 +134,7 @@ ccp manages Cluster workloads and supporting resources:
 - Sandboxes: apply versioned reusable workspace definitions with
   `ccp apply -f <manifest>`, then create ephemeral instances with
   `ccp sandbox create --template <name>`.
-- Supporting resources: stores, managed Postgres databases, custom domains,
+- Supporting resources: stores, managed Postgres databases, App SQLite databases, custom domains,
   OIDC clients, per-VM env vars, and ephemeral CI builds.
 
 Workload state lives server-side. Local files hold project intent and resource
@@ -381,7 +381,7 @@ Read only the runbook your task needs:
 - `reference/deploy.md` - Apps: scaffold, deploy, promote, logs, dev, link, list, delete
 - `reference/stores.md` - Static-file buckets: put/get/ls/rm, content-addressed URLs, image transforms
 - `reference/oidc.md` - Sign in with Cluster: register OAuth2/OIDC clients, redirect URIs, secrets
-- `reference/db.md` - Managed Postgres: create, exec SQL, migrate, backups, client-access
+- `reference/db.md` - Create Postgres or SQLite databases. Manage Postgres SQL, migrations and backups
 - `reference/domains.md` - Custom domains: add, link to an app or VM, unlink, remove
 - `reference/compute.md` - Long-running services: deploy, status, logs, exec, restart
 - `reference/sandbox.md` - Sandbox templates: declarative apply, immutable builds, ephemeral lifecycle

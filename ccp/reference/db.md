@@ -1,7 +1,29 @@
-## Databases: managed Postgres
+## Create a database
+
+Run `ccp db create` in a terminal, select **Postgres** or **SQLite** with the
+arrow keys, and press Enter. For scripts, pass `--engine postgres` or
+`--engine sqlite`. Noninteractive creation defaults to Postgres.
+
+### SQLite for a Serverless App
+
+On an environment with SQLite enrollment enabled, run `ccp db create --engine sqlite`
+in a linked App directory or pass `--app-id <app-id>`. The command prints the
+database ID. Repeating it for the same App returns the existing ID. It uses
+the current caller’s App permissions. Provision the tables your App needs
+before promoting its deployment.
+Staging databases have a 64 MB size limit. If every ready pod has filled its
+four slots, a new bind returns HTTP 503. Retry after capacity is available.
+Allow a few seconds for a warm deployment to receive its binding. In the
+server handler, use `await env.DB.query("SELECT title FROM todos WHERE id=?", [id])`.
+The result is an array of row objects. For an atomic transaction, call
+`env.DB.batch([{sql, params}, ...])` and read one result array per statement.
+Use string, number or null parameters. The runtime selects the database and
+authenticates each call.
+
+### Managed Postgres
 
 ```sh
-ccp db create [--name mydb] [--app-id A] [--org-id ORG] [--network backend]
+ccp db create --engine postgres [--name mydb] [--app-id A] [--org-id ORG] [--network backend]
 ccp db ls [--org-id ORG] [--json]
 ccp db info [DB_ID]
 ccp db destroy <DB_ID>
@@ -196,19 +218,3 @@ database to recover a pending toggle. If it remains pending, inspect VM and
 db-proxy health without discarding database state.
 
 Do not use `ccp compute restart` for managed DBs. They are not compute services.
-
-### Bind SQLite to a Serverless App
-
-On an environment with SQLite enrollment enabled, run `ccp db bind-sqlite`
-in a linked App directory or pass `--app-id <app-id>`. The command prints the
-database ID. Repeating it for the same App returns the existing ID. It uses
-the current caller’s App permissions. Provision the tables your App needs
-before promoting its deployment.
-Staging databases have a 64 MB size limit. If every ready pod has filled its
-four slots, a new bind returns HTTP 503. Retry after capacity is available.
-Allow a few seconds for a warm deployment to receive its binding. In the
-server handler, use `await env.DB.query("SELECT title FROM todos WHERE id=?", [id])`.
-The result is an array of row objects. For an atomic transaction, call
-`env.DB.batch([{sql, params}, ...])` and read one result array per statement.
-Use string, number or null parameters. The runtime selects the database and
-authenticates each call. Use `ccp db create` for managed PostgreSQL.
