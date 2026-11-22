@@ -20,7 +20,8 @@ With `CCP_HEADLESS=1` set:
 | `ccp undeploy` | yes, destructive | `DEPLOYMENT_ID` |
 | `ccp store create` | yes | org resolution |
 | `ccp store put/get/ls/rm` | yes | store resolution; `CCP_STORE_ID` supported |
-| `ccp db create` | yes | org resolution; optional linked project or `--app-id` |
+| `ccp db create` (defaults to Postgres) | yes | org resolution and an optional linked App or `--app-id` |
+| `ccp db create --type sqlite` | yes | linked App or `--app-id` |
 | `ccp db ls` | yes | org resolution |
 | `ccp db info/exec/migrate` | yes | linked project or `--db-id` |
 | `ccp db destroy` | yes, destructive | `DB_ID` |

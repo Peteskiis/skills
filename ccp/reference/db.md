@@ -29,7 +29,7 @@ ccp db info [DB_ID]
 ccp db destroy <DB_ID>
 ```
 
-`ccp db create` writes `database_id`, `database_token`, and `organization_id` to
+`ccp db create --type postgres` writes `database_id`, `database_token`, and `organization_id` to
 `.ccp/config.json` and binds the selected App when possible. A networked bound
 App must already select the same existing network through `[network]` and
 `ccp deploy`; a mismatch rejects creation before guest provisioning. It receives
@@ -82,7 +82,7 @@ saved intent. Selecting a different network is rejected. Wake paused databases
 before attaching. This command does not create or rotate credentials.
 
 
-`ccp db ls` shows the whole organization, sorts the project-linked database first,
+`ccp db ls` lists managed Postgres databases across the organization, sorts the project-linked database first,
 and marks it `linked`. `--json` preserves all rows and public database fields,
 including `project_id`, client mode, network name, and credential generation.
 Human list/info output shows effective `availability`, not provisioning completion.

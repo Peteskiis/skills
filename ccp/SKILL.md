@@ -361,7 +361,7 @@ and `twitter:` tags. Vary it per route for correct link previews.
 
 The other templates keep a plain `index.ts` handler.
 
-`ccp deploy`, `ccp link`, `ccp db create`, and store commands update this file.
+`ccp deploy`, `ccp link`, `ccp db create --type postgres`, and store commands update this file.
 The whole `.ccp/` dir is **local state and gitignored** (like Vercel's `.vercel/`):
 it holds this `config.json` — whose `database_token` is a secret — plus
 `compute-link.json` and build output (`.ccp/index.js`, `.ccp/public/`). It also
