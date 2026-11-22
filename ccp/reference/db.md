@@ -1,13 +1,35 @@
-## Databases: managed Postgres
+## Create a database
+
+Run `ccp db create` in a terminal, select **Postgres** or **SQLite** with the
+arrow keys, and press Enter. Postgres is highlighted by default. For scripts, pass `--type postgres` or
+`--type sqlite`. Noninteractive creation defaults to Postgres.
+
+### SQLite for a Serverless App
+
+On an environment with SQLite enrollment enabled, run `ccp db create --type sqlite`
+in a linked App directory or pass `--app-id <app-id>`. The command prints the
+database ID. Repeating it for the same App returns the existing ID. It uses
+the current caller’s App permissions. Provision the tables your App needs
+before promoting its deployment.
+Staging databases have a 64 MB size limit. If every ready pod has filled its
+four slots, a new bind returns HTTP 503. Retry after capacity is available.
+Allow a few seconds for a warm deployment to receive its binding. In the
+server handler, use `await env.DB.query("SELECT title FROM todos WHERE id=?", [id])`.
+The result is an array of row objects. For an atomic transaction, call
+`env.DB.batch([{sql, params}, ...])` and read one result array per statement.
+Use string, number or null parameters. The runtime selects the database and
+authenticates each call.
+
+### Managed Postgres
 
 ```sh
-ccp db create [--name mydb] [--app-id A] [--org-id ORG] [--network backend]
+ccp db create --type postgres [--name mydb] [--app-id A] [--org-id ORG] [--network backend]
 ccp db ls [--org-id ORG] [--json]
 ccp db info [DB_ID]
 ccp db destroy <DB_ID>
 ```
 
-`ccp db create` writes `database_id`, `database_token`, and `organization_id` to
+`ccp db create --type postgres` writes `database_id`, `database_token`, and `organization_id` to
 `.ccp/config.json` and binds the selected App when possible. A networked bound
 App must already select the same existing network through `[network]` and
 `ccp deploy`; a mismatch rejects creation before guest provisioning. It receives
@@ -60,7 +82,7 @@ saved intent. Selecting a different network is rejected. Wake paused databases
 before attaching. This command does not create or rotate credentials.
 
 
-`ccp db ls` shows the whole organization, sorts the project-linked database first,
+`ccp db ls` lists managed Postgres databases across the organization, sorts the project-linked database first,
 and marks it `linked`. `--json` preserves all rows and public database fields,
 including `project_id`, client mode, network name, and credential generation.
 Human list/info output shows effective `availability`, not provisioning completion.
@@ -196,19 +218,3 @@ database to recover a pending toggle. If it remains pending, inspect VM and
 db-proxy health without discarding database state.
 
 Do not use `ccp compute restart` for managed DBs. They are not compute services.
-
-### Bind SQLite to a Serverless App
-
-On an environment with SQLite enrollment enabled, run `ccp db bind-sqlite`
-in a linked App directory or pass `--app-id <app-id>`. The command prints the
-database ID. Repeating it for the same App returns the existing ID. It uses
-the current caller’s App permissions. Provision the tables your App needs
-before promoting its deployment.
-Staging databases have a 64 MB size limit. If every ready pod has filled its
-four slots, a new bind returns HTTP 503. Retry after capacity is available.
-Allow a few seconds for a warm deployment to receive its binding. In the
-server handler, use `await env.DB.query("SELECT title FROM todos WHERE id=?", [id])`.
-The result is an array of row objects. For an atomic transaction, call
-`env.DB.batch([{sql, params}, ...])` and read one result array per statement.
-Use string, number or null parameters. The runtime selects the database and
-authenticates each call. Use `ccp db create` for managed PostgreSQL.
