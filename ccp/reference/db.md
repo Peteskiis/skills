@@ -1,12 +1,12 @@
 ## Create a database
 
 Run `ccp db create` in a terminal, select **Postgres** or **SQLite** with the
-arrow keys, and press Enter. For scripts, pass `--engine postgres` or
-`--engine sqlite`. Noninteractive creation defaults to Postgres.
+arrow keys, and press Enter. Postgres is highlighted by default. For scripts, pass `--type postgres` or
+`--type sqlite`. Noninteractive creation defaults to Postgres.
 
 ### SQLite for a Serverless App
 
-On an environment with SQLite enrollment enabled, run `ccp db create --engine sqlite`
+On an environment with SQLite enrollment enabled, run `ccp db create --type sqlite`
 in a linked App directory or pass `--app-id <app-id>`. The command prints the
 database ID. Repeating it for the same App returns the existing ID. It uses
 the current caller’s App permissions. Provision the tables your App needs
@@ -23,7 +23,7 @@ authenticates each call.
 ### Managed Postgres
 
 ```sh
-ccp db create --engine postgres [--name mydb] [--app-id A] [--org-id ORG] [--network backend]
+ccp db create --type postgres [--name mydb] [--app-id A] [--org-id ORG] [--network backend]
 ccp db ls [--org-id ORG] [--json]
 ccp db info [DB_ID]
 ccp db destroy <DB_ID>
