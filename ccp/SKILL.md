@@ -1,6 +1,6 @@
 ---
 name: ccp
-description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, apply reusable Sandbox templates, create ephemeral Sandboxes, delegate coding tasks to Codex workers and integrate their results locally, provision managed Postgres databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
+description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, apply reusable Sandbox templates, create ephemeral Sandboxes, delegate coding tasks to Codex workers and integrate their results locally, provision managed Postgres or App SQLite databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
 ---
 
 # ccp - Agent Runbook
@@ -136,7 +136,7 @@ ccp manages Cluster workloads and supporting resources:
 - Sandboxes: apply versioned reusable workspace definitions with
   `ccp apply -f <manifest>`, then create ephemeral instances with
   `ccp sandbox create --template <name>`.
-- Supporting resources: stores, managed Postgres databases, custom domains,
+- Supporting resources: stores, managed Postgres databases, App SQLite databases, custom domains,
   OIDC clients, per-VM env vars, and ephemeral CI builds.
 
 Workload state lives server-side. Local files hold project intent and resource
@@ -363,7 +363,7 @@ and `twitter:` tags. Vary it per route for correct link previews.
 
 The other templates keep a plain `index.ts` handler.
 
-`ccp deploy`, `ccp link`, `ccp db create`, and store commands update this file.
+`ccp deploy`, `ccp link`, `ccp db create --type postgres`, and store commands update this file.
 The whole `.ccp/` dir is **local state and gitignored** (like Vercel's `.vercel/`):
 it holds this `config.json` — whose `database_token` is a secret — plus
 `compute-link.json` and build output (`.ccp/index.js`, `.ccp/public/`). It also
@@ -383,7 +383,7 @@ Read only the runbook your task needs:
 - `reference/deploy.md` - Apps: scaffold, deploy, promote, logs, dev, link, list, delete
 - `reference/stores.md` - Static-file buckets: put/get/ls/rm, content-addressed URLs, image transforms
 - `reference/oidc.md` - Sign in with Cluster: register OAuth2/OIDC clients, redirect URIs, secrets
-- `reference/db.md` - Managed Postgres: create, exec SQL, migrate, backups, client-access
+- `reference/db.md` - Create Postgres or SQLite databases. Manage Postgres SQL, migrations and backups
 - `reference/domains.md` - Custom domains: add, link to an app or VM, unlink, remove
 - `reference/compute.md` - Long-running services: deploy, status, logs, exec, restart
 - `reference/sandbox.md` - Sandbox templates: declarative apply, immutable builds, ephemeral lifecycle
@@ -455,6 +455,10 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - `ccp compute exec` runs in the compute workload context. For VM-rootfs
   inspection, use the envd-exec API or a dev VM flow.
 - `ccp task integrate` creates local commits. The parent handles any requested push or PR.
+- When an actor resumes a direct VM by API, retry a transient timeout against
+  the same VM ID. On staging deployments with cross-node restore enabled,
+  the guest can return on another node with its original disk and RAM.
+  Read the VM record again after resume to get its current placement.
 - If `ccp dev` crashes instantly on macOS ("Failed to reserve virtual memory
   for CodeRange"), the binary's code signature is broken, not the machine's
   memory. Run `ccp doctor` for a diagnosis; reinstall via install.sh to fix.
