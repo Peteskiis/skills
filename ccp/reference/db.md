@@ -11,8 +11,12 @@ in a linked App directory or pass `--app-id <app-id>`. The command prints the
 database ID. Repeating it for the same App returns the existing ID. It uses
 the current caller’s App permissions. Provision the tables your App needs
 before promoting its deployment.
-Staging databases have a 64 MB size limit. If every ready pod has filled its
-four slots, a new bind returns HTTP 503. Retry after capacity is available.
+Each SQLite database is capped at 64 MB. An organization can reserve eight
+databases, including databases retained after App deletion or Project transfer.
+At the organization limit a new bind returns HTTP 429. Binding an already
+attached App returns its existing ID even at or above the limit. When every
+ready SQLite pod is full, the API returns HTTP 503 and CCP reports that the
+service is full. Retry after more capacity is available.
 Allow a few seconds for a warm deployment to receive its binding. In the
 server handler, use `await env.DB.query("SELECT title FROM todos WHERE id=?", [id])`.
 The result is an array of row objects. For an atomic transaction, call
