@@ -157,6 +157,10 @@ cache:
   - ecosystem: sccache
 ```
 
+Pushing another commit to an open PR cancels queued and running checks for
+the superseded head. A check shared by another open enrolled PR continues.
+Pushing the original commit again creates a fresh check after supersession.
+
 Infra observes the trusted base workflow and schedules one seed build per base commit
 and workflow. It runs that exact base source with permission to create cache objects.
 PR jobs receive read access scoped to the organization, repository and workflow
