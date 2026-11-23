@@ -161,8 +161,9 @@ that can set request headers may continue to use `Authorization: Bearer
 
 In environments with desktop recovery enabled, reconnect the read-only
 WebSocket at its original hostname using the unexpired viewer grant. When
-the source node is offline, the first connection can take longer while the
-Sandbox restores its verified snapshot on the configured recovery node.
+the source node is offline or has released the local copy under disk pressure,
+the first connection can take longer while the Sandbox restores its verified
+snapshot on the configured recovery node.
 
 The separate `desktop-control` transport cannot be opened with `ccp sandbox
 connect` or `ccp sandbox desktop`. Its guest services are stopped by default.
