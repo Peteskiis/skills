@@ -159,6 +159,11 @@ persistent browser storage, and obtain a new capability after expiry. Clients
 that can set request headers may continue to use `Authorization: Bearer
 <token>`; if both forms are present, Authorization is authoritative.
 
+In environments with desktop recovery enabled, reconnect the read-only
+WebSocket at its original hostname using the unexpired viewer grant. When
+the source node is offline, the first connection can take longer while the
+Sandbox restores its verified snapshot on the configured recovery node.
+
 The separate `desktop-control` transport cannot be opened with `ccp sandbox
 connect` or `ccp sandbox desktop`. Its guest services are stopped by default.
 An organization member or an authenticated trusted service may acquire the
