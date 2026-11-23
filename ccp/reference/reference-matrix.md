@@ -37,6 +37,9 @@ With `CCP_HEADLESS=1` set:
 | `ccp compute deploy` (immutable changes) | with `-y` / `--yes` | linked service + `cluster.toml`; interruption and guest-data loss; retry resumes replacement |
 | `ccp compute list/status/logs/exec/restart` | yes | linked project or service ID |
 | `ccp compute destroy` | yes, destructive | linked project or service ID/name |
+| `ccp task delegate` | consent for local snapshots | Task text, `--source DIR` with optional `--include PATH`, or `--repo HTTPS_URL --commit SHA`, `--worker codex`, `--vault-id`, `--org-id`, `--task-context`, `--json` |
+| `ccp task integrate` | yes | Successful task IDs, `--source DIR --base SHA --branch NEW_BRANCH --worktree NEW_DIR`, optional `--json` |
+| `ccp task result` | yes | Run ID, optional `--patch NEW_FILE`, `--json` |
 | `ccp sandbox create` | yes | `--template NAME`; optional `--ttl` and `--org-id` |
 | `ccp ci` | yes | git repo with origin and `.cluster-ci.yaml` |
 | `ccp env list/get/set/unset` | yes | `--vm <vm_id>` |

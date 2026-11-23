@@ -1,6 +1,6 @@
 ---
 name: ccp
-description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, apply reusable Sandbox templates, create ephemeral Sandboxes, provision managed Postgres or App SQLite databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
+description: 'Use the ccp CLI to build on the Cluster platform: initialize projects (ccp init), deploy serverless apps and long-running compute services, apply reusable Sandbox templates, create ephemeral Sandboxes, delegate coding tasks to Codex workers and integrate their results locally, provision managed Postgres or App SQLite databases, set up Sign in with Cluster (OAuth2/OIDC) auth, stores, custom domains, per-VM env vars, and CI builds. Load this skill whenever a task involves creating, deploying, or managing apps, databases, auth, or resources on Cluster — ccp is the authoritative tool for these tasks; prefer it over generic or hand-rolled approaches.'
 ---
 
 # ccp - Agent Runbook
@@ -15,6 +15,8 @@ ccp skills all      # every runbook plus the command matrix
 ```
 
 Start with `ccp skills`, then fetch only the topic your task needs.
+For parallel Codex tasks or saved worker results, follow the parent workflow in
+`ccp skills agents` ([bundled runbook](reference/agents.md#coordinate-multiple-coding-tasks)).
 
 ## Headless mode
 
@@ -387,7 +389,7 @@ Read only the runbook your task needs:
 - `reference/sandbox.md` - Sandbox templates: declarative apply, immutable builds, ephemeral lifecycle
 - `reference/ci.md` - Ephemeral CI build jobs: .cluster-ci.yaml, exit-code gating, --json/--no-wait
 - `reference/env.md` - Per-VM env on dev VMs: list/get/set/unset, visibility, refresh-system
-- `reference/agents.md` - AI agents: list, inspect, create; org scoping and endpoint override
+- `reference/agents.md` - Manage AI agents, delegate Codex tasks, recover merge conflicts and test integrated results
 - `reference/reference-matrix.md` - per-command headless-safety and required-argument matrix
 
 These files match the ccp version they were exported from. `ccp skills <topic>` prints the same runbook straight from the installed binary and is always current.
@@ -452,7 +454,7 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
   should be reachable through the public proxy.
 - `ccp compute exec` runs in the compute workload context. For VM-rootfs
   inspection, use the envd-exec API or a dev VM flow.
-- ccp does not commit, push, or open PRs. Agents must handle git delivery.
+- `ccp task integrate` creates local commits. The parent handles any requested push or PR.
 - When an actor resumes a direct VM by API, retry a transient timeout against
   the same VM ID. On staging deployments with cross-node restore enabled,
   the guest can return on another node with its original disk and RAM.

@@ -161,3 +161,77 @@ apply-owned subscriptions. Only their execution owner may reconcile them.
 Dry-run writes nothing, reapply is idempotent, and a still-referenced deployment
 cannot be removed. Remove/rebind its triggers in the same manifest. Applied
 triggers cannot be changed through imperative trigger PATCH/DELETE routes.
+
+## Delegate a coding task
+
+A configured Cluster environment can run native Codex in a private Debian sandbox.
+Set `CCP_CODEX_VAULT_ID` to your private vault ID, or pass `--vault-id`. The
+vault supplies the worker's `CODEX_API_KEY`. Use the vault ID in commands.
+
+```sh
+ccp --context staging task delegate 'Fix the failing test and run it' --worker codex --source . --include tests/new_case.py --json
+ccp --context staging task result "$task_id" --json
+ccp --context staging task result "$task_id" --patch result.patch
+git apply --check result.patch
+```
+
+Use a Git checkout root. Tracked worktree changes and individually selected
+nonignored untracked files enter the snapshot. Review its digest and paths at
+the terminal prompt. The task continues after CCP exits. Save the printed run ID
+even if the launch response is lost. Read the result using that same ID. The
+patch destination must be a new file. CCP leaves applying it to the parent.
+
+## Coordinate multiple coding tasks
+
+**Already have task IDs?** Resume at **Integrate saved results** with the original
+context and base SHA. Saved results remain available after sandbox teardown.
+
+**Delegate new work.** Give each worker a bounded change and acceptance tests it
+can complete from the same base. Choose a commit accessible at an HTTPS GitHub
+URL and pin its full SHA once. Submit one task per worker before waiting for
+either to finish. Keep the context, base SHA and each task ID with its brief.
+
+```sh
+base=$(git rev-parse HEAD)
+repo=https://github.com/OWNER/REPO.git  # Set to the GitHub repository containing $base.
+receipts=$(mktemp -d)
+ccp --context staging task delegate 'Implement name normalization and test blank input' \
+  --worker codex --repo "$repo" --commit "$base" --json > "$receipts/names.json"
+ccp --context staging task delegate 'Implement greeting formatting and test the greeting' \
+  --worker codex --repo "$repo" --commit "$base" --json > "$receipts/greetings.json"
+task_a=$(jq -er .task_id "$receipts/names.json")
+task_b=$(jq -er .task_id "$receipts/greetings.json")
+```
+
+**Integrate saved results.** Check each ID with `ccp --context staging task result
+"$id" --json`. Poll while its status is `requested`, `starting`, or `running`.
+Read each terminal result. Proceed when all have `succeeded`. Use Git 2.38 or
+later, a configured Git identity, a fresh branch, and a new worktree path outside
+the source checkout.
+
+```sh
+worktree=../greetings-integration
+report=$(mktemp)
+if ccp --context staging task integrate "$task_a" "$task_b" --source . \
+  --base "$base" --branch integration/greetings --worktree "$worktree" --json > "$report"; then
+  jq '{branch, worktree, head}' "$report"
+elif jq -e '.status == "conflict"' "$report" >/dev/null; then
+  jq '{task_id, conflicted_files}' "$report"
+  jq -r '.recovery[]' "$report"
+else
+  exit 1  # Inspect the CCP error on stderr.
+fi
+```
+
+On conflict, the requested worktree and branch have yet to be created. Follow
+the printed `recovery` steps **one at a time**. They recreate the merge from
+local commits. At the edit step, inspect both sides in the new worktree. Use the
+worker replies, regression tests and any saved briefs to identify the intended
+behaviors. Preserve both where they are compatible. If the requirements disagree, ask which behavior should win
+before committing. Stage the resolved paths, finish the merge and apply any
+remaining task commits in the order shown.
+
+**Verify the combined result.** On either path, read the repository's test
+instructions and run the suite from the integration worktree. Include the
+workers' regression cases and check their changes together where they interact.
+Report the branch, merge commit and observed test results.
