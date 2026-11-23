@@ -150,6 +150,26 @@ preparation and set `CARGO_NET_OFFLINE=true` for checks to prove that preparatio
 was complete. Dependency commands can explicitly override that variable while
 fetching. A cache is an optional accelerator, not a dependency source.
 
+For an enrolled GitHub PR image build, opt in to the repository's Rust compiler cache:
+
+```yaml
+cache:
+  - ecosystem: sccache
+```
+
+Infra observes the trusted base workflow and schedules one seed build per base commit
+and workflow. It runs that exact base source with permission to create cache objects.
+PR jobs receive read access scoped to the organization, repository and workflow
+definition. Manual submissions and bootstrap workflows build cold. On a cache miss,
+the compiler builds from source. Keep release artifacts independent of cache availability.
+
+Infra delivers the job's short-lived GCS grant at `/run/cluster-ci/sccache.json`
+after dependency credentials are withdrawn. For a Dockerfile, forward this file only
+with a BuildKit secret mount. Its `bucket`, `prefix` and `mode` configure sccache;
+its `accessToken` is for sccache's GCS credentials endpoint inside the compile step.
+Keep the grant out of build contexts, layers, logs and artifacts. The job logs and
+sccache statistics distinguish an enabled grant from actual compiler cache hits.
+
 Artifacts declare up to ten uniquely named files. Names use 1–120 ASCII letters,
 digits, `.`, `_` or `-` and cannot be `.` or `..`. Paths are repository-relative;
 absolute paths and parent traversal are rejected. Each file must be nonempty and
