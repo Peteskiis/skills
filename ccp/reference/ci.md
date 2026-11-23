@@ -161,6 +161,12 @@ Pushing another commit to an open PR cancels queued and running checks for
 the superseded head. A check shared by another open enrolled PR continues.
 Pushing the original commit again creates a fresh check after supersession.
 
+On staging, maintainers can apply the `ci:8-vcpu` GitHub label to an Agents PR
+before pushing the commit to benchmark. The Linux image check then gets eight
+vCPUs and 8192 MiB on the same build-machine image. The checks job and trusted
+cache seed keep their own standard worker sizes. Admission fixes the size for
+that run, so changing a label takes effect on a new commit.
+
 Infra observes the trusted base workflow and schedules one seed build per base commit
 and workflow. It runs that exact base source with permission to create cache objects.
 PR jobs receive read access scoped to the organization, repository and workflow
