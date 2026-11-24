@@ -455,8 +455,8 @@ These files match the ccp version they were exported from. `ccp skills <topic>` 
 - `ccp compute exec` runs in the compute workload context. For VM-rootfs
   inspection, use the envd-exec API or a dev VM flow.
 - `ccp task integrate` creates local commits. The parent handles any requested push or PR.
-- When an actor resumes a direct VM by API, retry a transient timeout against
-  the same VM ID. On staging deployments with cross-node restore enabled,
+- When an actor resumes a direct VM by API, retry a transient timeout or HTTP 503
+  `vm_agent_unavailable` against the same VM ID when the node is reachable again. On staging deployments with cross-node restore enabled,
   the guest can return on another node with its original disk and RAM.
   Read the VM record again after resume to get its current placement.
 - If `ccp dev` crashes instantly on macOS ("Failed to reserve virtual memory
