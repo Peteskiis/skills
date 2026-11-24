@@ -230,6 +230,16 @@ normal install updates with no sudo. Only a system-wide install
 (`INSTALL_DIR=/usr/local/bin`) lands in a root-owned dir; there `ccp update`
 fails fast with a `sudo ccp update` hint — nothing is downloaded.
 
+The public installer also places `cb` and `clusterbase` beside `ccp` when
+those names are available. Rerun the installer to add them to an existing
+installation. Both names run the same binary and use the same `.ccp` state.
+For a manual archive install, run `ln -s ccp cb` and `ln -s ccp clusterbase`
+from the binary directory after checking both names are available. Run
+`ccp completions bash`, `zsh` or `fish` for your shell to register the
+installed names. If you pin an older CLI on macOS, use `ccp update` because
+older updaters require the original executable name. Managed environments
+continue to use `ccp`.
+
 Do not run `ccp update` inside managed VMs: their ccp is baked into the
 template rootfs and refreshed on template rebuilds. To pin or roll back a
 version, pass the pin to the installer process:
