@@ -403,6 +403,11 @@ Exit status 0 indicates success, 2 usage, 3 authentication or authorization,
 4 missing resource, 5 conflict, and 6 a server or capacity error. Other
 failures use 1. Check the exit status before consuming stdout.
 
+To adopt existing source, run `ccp init .` in the project directory. CCP writes
+shared configuration without creating a remote target. It detects Vite,
+Next.js static exports, static HTML, Go and Rust. For Python or server-rendered
+Next.js, publish a container image and pass `--image REF --port PORT`.
+
 ## Bundled reference files
 
 Read only the runbook your task needs:
