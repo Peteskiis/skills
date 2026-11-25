@@ -49,7 +49,7 @@ when they were created; this default does not rewrite their launch receipts.
 Apply a versioned, organization-scoped reusable Sandbox template:
 
 ```sh
-ccp apply -f sandbox.yaml --org-id "$CCP_ORG_ID"
+ccp apply --file sandbox.yaml --org-id "$CCP_ORG_ID"
 ```
 
 Infra reconciles the stable template identity and admits one immutable build

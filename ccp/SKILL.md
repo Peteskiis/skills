@@ -136,7 +136,7 @@ ccp manages Cluster workloads and supporting resources:
 - Compute services: long-running services with public HTTPS hostnames, driven by
   `ccp compute deploy`, linked through `cluster.toml`.
 - Sandboxes: apply versioned reusable workspace definitions with
-  `ccp apply -f <manifest>`, then create ephemeral instances with
+  `ccp apply --file <manifest>`, then create ephemeral instances with
   `ccp sandbox create --template <name>`.
 - Supporting resources: stores, managed Postgres databases, App SQLite databases, custom domains,
   OIDC clients, per-VM env vars, and ephemeral CI builds.

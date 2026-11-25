@@ -4,7 +4,7 @@
 the remote build result.
 
 ```sh
-ccp ci [DIRECTORY] [-f FILE] [--org-id O] [--git-ref REF] [--request-id ID] [--no-wait] [--json]
+ccp ci [DIRECTORY] [--file FILE] [--org-id O] [--git-ref REF] [--request-id ID] [--no-wait] [--json]
 ```
 
 Defaults:
