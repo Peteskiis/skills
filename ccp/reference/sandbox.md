@@ -538,3 +538,5 @@ ID for observation and cleanup; acceptance does not mean the guest is running.
 A lost response or timeout does not prove rollback. CCP does not automatically
 retry the mutation or fall back to HTTP. Production use of this client requires
 the public Sandbox service and ingress to have been deployed first.
+
+List Sandboxes with `ccp sandbox list --org-id "$CCP_ORG_ID" --json`. Delete a Sandbox in automation with `ccp sandbox delete "$SANDBOX_ID" --yes`.

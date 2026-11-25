@@ -29,8 +29,8 @@ authenticates each call.
 ```sh
 ccp db create --type postgres [--name mydb] [--app-id A] [--org-id ORG] [--network backend]
 ccp db ls [--org-id ORG] [--json]
-ccp db info [DB_ID]
-ccp db destroy <DB_ID>
+ccp db get [DB_ID]
+ccp db delete <DB_ID>
 ```
 
 `ccp db create --type postgres` writes `database_id`, `database_token`, and `organization_id` to
@@ -132,7 +132,7 @@ An active Project transfer rejects the change with `project_transfer_in_progress
 retry after the transfer finishes. Attachment changes preserve the database's
 VM, credentials, creator and lifecycle state.
 
-`ccp db info` defaults to the same config or `.env` database identity used by SQL
+`ccp db get` defaults to the same config or `.env` database identity used by SQL
 commands; outside a linked project, pass an explicit ID.
 
 Databases are organization-owned. Create and list resolve the organization in
@@ -141,7 +141,7 @@ the named context, `CCP_ORG_ID`, saved default, sole organization, or the intera
 In headless multi-organization environments, use a saved default, pass
 `--org-id`, or set `CCP_ORG_ID`.
 
-`ccp db destroy` requires `--yes` in headless mode and removes matching DB env from
+`ccp db delete` requires `--yes` in headless mode and removes matching DB env from
 local `.env` when the current project is linked to that DB.
 
 Local database hints use the guarded project-state reader. Malformed or retired

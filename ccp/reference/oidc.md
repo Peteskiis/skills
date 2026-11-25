@@ -7,11 +7,11 @@ ccp oidc create --name app \
   --redirect-uri https://app.example.com/auth/callback
 
 ccp oidc ls [--org-id O]
-ccp oidc info <client_id>
+ccp oidc get <client_id>
 ccp oidc update <client_id> --add-redirect-uri URL
 ccp oidc update <client_id> --remove-redirect-uri URL
 ccp oidc rotate-secret <client_id>
-ccp oidc destroy <client_id>
+ccp oidc delete <client_id>
 ```
 
 `create` prints the client secret once. Save it immediately; later commands can

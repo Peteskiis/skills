@@ -4,18 +4,18 @@ Domains are org-scoped resources that can be linked to serverless Apps or
 compute VMs.
 
 ```sh
-ccp domain add example.com [--org-id O]
+ccp domain create example.com [--org-id O]
 # Add the printed TXT and A records, then complete the claim:
 ccp domain verify CLAIM_ID [--org-id O]
 ccp domain ls [--org-id O]
 ccp domain link example.com --app A [--org-id O]
 ccp domain link example.com --vm "<vm_id>:<port>" [--org-id O]
 ccp domain unlink example.com [--org-id O]
-ccp domain remove example.com [--org-id O]
+ccp domain delete example.com [--org-id O]
 ```
 
 For Apps, prefer `--app` when headless. For compute services, read
-the VM ID from `ccp compute status`, then link with the service port:
+the VM ID from `ccp compute get`, then link with the service port:
 
 ```sh
 ccp domain link example.com --vm "<vm_id>:8080"
