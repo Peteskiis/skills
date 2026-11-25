@@ -141,7 +141,7 @@ the named context, `CCP_ORG_ID`, saved default, sole organization, or the intera
 In headless multi-organization environments, use a saved default, pass
 `--org-id`, or set `CCP_ORG_ID`.
 
-`ccp db destroy` auto-confirms in headless mode and removes matching DB env from
+`ccp db destroy` requires `--yes` in headless mode and removes matching DB env from
 local `.env` when the current project is linked to that DB.
 
 Local database hints use the guarded project-state reader. Malformed or retired
@@ -182,7 +182,7 @@ ccp db backup restore <BACKUP_ID> [--db-id D]
 ccp db backup delete <BACKUP_ID> [--db-id D]
 ```
 
-Restore and delete are destructive and auto-confirm in headless mode.
+Restore and delete are destructive and require `--yes` in headless mode.
 
 Backup creation and restore wait for completion. Failed or unexpected outcomes
 exit nonzero and report errors on stderr; successful completion is printed on stdout.
