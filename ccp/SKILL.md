@@ -18,6 +18,8 @@ Start with `ccp skills`, then fetch only the topic your task needs.
 For parallel Codex tasks or saved worker results, follow the parent workflow in
 `ccp skills agents` ([bundled runbook](reference/agents.md#coordinate-multiple-coding-tasks)).
 
+Use `ccp --help` to list available commands and `ccp <command> --help` to inspect their arguments, including the global `--context` option.
+
 ## Headless mode
 
 Set `CCP_HEADLESS=1` before automation. In headless mode, ccp treats prompts as
