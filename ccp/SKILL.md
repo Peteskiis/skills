@@ -120,7 +120,7 @@ ccp manages Cluster workloads and supporting resources:
   `ccp deploy`. Shape is committed in `cluster.toml`; the link is local in
   `.ccp/config.json`.
 - Projects: organization-scoped containers for Apps and attached resources,
-  managed with `ccp project ls|create|rm`.
+  managed with `ccp project list|create|rm`.
   Organization transfer uses the Portal/API preview and transfer operations.
   The caller needs fresh Owner membership in both organizations. Review blockers
   first, then retain the UUID transfer ID and retry that same request if publishing

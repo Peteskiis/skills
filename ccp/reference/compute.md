@@ -112,7 +112,7 @@ resource shape. If deletion or creation fails, fix the reported cause and retry
 Deploy resumes any unfinished replacement. A retry first looks
 for an already accepted service under the original name; it can recover the
 link after a lost response without deleting that service or creating a duplicate.
-Use `ccp compute status` to inspect a recovered service's readiness. A failed
+Use `ccp compute get` to inspect a recovered service's readiness. A failed
 server-side image pull or capacity check after deletion means the old guest is
 already gone; retry can recreate it, but cannot restore its disk contents.
 
@@ -182,11 +182,11 @@ Removing a key from all three sources clears it server-side on the next deploy.
 
 ```sh
 ccp compute list [--org-id O]       # alias: ls
-ccp compute status [SERVICE_ID|NAME]
+ccp compute get [SERVICE_ID|NAME]
 ccp compute logs [SERVICE_ID|NAME] [-n TAIL]
 ccp compute exec [SERVICE_ID|NAME] [--timeout-ms MS] -- <CMD> [ARGS...]
 ccp compute restart [SERVICE_ID|NAME]
-ccp compute destroy [SERVICE_ID|NAME] [-y]
+ccp compute delete [SERVICE_ID|NAME] [-y]
 ```
 
 Omit the service argument to use the current checkout’s Compute link in the
@@ -231,7 +231,7 @@ only checks that the service is listening on the configured TCP port.
 
 ### Custom domains
 
-Use the VM ID from `ccp compute status`:
+Use the VM ID from `ccp compute get`:
 
 ```sh
 ccp domain link example.com --vm "<vm_id>:<port>"

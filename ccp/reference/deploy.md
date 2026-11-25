@@ -56,9 +56,9 @@ IDs land in `.ccp/config.json` (gitignored local state — not committed).
 Manage Projects directly when needed:
 
 ```sh
-ccp project ls [--org-id O]
+ccp project list [--org-id O]
 ccp project create my-project [--org-id O]
-ccp project rm my-project --yes [--org-id O]
+ccp project delete my-project --yes [--org-id O]
 ```
 
 App creation, listing, identity reads and deletion, environment synchronization,
@@ -340,7 +340,7 @@ ccp link --org-id O --app-id A
 ccp list                 # alias: ccp ls
 ccp promote DEPLOYMENT_ID
 ccp undeploy DEPLOYMENT_ID
-ccp remove               # alias: ccp rm
+ccp app delete               # alias: ccp rm
 ```
 
 `link` validates organization access before selecting the App and records its

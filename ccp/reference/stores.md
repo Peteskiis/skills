@@ -43,6 +43,8 @@ Image transform parameters can be appended to served URLs:
 Common agent rule: when a store command needs a store and headless resolution is
 ambiguous, set `CCP_ORG_ID` and `CCP_STORE_ID` explicitly instead of guessing.
 
+List the stores in an organization with `ccp store list-stores --org-id "$ORG_ID" --json`. Use `ccp store list` to list files inside a store.
+
 ## Unattended organization credentials
 
 Use an organization API key with `store:use` through `CCP_API_KEY`, and select

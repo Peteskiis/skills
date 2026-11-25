@@ -12,10 +12,10 @@ With `CCP_HEADLESS=1` set:
 | `ccp list` / `ccp ls` | yes | linked project or org resolution |
 | `ccp logs` | yes | linked project or `APP_ID` |
 | `ccp analytics` | yes | linked project or `APP_ID` |
-| `ccp remove` | yes, destructive | linked project + `--yes` |
-| `ccp project ls` | yes | org resolution |
+| `ccp app delete` | yes, destructive | linked project + `--yes` |
+| `ccp project list` | yes | org resolution |
 | `ccp project create <name>` | yes | org resolution |
-| `ccp project rm <name> --yes` | yes, destructive | org resolution + exact Project name |
+| `ccp project delete <name> --yes` | yes, destructive | org resolution + exact Project name |
 | `ccp promote` | yes | `DEPLOYMENT_ID` |
 | `ccp undeploy` | yes, destructive | `DEPLOYMENT_ID` + `--yes` |
 | `ccp store create` | yes | org resolution |
@@ -24,22 +24,22 @@ With `CCP_HEADLESS=1` set:
 | `ccp db create` (defaults to Postgres) | yes | org resolution and an optional linked App or `--app-id` |
 | `ccp db create --type sqlite` | yes | linked App or `--app-id` |
 | `ccp db ls` | yes | org resolution |
-| `ccp db info/exec/migrate` | yes | linked project or `--db-id` |
-| `ccp db destroy` | yes, destructive | `DB_ID` + `--yes` |
+| `ccp db get/exec/migrate` | yes | linked project or `--db-id` |
+| `ccp db delete` | yes, destructive | `DB_ID` + `--yes` |
 | `ccp db connect` | no | use `ccp db exec` |
 | `ccp db backup create/ls` | yes | linked project or `--db-id` |
 | `ccp db backup restore/delete` | yes, destructive | `BACKUP_ID` + `--yes` |
 | `ccp domain ls` | yes | org resolution |
-| `ccp domain add/verify/link` | yes | org resolution + command-specific values |
+| `ccp domain create/verify/link` | yes | org resolution + command-specific values |
 | `ccp domain unlink` | yes, destructive | org resolution + command-specific values + `--yes` |
-| `ccp domain remove` | yes, destructive | `DOMAIN` + `--yes` |
+| `ccp domain delete` | yes, destructive | `DOMAIN` + `--yes` |
 | `ccp oidc create` | yes | `--name` and at least one `--redirect-uri` |
 | `ccp oidc ls/info/update` | yes | org or client resolution |
 | `ccp oidc rotate-secret/destroy` | yes, destructive | org or client resolution + `--yes` |
 | `ccp compute deploy` | yes | source/image/binary, name, port, org resolution |
 | `ccp compute deploy` (immutable changes) | with `-y` / `--yes` | linked service + `cluster.toml`; interruption and guest-data loss; retry resumes replacement |
 | `ccp compute list/status/logs/exec/restart` | yes | linked project or service ID |
-| `ccp compute destroy` | yes, destructive | linked project or service ID/name + `--yes` |
+| `ccp compute delete` | yes, destructive | linked project or service ID/name + `--yes` |
 | `ccp task delegate` | consent for local snapshots | Task text, `--source DIR` with optional `--include PATH`, or `--repo HTTPS_URL --commit SHA`, `--worker codex`, `--vault-id`, `--org-id`, `--task-context`, `--json` |
 | `ccp task integrate` | yes | Successful task IDs, `--source DIR --base SHA --branch NEW_BRANCH --worktree NEW_DIR`, optional `--json` |
 | `ccp task result` | yes | Run ID, optional `--patch NEW_FILE`, `--json` |
