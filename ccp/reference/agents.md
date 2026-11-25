@@ -1,7 +1,7 @@
 # Agents
 
 Create and update durable Agents by committing a manifest and running
-`ccp apply -f agent.yaml` or `ccp apply -f agent.toml`. Keep the manifest as the source of truth.
+`ccp apply --file agent.yaml` or `ccp apply --file agent.toml`. Keep the manifest as the source of truth.
 
 Manage existing Agents on the managed-agents service. The server owns all
 validation (membership, model, tools, reasoning effort) — on a 400, read the
@@ -9,11 +9,11 @@ error message: it names valid values.
 
 ## Commands
 
-- `ccp apply -f <manifest.yaml> [--org-id <org>] [--dry-run]` — reconcile one
+- `ccp apply --file <manifest.yaml> [--org-id <org>] [--dry-run]` — reconcile one
   `Agent` document and its optional Deployments, schedules, and GitHub triggers. The server reports each resource
   as `created`, `updated`, `unchanged`, or `deleted`. `--dry-run` performs the
   same validation and diff without persisting anything.
-- `ccp delete -f <manifest.yaml> [--org-id <org>] [--dry-run]` — permanently
+- `ccp delete --file <manifest.yaml> [--org-id <org>] [--dry-run]` — permanently
   delete an applied Agent, all versions, and dependent runtime history. A later
   apply creates a new Agent id at version 1.
 - `ccp agent list [--org-id <org>]` (alias `ls`) — list the organization's
@@ -27,7 +27,7 @@ error message: it names valid values.
 - `ccp agent delete <agent_id> [--yes]` — permanently delete any customer-owned
   Agent, all versions, and dependent runtime history. For an applied Agent this
   also removes its manifest binding; reapplying the file creates a new Agent id.
-- `ccp delete -f <manifest.yaml>` is the equivalent declarative addressing form
+- `ccp delete --file <manifest.yaml>` is the equivalent declarative addressing form
   when the manifest is available.
 
 ## Agent manifest
@@ -104,7 +104,7 @@ must remain inside the manifest directory with no symlinks. Each bundle allows
 128 files and 8 MiB; all bundles together allow 16 MiB. Python caches and `.git`
 are excluded. Do not combine `path` with a catalog pin in one entry.
 
-`ccp apply -f agent.yaml --org-id <org> --dry-run --json` reports planned skill
+`ccp apply --file agent.yaml --org-id <org> --dry-run --json` reports planned skill
 IDs, immutable versions and content digests without writing. Apply previews
 bundles, checks expected versions and saves skills and agent pins atomically.
 An unchanged reapply reuses its revision; changed or removed files produce a
