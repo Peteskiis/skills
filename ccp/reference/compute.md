@@ -182,12 +182,16 @@ Removing a key from all three sources clears it server-side on the next deploy.
 
 ```sh
 ccp compute list [--org-id O]       # alias: ls
-ccp compute status [SERVICE_ID]
-ccp compute logs [SERVICE_ID] [-n TAIL]
-ccp compute exec [SERVICE_ID] [--timeout-ms MS] -- <CMD> [ARGS...]
-ccp compute restart [SERVICE_ID]
+ccp compute status [SERVICE_ID|NAME]
+ccp compute logs [SERVICE_ID|NAME] [-n TAIL]
+ccp compute exec [SERVICE_ID|NAME] [--timeout-ms MS] -- <CMD> [ARGS...]
+ccp compute restart [SERVICE_ID|NAME]
 ccp compute destroy [SERVICE_ID|NAME] [-y]
 ```
+
+Omit the service argument to use the current checkout’s Compute link in the
+active context. In an unlinked checkout, a terminal offers service selection.
+For an unlinked CI job, pass the service ID or name explicitly.
 
 `exec` requires a literal `--` before the command so clap stops parsing ccp
 flags.
