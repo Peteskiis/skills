@@ -276,6 +276,15 @@ analytics = "server"         # or "client"
 oidc_callback_path = "/auth/callback"
 ```
 
+For a custom Home Screen logo, commit a square PNG named `app-icon.png` beside
+`cluster.toml` (512 × 512 recommended, up to 4096 × 4096 and 10 MiB). Center
+important details for launcher masks. The normal `cb deploy` flow publishes
+180, 192 and 512 pixel versions with the app. Promoting a deployment switches
+the icon with the app. Direct visits use the same logo at `/favicon.ico`
+(32 × 32 ICO) and `/apple-touch-icon.png` (180 × 180 PNG). Without the logo,
+the builder keeps explicit public icons and fills missing root icons with the
+generated per-app tile. Pages can override these site-wide defaults with icon links.
+
 ```toml
 # compute (written by `ccp compute deploy`)
 name = "my-api"
@@ -380,7 +389,9 @@ it holds this `config.json` — whose `database_token` is a secret — plus
 carries its own `.gitignore` containing `*`, so it stays out of git even in a
 project that was never `ccp init`'d. Do not commit it. On a fresh checkout,
 select the organization and deploy with the intended `--app-id`, or use
-`ccp link --org-id O --app-id A`. Names alone never re-establish identity.
+`ccp link --org-id O --app-id A`. For interactive linking, run `ccp link` and
+select the organization and App when prompted. The confirmation shows both
+names and IDs. Names alone never re-establish identity.
 The shape needs no re-establishing because `cluster.toml` is committed. New projects use
 `.ccp/`; a legacy `.cluster/config.json` (pre-migration) is still read as a
 fallback, so existing linked projects keep working without changes.
