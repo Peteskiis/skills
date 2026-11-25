@@ -393,6 +393,16 @@ The shape needs no re-establishing because `cluster.toml` is committed. New proj
 `.ccp/`; a legacy `.cluster/config.json` (pre-migration) is still read as a
 fallback, so existing linked projects keep working without changes.
 
+## Scripting
+
+Use `ccp --json project list` or `ccp project list --json` to capture JSON.
+App deployment returns `app_id`, `organization_id`, `deployment_id`, `url`, and
+`production`. A log snapshot is an array. Following App logs emits one JSON
+object per line until interrupted. Progress and diagnostics go to stderr.
+Exit status 0 indicates success, 2 usage, 3 authentication or authorization,
+4 missing resource, 5 conflict, and 6 a server or capacity error. Other
+failures use 1. Check the exit status before consuming stdout.
+
 ## Bundled reference files
 
 Read only the runbook your task needs:
