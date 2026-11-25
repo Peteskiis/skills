@@ -24,7 +24,7 @@ ccp domain link example.com --vm "<vm_id>:8080"
 `add` starts an expiring ownership claim; the domain does not enter inventory
 until `verify` can resolve its TXT proof. `unlink` submits a withdrawal but
 keeps the owned domain. Wait for routing to disappear before `remove`, which
-retires the ownership record and auto-confirms in headless mode.
+retires the ownership record and requires `--yes` in headless mode.
 
 Binding, withdrawal, and certificate readiness are asynchronous. A successful
 link or unlink means Domains durably accepted the next desired revision;

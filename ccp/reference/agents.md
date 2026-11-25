@@ -13,7 +13,7 @@ error message: it names valid values.
   `Agent` document and its optional Deployments, schedules, and GitHub triggers. The server reports each resource
   as `created`, `updated`, `unchanged`, or `deleted`. `--dry-run` performs the
   same validation and diff without persisting anything.
-- `ccp delete --file <manifest.yaml> [--org-id <org>] [--dry-run]` — permanently
+- `ccp delete --file <manifest.yaml> [--org-id <org>] [--dry-run | --yes]` — permanently
   delete an applied Agent, all versions, and dependent runtime history. A later
   apply creates a new Agent id at version 1.
 - `ccp agent list [--org-id <org>]` (alias `ls`) — list the organization's

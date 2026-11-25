@@ -32,7 +32,7 @@ Headless behavior:
 - `create` needs `--name` and at least one `--redirect-uri`.
 - Single-org accounts auto-resolve org; multi-org accounts need `--org-id` or
   `CCP_ORG_ID`.
-- `rotate-secret` and `destroy` auto-confirm in headless mode.
+- `rotate-secret` and `destroy` require `--yes` in headless mode.
 
 For LAN staging, select `https://api.staging.clusterbase.dev`. CCP maps this API
 to `https://accounts.staging.clusterbase.ai` for sign-in, while generated App

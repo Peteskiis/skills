@@ -353,8 +353,7 @@ automatically. Linking still prepares local App files.
 initializing a project. Promotion still reads a custom OIDC callback from
 `cluster.toml` for redirect registration. An unlinked directory fails with a `ccp link` instruction.
 
-`promote`, `undeploy`, and `remove` auto-confirm in headless mode when
-destructive.
+`undeploy` and `remove` require `--yes` in headless mode.
 
 ### Moving a Project between organizations
 

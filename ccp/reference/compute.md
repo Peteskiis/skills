@@ -222,7 +222,7 @@ still pending; wait for deployment to finish before retrying.
 local `.ccp/compute-link.json` deployment identity. It preserves `cluster.toml`
 unchanged so `ccp compute deploy --yes` can recreate the service from the same
 committed description. Local cleanup runs only when the destroyed service is
-the one this directory is linked to. It auto-confirms in headless mode.
+the one this directory is linked to. It requires `--yes` in headless mode.
 
 ### Health probes
 

@@ -22,8 +22,7 @@ Use `ccp --help` to list available commands and `ccp <command> --help` to inspec
 
 ## Headless mode
 
-Set `CCP_HEADLESS=1` before automation. In headless mode, ccp treats prompts as
-auto-confirmed and errors on TUI-only commands.
+Set `CCP_HEADLESS=1` before automation. In headless mode, CCP disables prompts. Pass `--yes` to confirm destructive operations.
 
 ```sh
 export CCP_HEADLESS=1
@@ -72,11 +71,7 @@ Rebuild failure retains the previous successful build and emits
 successfully. Supervisors must also observe process exit, including failure
 before any event. Stopping the owning process stops dev.
 
-Most destructive commands run without confirmation in headless mode:
-`ccp remove`, `ccp undeploy`, `ccp db destroy`, `ccp db backup delete`,
-`ccp domain rm`, `ccp compute destroy`, and `ccp oidc destroy` execute
-immediately. Verify the target before running them. `ccp project rm <name>`
-is the exception: without a terminal it fails unless you pass `--yes`.
+Deleting resources, restoring backups and rotating OIDC secrets require `--yes` in headless mode. A manifest deletion preview with `--dry-run` can run without confirmation.
 
 Identity flags such as `--org-id`, `--app-id`, `--db-id`, `--store-id`,
 and `--service-id` still matter. Headless mode controls prompting; it does not
