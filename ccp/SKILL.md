@@ -47,6 +47,9 @@ ccp dev /absolute/project --hostname 127.0.0.1 --port 0 --json --no-env
 
 `--no-env` skips both automatic `.env` discovery and file loading; it conflicts
 with `--env`. It does not sandbox the app or restrict its network access.
+In a fresh Bun project with missing dependencies, run `bun install --frozen-lockfile`
+from the directory containing `bun.lock` or `bun.lockb`, then restart `ccp dev`.
+
 For a project-specific default, set `env_file = ".env.test"` under `[dev]`
 in `cluster.toml`. Plain `ccp dev` loads that file relative to the project root.
 An explicit `--env` takes precedence. Without either setting, CCP discovers
