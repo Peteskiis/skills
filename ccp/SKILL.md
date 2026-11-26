@@ -47,8 +47,10 @@ ccp dev /absolute/project --hostname 127.0.0.1 --port 0 --json --no-env
 
 `--no-env` skips both automatic `.env` discovery and file loading; it conflicts
 with `--env`. It does not sandbox the app or restrict its network access.
-Without it, normal dev environment loading is unchanged. Neither option changes
-or removes the environment file.
+For a project-specific default, set `env_file = ".env.test"` under `[dev]`
+in `cluster.toml`. Plain `ccp dev` loads that file relative to the project root.
+An explicit `--env` takes precedence. Without either setting, CCP discovers
+`.env`. Keep credentials in the ignored local file.
 
 `--json` emits one versioned JSON object per stdout line. Configuration messages
 and command failures stay on stderr. App console messages are escaped `log`
