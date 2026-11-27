@@ -4,6 +4,11 @@ Run `ccp db create` in a terminal, select **Postgres** or **SQLite** with the
 arrow keys, and press Enter. Postgres is highlighted by default. For scripts, pass `--type postgres` or
 `--type sqlite`. Noninteractive creation defaults to Postgres.
 
+List organization databases with `ccp db ls`. The TYPE column and the JSON
+`type` field identify Postgres and SQLite. SQLite rows show the stable ID,
+provisioning state, and bound App. Detached reservations still count toward
+the owning organization’s limit.
+
 ### SQLite for a Serverless App
 
 On an environment with SQLite enrollment enabled, run `ccp db create --type sqlite`
